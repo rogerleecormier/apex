@@ -2,6 +2,10 @@
   "name": "@caliber/jobs",
   "private": true,
   "type": "module",
+  "workspaces": [
+    ".",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "vite dev --port 3003",
     "build": "vite build",

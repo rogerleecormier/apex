@@ -25,7 +25,7 @@ export async function resolveSessionUser(): Promise<SessionUser | null> {
     const raw = await env.KV.get(`session:${token}`);
     if (!raw) return null;
 
-    const { userId } = JSON.parse(raw) as { userId: number };
+    const { userId } = JSON.parse(raw) as { userId: string };
     const db = getDb(env.DB);
     const [dbUser] = await db
       .select({ id: users.id, email: users.email, role: users.role })

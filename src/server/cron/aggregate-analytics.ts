@@ -67,12 +67,12 @@ function topN<T extends Record<string, unknown>>(arr: T[], key: keyof T, n: numb
     .slice(0, n);
 }
 
-export async function aggregateAnalytics(env: CloudflareEnv, userId?: number): Promise<void> {
+export async function aggregateAnalytics(env: CloudflareEnv, userId?: string): Promise<void> {
   const db = getDb(env.DB);
 
   if (!userId) {
     const allUsers = await db.select({ userId: jobAnalyses.userId }).from(jobAnalyses);
-    const uniqueIds = [...new Set(allUsers.map((u) => u.userId).filter((id): id is number => id !== null))];
+    const uniqueIds = [...new Set(allUsers.map((u) => u.userId).filter((id): id is string => id !== null))];
     for (const uid of uniqueIds) {
       await aggregateAnalytics(env, uid);
     }

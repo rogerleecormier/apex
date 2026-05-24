@@ -59,7 +59,7 @@ export type LinkedinAppSettings = {
 
 export type SavedLinkedinSearchRow = {
   id: number;
-  userId: number;
+  userId: string;
   name: string;
   criteria: LinkedInSearchParams;
   isActive: boolean;
@@ -239,7 +239,7 @@ export async function saveLinkedinSettings(input: Partial<LinkedinAppSettings>):
 }
 
 export async function upsertLinkedinJobResults(args: {
-  userId: number;
+  userId: string;
   savedSearchId?: number | null;
   searchUrl: string;
   criteria: LinkedInSearchParams;
@@ -319,7 +319,7 @@ export async function upsertLinkedinJobResults(args: {
 }
 
 export async function findExistingLinkedinJobs(args: {
-  userId: number;
+  userId: string;
   jobs: Pick<LinkedInScrapedJob, "id" | "sourceUrl">[];
 }) {
   const env = getCloudflareEnv();
@@ -354,7 +354,7 @@ export async function findExistingLinkedinJobs(args: {
 }
 
 export async function findSemanticallyMatchingExistingLinkedinJobs(args: {
-  userId: number;
+  userId: string;
   jobs: Array<Pick<LinkedInScrapedJob, "title" | "company" | "location">>;
 }) {
   const env = getCloudflareEnv();
@@ -432,7 +432,7 @@ export function mapStoredLinkedinJobToScrapedJob(row: LinkedinJobResult): Linked
   };
 }
 
-export async function listSavedLinkedinSearches(userId: number): Promise<SavedLinkedinSearchRow[]> {
+export async function listSavedLinkedinSearches(userId: string): Promise<SavedLinkedinSearchRow[]> {
   const env = getCloudflareEnv();
   if (!env.DB) return [];
   const db = getDb(env.DB);
@@ -468,7 +468,7 @@ export async function listSavedLinkedinSearches(userId: number): Promise<SavedLi
 }
 
 export async function saveLinkedinSearchDefinition(args: {
-  userId: number;
+  userId: string;
   name: string;
   criteria: LinkedInSearchParams;
   id?: number;
@@ -506,7 +506,7 @@ export async function saveLinkedinSearchDefinition(args: {
   return inserted[0]?.id ?? null;
 }
 
-export async function deleteLinkedinSavedSearch(id: number, userId: number) {
+export async function deleteLinkedinSavedSearch(id: number, userId: string) {
   const env = getCloudflareEnv();
   if (!env.DB) throw new Error("Database unavailable");
   const db = getDb(env.DB);
@@ -522,7 +522,7 @@ export async function deleteLinkedinSavedSearch(id: number, userId: number) {
   await db.delete(linkedinSavedSearches).where(and(eq(linkedinSavedSearches.id, id), eq(linkedinSavedSearches.userId, userId)));
 }
 
-export async function setLinkedinSavedSearchActive(id: number, userId: number, isActive: boolean) {
+export async function setLinkedinSavedSearchActive(id: number, userId: string, isActive: boolean) {
   const env = getCloudflareEnv();
   if (!env.DB) throw new Error("Database unavailable");
   const db = getDb(env.DB);

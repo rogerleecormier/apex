@@ -4,7 +4,7 @@ import { loginUser } from "@/server/functions/auth";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: ({ context }) => {
-    const ctx = context as { user?: { id: number; role: string } | null };
+    const ctx = context as { user?: { id: string; role: string } | null };
     if (ctx.user) {
       throw redirect({ to: "/" });
     }

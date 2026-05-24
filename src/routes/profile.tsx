@@ -6,7 +6,7 @@ import { PageHero, PageSection } from "@caliber/ui-kit";
 
 export const Route = createFileRoute("/profile")({
   beforeLoad: ({ context }) => {
-    const ctx = context as { user?: { id: number } | null };
+    const ctx = context as { user?: { id: string } | null };
     if (!ctx.user) throw redirect({ to: "/login" });
   },
   loader: async () => getResume(),

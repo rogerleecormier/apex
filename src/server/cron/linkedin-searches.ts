@@ -143,7 +143,7 @@ async function extractJobDescription(page: BrowserPage): Promise<string | null> 
   });
 }
 
-async function buildProfile(db: ReturnType<typeof getDb>, userId: number) {
+async function buildProfile(db: ReturnType<typeof getDb>, userId: string) {
   const [resume] = await db.select().from(masterResume).where(eq(masterResume.userId, userId)).limit(1);
   if (!resume?.rawText) return null;
   let profile = `Resume:\n${resume.rawText}`;

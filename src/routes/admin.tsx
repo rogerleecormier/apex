@@ -14,7 +14,7 @@ type LinkedinSettings = Awaited<ReturnType<typeof getLinkedinAdminSettings>>;
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: ({ context }) => {
-    const ctx = context as { user?: { id: number; role: string } | null };
+    const ctx = context as { user?: { id: string; role: string } | null };
     if (!ctx.user) throw redirect({ to: "/login" });
     if (ctx.user.role !== "admin") throw redirect({ to: "/" });
   },
@@ -69,7 +69,7 @@ function AdminPage() {
     }
   }
 
-  async function handleDeleteUser(userId: number) {
+  async function handleDeleteUser(userId: string) {
     if (!window.confirm("Delete this user and all their data?")) return;
     setError("");
     setSuccessMessage("");

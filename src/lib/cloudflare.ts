@@ -1,7 +1,7 @@
 import { env as cfEnv } from "cloudflare:workers";
 
 export interface SessionUser {
-  id: number;
+  id: string;
   email: string;
   role: string;
 }

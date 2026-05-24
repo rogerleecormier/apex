@@ -18,7 +18,7 @@ import { PageActionBar, PageHero, PageSection } from "@caliber/ui-kit";
 
 export const Route = createFileRoute("/dashboard")({
   beforeLoad: ({ context }) => {
-    const ctx = context as { user?: { id: number } | null };
+    const ctx = context as { user?: { id: string } | null };
     if (!ctx.user) requireLoginRedirect();
   },
   loader: async () => getAnalytics({ data: { period: "all_time" } }),
