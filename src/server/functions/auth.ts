@@ -9,6 +9,39 @@ import { getDb } from "@/db/db";
 import { users } from "@/db/schema";
 
 /**
+ * Register with email and password using better-auth.
+ */
+export const registerUser = createServerFn({ method: "POST" })
+  .inputValidator((data: { email: string; password: string }) => data)
+  .handler(async ({ data }): Promise<{ user: SessionUser }> => {
+    const env = getCloudflareEnv();
+    const auth = getAuthInstance(env);
+
+    const result = await auth.api.signUpEmail({
+      email: data.email,
+      password: data.password,
+    });
+
+    if (result.error) {
+      throw new Error(result.error.message || "Signup failed");
+    }
+
+    // Fetch user to get role
+    const db = getDb(env.DB);
+    const [dbUser] = await db
+      .select({ id: users.id, email: users.email, role: users.role })
+      .from(users)
+      .where(eq(users.email, data.email))
+      .limit(1);
+
+    if (!dbUser) throw new Error("User not found");
+
+    return {
+      user: { id: dbUser.id, email: dbUser.email, role: dbUser.role },
+    };
+  });
+
+/**
  * Sign in with email and password using better-auth.
  */
 export const loginUser = createServerFn({ method: "POST" })

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SyncRouteImport } from './routes/sync'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LinkedinSearchRouteImport } from './routes/linkedin-search'
@@ -43,6 +44,11 @@ import { Route as ApiV3JobsPruneRouteImport } from './routes/api/v3/jobs/prune'
 const SyncRoute = SyncRouteImport.update({
   id: '/sync',
   path: '/sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -203,6 +209,7 @@ export interface FileRoutesByFullPath {
   '/linkedin-search': typeof LinkedinSearchRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
+  '/signup': typeof SignupRoute
   '/sync': typeof SyncRoute
   '/analyze/$id': typeof AnalyzeIdRoute
   '/analyze/': typeof AnalyzeIndexRoute
@@ -234,6 +241,7 @@ export interface FileRoutesByTo {
   '/linkedin-search': typeof LinkedinSearchRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
+  '/signup': typeof SignupRoute
   '/sync': typeof SyncRoute
   '/analyze/$id': typeof AnalyzeIdRoute
   '/analyze': typeof AnalyzeIndexRoute
@@ -267,6 +275,7 @@ export interface FileRoutesById {
   '/linkedin-search': typeof LinkedinSearchRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
+  '/signup': typeof SignupRoute
   '/sync': typeof SyncRoute
   '/analyze/$id': typeof AnalyzeIdRoute
   '/analyze/': typeof AnalyzeIndexRoute
@@ -301,6 +310,7 @@ export interface FileRouteTypes {
     | '/linkedin-search'
     | '/login'
     | '/profile'
+    | '/signup'
     | '/sync'
     | '/analyze/$id'
     | '/analyze/'
@@ -332,6 +342,7 @@ export interface FileRouteTypes {
     | '/linkedin-search'
     | '/login'
     | '/profile'
+    | '/signup'
     | '/sync'
     | '/analyze/$id'
     | '/analyze'
@@ -364,6 +375,7 @@ export interface FileRouteTypes {
     | '/linkedin-search'
     | '/login'
     | '/profile'
+    | '/signup'
     | '/sync'
     | '/analyze/$id'
     | '/analyze/'
@@ -397,6 +409,7 @@ export interface RootRouteChildren {
   LinkedinSearchRoute: typeof LinkedinSearchRoute
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
+  SignupRoute: typeof SignupRoute
   SyncRoute: typeof SyncRoute
   ApiAiGenerateResumeRoute: typeof ApiAiGenerateResumeRoute
   ApiAiInsightsRoute: typeof ApiAiInsightsRoute
@@ -422,6 +435,13 @@ declare module '@tanstack/react-router' {
       path: '/sync'
       fullPath: '/sync'
       preLoaderRoute: typeof SyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -667,6 +687,7 @@ const rootRouteChildren: RootRouteChildren = {
   LinkedinSearchRoute: LinkedinSearchRoute,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
+  SignupRoute: SignupRoute,
   SyncRoute: SyncRoute,
   ApiAiGenerateResumeRoute: ApiAiGenerateResumeRoute,
   ApiAiInsightsRoute: ApiAiInsightsRoute,
