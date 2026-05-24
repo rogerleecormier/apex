@@ -20,20 +20,20 @@ head_sampling_rate = 1
 
 [[d1_databases]]
 binding = "DB"
-database_name = "apex-db"
-database_id = "748c0e4f-002f-4601-a831-4fe05bfd3e2f"
-preview_database_id = "748c0e4f-002f-4601-a831-4fe05bfd3e2f"
+database_name = "caliber-db"
+database_id = "55a19e36-ed5b-4a31-83db-56ec83dd9a71"
+preview_database_id = "55a19e36-ed5b-4a31-83db-56ec83dd9a71"
 migrations_dir = "drizzle"
 
 # R2 bucket for generated PDF documents (resumes, cover letters)
 [[r2_buckets]]
 binding = "R2"
-bucket_name = "apex-documents"
+bucket_name = "caliber-documents"
 
 # KV namespace for session tokens (7-day TTL) and URL scrape cache
 [[kv_namespaces]]
 binding = "KV"
-id = "ab583242d9ba46ab91ae5b7e488dc8c2"
+id = "0356f2290c784e4789b76a9c1956bdda"
 
 # Browser Rendering API for job URL scraping
 [browser]
