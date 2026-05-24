@@ -43,7 +43,7 @@ binding = "BROWSER"
 directory = "dist/client"
 
 [[routes]]
-pattern = "jobs.spearyx.com"
+pattern = "caliber.rcormier.dev"
 custom_domain = true
 
 [ai]

@@ -2,7 +2,7 @@ export default {
   async scheduled(event: any, env: any, ctx: any) {
     console.log("Cron triggered - running batch sync");
     try {
-      const response = await fetch("https://jobs.spearyx.com/api/v2/sync-batch", {
+      const response = await fetch("https://caliber.rcormier.dev/api/v2/sync-batch", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

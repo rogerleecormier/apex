@@ -82,7 +82,7 @@ function App() {
               <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
             </a>
             <a
-              href="https://jobs.spearyx.com"
+              href="https://caliber.rcormier.dev"
               className="spx-glass-card inline-flex items-center gap-2.5 rounded-xl px-7 py-3.5 font-semibold text-slate-900 transition-all duration-200 hover:-translate-y-0.5"
             >
               <Briefcase size={16} className="text-primary-600" />
@@ -223,7 +223,7 @@ function App() {
                   ))}
                 </ul>
                 <a
-                  href="https://jobs.spearyx.com"
+                  href="https://caliber.rcormier.dev"
                   className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 group-hover:gap-3 transition-all"
                 >
                   Browse Jobs <ArrowRight size={14} />
@@ -297,7 +297,7 @@ function App() {
             <a href="https://tools.spearyx.com" className="text-sm text-slate-400 hover:text-slate-700 transition-colors font-medium">
               Tools
             </a>
-            <a href="https://jobs.spearyx.com" className="text-sm text-slate-400 hover:text-slate-700 transition-colors font-medium">
+            <a href="https://caliber.rcormier.dev" className="text-sm text-slate-400 hover:text-slate-700 transition-colors font-medium">
               Jobs
             </a>
           </div>

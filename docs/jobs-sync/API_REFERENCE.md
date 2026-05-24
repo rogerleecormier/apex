@@ -3,7 +3,7 @@
 > Reference for valid API endpoints. Note that V3 uses **Direct D1 Access** for workers, so these endpoints are primarily for **Frontend Data Access** and **Manual Triggers**.
 
 ## Base URL
-`https://jobs.spearyx.com/api/v3`
+`https://caliber.rcormier.dev/api/v3`
 
 ---
 

@@ -33,7 +33,7 @@ export const Route = createFileRoute('/api/_archived/v2/sync')({
           
           // Call the appropriate endpoint
           const ctx = context as any;
-          const baseUrl = ctx.env?.SELF_URL || 'https://jobs.spearyx.com';
+          const baseUrl = ctx.env?.SELF_URL || 'https://caliber.rcormier.dev';
           
           const response = await fetch(`${baseUrl}${targetEndpoint}`, {
             method: 'POST',

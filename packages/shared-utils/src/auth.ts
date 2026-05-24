@@ -1,7 +1,7 @@
 export const SESSION_COOKIE = "spearyx-session";
 export const SESSION_TTL = 60 * 60 * 24 * 7; // 7 days in seconds
 export const SPEARYX_ROOT_DOMAIN = "spearyx.com";
-export const SPEARYX_JOBS_ORIGIN = "https://jobs.spearyx.com";
+export const SPEARYX_JOBS_ORIGIN = "https://caliber.rcormier.dev";
 
 interface SessionKvStore {
   put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;

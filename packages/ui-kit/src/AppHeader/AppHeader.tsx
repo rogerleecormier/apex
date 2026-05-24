@@ -99,9 +99,9 @@ function getAppOrigin(app: AppHeaderProps["app"], currentPath: string): string {
   if (app === "corporate") return "https://spearyx.com";
   if (app === "tools") return "https://tools.spearyx.com";
   if (currentPath.startsWith("/login") || currentPath.startsWith("/analyze")) {
-    return "https://jobs.spearyx.com";
+    return "https://caliber.rcormier.dev";
   }
-  return "https://jobs.spearyx.com";
+  return "https://caliber.rcormier.dev";
 }
 
 function normalizePath(path: string) {
@@ -379,7 +379,7 @@ export function AppHeader({
       key: "jobs-home",
       label: "Jobs Home",
       sublabel: "Overview & getting started",
-      href: "https://jobs.spearyx.com",
+      href: "https://caliber.rcormier.dev",
       path: "/",
       icon: Home,
       tone: "neutral",
@@ -392,7 +392,7 @@ export function AppHeader({
       key: "job-listings",
       label: "Job Listings",
       sublabel: "AI-curated tech jobs",
-      href: "https://jobs.spearyx.com/jobs",
+      href: "https://caliber.rcormier.dev/jobs",
       path: "/jobs",
       icon: Briefcase,
       tone: "primary",
@@ -403,7 +403,7 @@ export function AppHeader({
       key: "analyze-job",
       label: "Analyze Job",
       sublabel: "Match scoring & resume strategy",
-      href: "https://jobs.spearyx.com/analyze",
+      href: "https://caliber.rcormier.dev/analyze",
       path: "/analyze",
       icon: Search,
       tone: "indigo",
@@ -414,7 +414,7 @@ export function AppHeader({
       key: "history",
       label: "History",
       sublabel: "Past analyses & documents",
-      href: "https://jobs.spearyx.com/history",
+      href: "https://caliber.rcormier.dev/history",
       path: "/history",
       icon: History,
       tone: "info",
@@ -425,7 +425,7 @@ export function AppHeader({
       key: "dashboard",
       label: "Search Insights",
       sublabel: "Match trends & activity",
-      href: "https://jobs.spearyx.com/dashboard",
+      href: "https://caliber.rcormier.dev/dashboard",
       path: "/dashboard",
       icon: BarChart3,
       tone: "success",
@@ -451,7 +451,7 @@ export function AppHeader({
             key: "linkedin-hub",
             label: "Agent Dashboard",
             sublabel: "AI job pipeline & agents",
-            href: "https://jobs.spearyx.com/linkedin-hub",
+            href: "https://caliber.rcormier.dev/linkedin-hub",
             path: "/linkedin-hub",
             icon: Briefcase,
             tone: "indigo",

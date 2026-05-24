@@ -13,8 +13,8 @@ export const Route = createFileRoute("/login")({
   beforeLoad: ({ search }) => {
     const params = new URLSearchParams();
     const redirectTo = search.redirect
-      ? `https://jobs.spearyx.com${search.redirect}`
-      : "https://jobs.spearyx.com/analyze";
+      ? `https://caliber.rcormier.dev${search.redirect}`
+      : "https://caliber.rcormier.dev/analyze";
     params.set("redirect", redirectTo);
     if (search.reason) params.set("reason", search.reason);
     if (typeof window !== "undefined") {

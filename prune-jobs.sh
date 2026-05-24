@@ -2,7 +2,7 @@
 # Job Pruning Helper Script
 # Makes it easy to prune jobs from the command line
 
-API_URL="https://jobs.spearyx.com/api/v3/jobs/prune"
+API_URL="https://caliber.rcormier.dev/api/v3/jobs/prune"
 
 # Colors for output
 GREEN='\033[0;32m'

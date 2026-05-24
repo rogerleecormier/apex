@@ -68,8 +68,8 @@ AND completed_at < datetime('now', '-30 days');
 ### Common Commands
 ```bash
 # Manual ATS Sync
-curl -X POST https://jobs.spearyx.com/api/v3/sync/ats
+curl -X POST https://caliber.rcormier.dev/api/v3/sync/ats
 
 # Manual Aggregator Sync
-curl -X POST https://jobs.spearyx.com/api/v3/sync/aggregator
+curl -X POST https://caliber.rcormier.dev/api/v3/sync/aggregator
 ```

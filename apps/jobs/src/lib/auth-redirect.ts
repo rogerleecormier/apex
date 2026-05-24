@@ -1,7 +1,7 @@
 import { redirect } from "@tanstack/react-router";
 
 const CORPORATE_LOGIN = "https://spearyx.com/login";
-const JOBS_ORIGIN = "https://jobs.spearyx.com";
+const JOBS_ORIGIN = "https://caliber.rcormier.dev";
 
 type RedirectLocation = {
   href?: string;
