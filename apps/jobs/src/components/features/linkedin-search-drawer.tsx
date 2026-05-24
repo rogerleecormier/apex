@@ -40,12 +40,16 @@ type FormState = {
   page: number;
   pagesToScan: number;
   limit: number;
+  runIntervalHours: number;
+  sources: string[];
 };
 
 export type DrawerPreload = {
   id: number;
   name: string;
   criteria: LinkedInSearchParams;
+  runIntervalHours?: number;
+  sources?: string[];
 } | null;
 
 export interface LinkedinSearchDrawerProps {
@@ -78,6 +82,8 @@ const defaultForm: FormState = {
   page: 1,
   pagesToScan: 1,
   limit: 10,
+  runIntervalHours: 24,
+  sources: ["linkedin", "greenhouse", "lever", "workable"],
 };
 
 const workplaceOptions = [
@@ -227,7 +233,12 @@ export function LinkedinSearchDrawer({
       return;
     }
     setActiveSavedSearchId(preload.id);
-    setForm(criteriaToForm(preload.criteria));
+    setForm({
+      ...criteriaToForm(preload.criteria),
+      runIntervalHours: preload.runIntervalHours ?? 24,
+      sources: preload.sources ?? ["linkedin", "greenhouse", "lever", "workable"],
+    });
+    setSaveName(preload.name);
   }, [preload]);
 
   // Reset active search tracking when drawer closes so the next open is fresh.
@@ -304,7 +315,17 @@ export function LinkedinSearchDrawer({
         pagesToScan: form.pagesToScan,
         limit: form.limit,
       };
-      await saveLinkedinSearch({ data: { name, criteria, isActive: false } });
+      const existing = savedSearches.find(s => s.id === activeSavedSearchId);
+      await saveLinkedinSearch({
+        data: {
+          id: activeSavedSearchId ?? undefined,
+          name,
+          criteria,
+          isActive: existing ? existing.isActive : false,
+          runIntervalHours: form.runIntervalHours,
+          sources: form.sources,
+        }
+      });
       const next = await getSavedLinkedinSearches();
       setSavedSearches(next);
       setSaveName("");
@@ -348,7 +369,12 @@ export function LinkedinSearchDrawer({
     const saved = savedSearches.find((s) => s.id === id);
     if (!saved) return;
     setActiveSavedSearchId(saved.id);
-    setForm(criteriaToForm(saved.criteria));
+    setForm({
+      ...criteriaToForm(saved.criteria),
+      runIntervalHours: saved.runIntervalHours,
+      sources: saved.sources,
+    });
+    setSaveName(saved.name);
   }
 
   return (
@@ -357,10 +383,10 @@ export function LinkedinSearchDrawer({
         {/* sticky header */}
         <div className="shrink-0 border-b border-slate-200 px-6 py-4 pr-14">
           <SheetTitle className="text-base font-semibold text-slate-900">
-            Search LinkedIn Jobs
+            ApexAgent Configuration
           </SheetTitle>
           <p className="mt-0.5 text-xs text-slate-500">
-            {fullName ? `Scoring results against ${fullName}'s resume.` : "Search and score against your saved resume."}
+            Configure your AI job search agent parameters and active sources.
           </p>
         </div>
 
@@ -411,6 +437,64 @@ export function LinkedinSearchDrawer({
                       value={String(form.limit)}
                       onChange={(e: ChangeEvent<HTMLInputElement>) => update("limit", Math.max(1, Math.min(25, Number(e.target.value || 10))))}
                     />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Agent Settings */}
+            <div className="rounded-xl border border-violet-100 bg-violet-50/30 p-4 space-y-4">
+              <p className="text-sm font-semibold text-violet-900 flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-violet-600 animate-pulse" />
+                Agent Configuration
+              </p>
+              
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <FieldLabelWithInfo
+                    htmlFor="drawer-run-interval"
+                    label="Search Frequency"
+                    tooltip="How often this agent should search for new listings in the background."
+                  />
+                  <select
+                    id="drawer-run-interval"
+                    value={form.runIntervalHours}
+                    onChange={(e) => update("runIntervalHours", Number(e.target.value))}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  >
+                    <option value={1}>Every 1 hour</option>
+                    <option value={2}>Every 2 hours</option>
+                    <option value={4}>Every 4 hours</option>
+                    <option value={8}>Every 8 hours</option>
+                    <option value={12}>Every 12 hours</option>
+                    <option value={24}>Every 24 hours (Daily)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-slate-700">Target Sources</label>
+                  <div className="flex flex-col gap-2 pt-1">
+                    {[
+                      { id: "linkedin", label: "LinkedIn" },
+                      { id: "greenhouse", label: "Greenhouse" },
+                      { id: "lever", label: "Lever" },
+                      { id: "workable", label: "Workable" }
+                    ].map((src) => (
+                      <label key={src.id} className="flex cursor-pointer items-center gap-2.5 text-sm text-slate-600 hover:text-slate-900">
+                        <input
+                          type="checkbox"
+                          checked={form.sources.includes(src.id)}
+                          onChange={() => {
+                            const nextSources = form.sources.includes(src.id)
+                              ? form.sources.filter(s => s !== src.id)
+                              : [...form.sources, src.id];
+                            update("sources", nextSources);
+                          }}
+                          className="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500"
+                        />
+                        {src.label}
+                      </label>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -727,7 +811,17 @@ export function LinkedinSearchDrawer({
                       {saved.criteria.keywords} · {saved.criteria.location || "No location"} · p{saved.criteria.page || 1} ×{" "}
                       {saved.criteria.pagesToScan || 1}
                     </p>
-                    <p className="mt-0.5 text-[11px] text-slate-400">Last run {saved.lastRunAt || "never"}</p>
+                    <p className="text-[11px] text-slate-500 mt-1 flex flex-wrap gap-1">
+                      <span className="rounded bg-slate-100 px-1.5 py-0.5 font-medium text-slate-600">
+                        {saved.runIntervalHours}h interval
+                      </span>
+                      {saved.sources.map(s => (
+                        <span key={s} className="rounded bg-violet-50 px-1.5 py-0.5 font-medium text-violet-600 capitalize">
+                          {s}
+                        </span>
+                      ))}
+                    </p>
+                    <p className="mt-1 text-[11px] text-slate-400">Last run {saved.lastRunAt || "never"}</p>
                     <label className="mt-2 flex items-center gap-2 text-xs font-medium text-slate-600">
                       <input
                         type="checkbox"

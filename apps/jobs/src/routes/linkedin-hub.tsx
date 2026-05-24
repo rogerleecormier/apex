@@ -95,7 +95,7 @@ export const Route = createFileRoute("/linkedin-hub")({
   loaderDeps: ({ search }: { search: HubSearchParams }) => search,
   beforeLoad: ({ context, location }) => {
     const ctx = context as { user?: { id: number; role: string } | null };
-    if (!ctx.user) requireLoginRedirect(location, "LinkedIn Hub");
+    if (!ctx.user) requireLoginRedirect(location, "ApexAgent Dashboard");
     requireLinkedInSearchOwner(context.user as any);
   },
   loader: async ({ deps }: { deps: HubSearchParams }) => {
@@ -319,13 +319,13 @@ function LinkedinHubPage() {
   return (
     <div className="spx-page spx-stack">
       <PageHero
-        eyebrow="LinkedIn Hub"
+        eyebrow="ApexAgent"
         icon={<Briefcase className="h-3.5 w-3.5" />}
-        title="Your LinkedIn Job Pipeline"
+        title="Your AI Agent Job Pipeline"
         description={
           canViewAllUsers
-            ? "Browse all users' LinkedIn jobs and manage the full pipeline."
-            : "Search for new roles and manage your entire application pipeline in one place."
+            ? "Browse all users' agent jobs and manage the full pipeline."
+            : "Deploy background agents to search LinkedIn, Greenhouse, Lever, and Workable on your schedule."
         }
         actions={
           <div className="flex flex-wrap items-center gap-2">
@@ -349,9 +349,9 @@ function LinkedinHubPage() {
               className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-white"
             >
               <BookMarked className="h-4 w-4" />
-              Saved Searches
+              Active Agents
               {loaderSavedSearches.length > 0 && (
-                <span className="rounded-full bg-slate-900 px-1.5 py-0.5 text-[10px] font-bold text-white leading-none">
+                <span className="rounded-full bg-violet-600 px-1.5 py-0.5 text-[10px] font-bold text-white leading-none">
                   {loaderSavedSearches.length}
                 </span>
               )}
@@ -359,10 +359,10 @@ function LinkedinHubPage() {
             <button
               type="button"
               onClick={openFreshDrawer}
-              className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+              className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-700"
             >
               <Search className="h-4 w-4" />
-              Search LinkedIn
+              Configure Agents
             </button>
           </div>
         }
@@ -424,7 +424,7 @@ function LinkedinHubPage() {
       <div className="space-y-5">
           <PageSection
             title="Job Pipeline"
-            description="Persisted LinkedIn jobs are pruned according to admin retention settings."
+            description="Persisted agent jobs are pruned daily when older than 30 days."
             actions={
               <div className="min-w-[220px] rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -489,7 +489,7 @@ function LinkedinHubPage() {
                 <Input
                   value={inputValue}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
-                  placeholder="Search saved jobs by title or company"
+                  placeholder="Search saved agent jobs by title or company"
                   className="h-auto border-0 bg-transparent px-2 py-0 shadow-none focus-visible:ring-0"
                 />
               </div>
@@ -615,17 +615,17 @@ function LinkedinHubPage() {
               <div className="mt-6 flex flex-col items-center gap-4 py-12 text-center">
                 <p className="text-sm text-slate-500">
                   {hasActiveFilters
-                    ? "No saved LinkedIn jobs match the current filters."
-                    : "No saved LinkedIn jobs yet. Run a search to get started."}
+                    ? "No saved agent jobs match the current filters."
+                    : "No saved agent jobs yet. Create an agent search to get started."}
                 </p>
                 {!hasActiveFilters && (
                   <button
                     type="button"
                     onClick={openFreshDrawer}
-                    className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+                    className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-700"
                   >
                     <Search className="h-4 w-4" />
-                    Search LinkedIn
+                    Configure Agents
                   </button>
                 )}
               </div>

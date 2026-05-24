@@ -381,45 +381,45 @@ function JobsHome() {
       <section className="relative mx-auto max-w-5xl px-4 pt-16 pb-12 text-center">
         <div className="absolute inset-0 -z-10 pointer-events-none"
           style={{
-            background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(220,38,38,0.07) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(99,102,241,0.08) 0%, transparent 70%)",
           }}
         />
-        <div className="inline-flex items-center gap-2 rounded-full border border-primary-100 bg-primary-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary-600 mb-6">
+        <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-6">
           <Sparkles className="h-3 w-3" />
-          AI-Powered Job Search Platform
+          AI-Powered Job Search Agents
         </div>
         <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl mb-5">
-          Stop guessing.<br />
-          <span className="text-primary-600">Start landing interviews.</span>
+          Stop searching.<br />
+          <span className="text-indigo-600">Let AI find your next role.</span>
         </h1>
         <p className="mx-auto max-w-2xl text-lg text-slate-500 mb-8">
-          Spearyx analyzes every job description against your resume — match score, gap analysis, career impact, culture signals — then generates a tailored ATS resume and cover letter in one click.
+          ApexAgent deploys automated search agents that scan LinkedIn and public job boards at custom intervals, match listings against your resume, and generate tailored ATS applications.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Link
-            to="/analyze"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm shadow-primary-900/15 transition hover:bg-primary-700 hover:shadow-md"
+            to="/linkedin-hub"
+            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm shadow-indigo-900/15 transition hover:bg-indigo-700 hover:shadow-md"
           >
             <Zap className="h-4 w-4" />
-            Analyze a Job Free
+            Launch Search Agents
           </Link>
           <Link
-            to="/jobs"
+            to="/analyze"
             className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:border-slate-300"
           >
             <Briefcase className="h-4 w-4" />
-            Browse Listings
+            Analyze a Job Listing
           </Link>
         </div>
 
         {/* Social proof strip */}
         <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs text-slate-400">
           {[
-            "ATS-optimized resume & cover letter",
-            "Pursue / Consider / Pass verdict",
-            "Gap analysis on every requirement",
-            "Unicorn match detection",
-            "Powered by Llama 3.3 70B",
+            "Automated multi-source search agents",
+            "Custom run frequencies (up to hourly)",
+            "AI resume match scoring & gap analysis",
+            "Unicorn transferable skill detection",
+            "Powered by advanced AI models",
           ].map((s) => (
             <span key={s} className="flex items-center gap-1.5">
               <CheckCircle2 size={11} className="text-emerald-400" />
@@ -435,30 +435,30 @@ function JobsHome() {
           eyebrow="AI Analysis Report"
           accent="border-violet-100 bg-violet-50 text-violet-700"
           title="Know exactly where you stand before you apply."
-          description="Paste any job description and get a full AI analysis in seconds — a match score, a clear pursue/consider/pass verdict, gap-by-gap breakdown, culture signals, red flags, and a projected salary range."
+          description="Every matched job gets a comprehensive AI analysis report — including match score, pursue/consider/pass verdict, key requirement gaps, and strategic application notes."
           bullets={[
-            "Match score with a Pursue / Consider / Pass verdict and plain-language justification",
-            "Requirement-by-requirement gap analysis with covered, partial, and missing status",
-            "Career impact assessment — trajectory, salary estimate, and strategic positioning",
-            "Culture signals, work-life balance, seniority level, and remote flexibility read from the JD",
+            "Overall match score with clear pursue/consider/pass verdicts",
+            "Requirement-by-requirement gaps mapped directly to your history",
+            "Career trajectory and salary impact assessments",
+            "Culture indicators, red flags, and remote flexibility analysis",
           ]}
           mockup={<MockScoreCard />}
         />
       </section>
 
-      {/* ── Feature 2: Job Listings ── */}
+      {/* ── Feature 2: Unified Search Agents ── */}
       <section className="mx-auto max-w-5xl px-4 py-14 border-t border-slate-100">
         <FeatureSection
           reverse
-          eyebrow="Job Listings"
-          accent="border-primary-100 bg-primary-50 text-primary-700"
-          title="Curated remote jobs, ready to analyze."
-          description="Browse remote tech roles pulled daily from Greenhouse, Lever, RemoteOK, Himalayas, Jobicy, and Workable. Every card shows what you need to decide in seconds — then one click opens the full AI analysis."
+          eyebrow="Automated Agents"
+          accent="border-indigo-100 bg-indigo-50 text-indigo-700"
+          title="Find remote jobs from multiple sources on auto-pilot."
+          description="Create custom search agents targeting LinkedIn along with public ATS job boards like Greenhouse, Lever, and Workable. Your agents sync matches and alert you on the intervals you configure."
           bullets={[
-            "Feed from 6+ major job sources, refreshed daily",
-            "Filter by category, company, or source — search by keyword",
-            "Tailor your resume, run a deep AI analysis, or preview the full JD without leaving the page",
-            "One-click Apply sends you directly to the original posting",
+            "Consolidated results from LinkedIn and major public ATS sources",
+            "Customizable search agent run intervals (hourly, daily, etc.)",
+            "Unified status tracking pipeline (Analyzed, Prepped, Applied, Interviewed)",
+            "Automatic 30-day database pruning of expired listings",
           ]}
           mockup={<MockJobCard />}
         />
@@ -506,7 +506,7 @@ function JobsHome() {
           <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Everything included</p>
           <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">The full toolkit</h2>
           <p className="mt-3 text-slate-500 max-w-xl mx-auto">
-            Every feature runs on Llama 3.3 70B via Cloudflare Workers AI — grounded in your actual resume data, never hallucinated.
+            Every feature runs on advanced AI models — strictly grounded in your actual resume data, never hallucinated.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -542,8 +542,8 @@ function JobsHome() {
               body: "Every analysis includes a trajectory assessment — does this role advance your career, hold it steady, or pull it sideways? Salary projection included.",
             },
             {
-              icon: <Search className="h-5 w-5 text-primary-600" />,
-              bg: "bg-primary-50 border-primary-100",
+              icon: <Search className="h-5 w-5 text-indigo-600" />,
+              bg: "bg-indigo-50 border-indigo-100",
               title: "Gap Analysis",
               body: "Every requirement in the job description is checked against your resume — covered, partial, or missing — so you know exactly what to address in your application.",
             },
@@ -581,7 +581,7 @@ function JobsHome() {
       <section className="mx-auto max-w-5xl px-4 py-14 border-t border-slate-100">
         <div className="text-center mb-10">
           <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Workflow</p>
-          <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">From job post to application in minutes</h2>
+          <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">From search agent to application in minutes</h2>
         </div>
         <div className="relative">
           {/* connector line */}
@@ -590,35 +590,35 @@ function JobsHome() {
             {[
               {
                 step: "01",
-                icon: <FileUser size={16} className="text-primary-600" />,
+                icon: <FileUser size={16} className="text-indigo-600" />,
                 title: "Upload your master resume",
-                body: "Add your resume once on your profile page — paste the text or upload a PDF. Spearyx extracts every role, skill, achievement, and certification as your AI source of truth.",
+                body: "Add your resume once on your profile page — paste the text or upload a PDF. ApexAgent extracts every role, skill, achievement, and certification as your AI source of truth.",
                 to: "/profile",
                 cta: "Set up profile",
               },
               {
                 step: "02",
                 icon: <Search size={16} className="text-violet-600" />,
-                title: "Find or paste a job",
-                body: "Browse the curated listings or go to Analyze and paste any job description text. The AI processes the full posting — no URL scraping needed.",
-                to: "/jobs",
-                cta: "Browse listings",
+                title: "Configure your Search Agents",
+                body: "Set up automated agents with keywords, target locations, specific sources (LinkedIn, Greenhouse, Lever), and custom check intervals (e.g. hourly, daily).",
+                to: "/linkedin-hub",
+                cta: "Configure Agents",
               },
               {
                 step: "03",
                 icon: <Target size={16} className="text-emerald-600" />,
-                title: "Get your AI analysis",
-                body: "See your match score, pursue/consider/pass verdict, requirement-by-requirement gap analysis, career impact assessment, culture signals, and red flags.",
-                to: "/analyze",
-                cta: "Analyze a job",
+                title: "Review matching jobs",
+                body: "Watch matches flow into your dashboard. See AI scores, requirement gaps, verdicts, and transferable skill highlights computed automatically.",
+                to: "/linkedin-hub",
+                cta: "View Dashboard",
               },
               {
                 step: "04",
                 icon: <Zap size={16} className="text-amber-600" />,
-                title: "Generate and apply",
-                body: "Create a tailored ATS resume and cover letter from the analysis screen. Add optional guidance, download as PDF, and submit. All past analyses are saved in History.",
+                title: "Generate documents & apply",
+                body: "Generate a custom tailored ATS resume and cover letter with one click from any job card, then download the PDFs and submit your application.",
                 to: "/history",
-                cta: "View history",
+                cta: "View History",
               },
             ].map((s) => (
               <div key={s.step} className="relative flex gap-5 sm:pl-14">
@@ -651,29 +651,29 @@ function JobsHome() {
         <div
           className="relative overflow-hidden rounded-3xl p-10 text-center"
           style={{
-            background: "linear-gradient(135deg, rgba(220,38,38,0.08) 0%, rgba(220,38,38,0.04) 40%, rgba(99,102,241,0.06) 100%)",
-            border: "1px solid rgba(220,38,38,0.15)",
+            background: "linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(99,102,241,0.04) 40%, rgba(168,85,247,0.06) 100%)",
+            border: "1px solid rgba(99,102,241,0.15)",
           }}
         >
           <div className="absolute inset-0 -z-10 pointer-events-none"
             style={{
-              background: "radial-gradient(ellipse 60% 80% at 50% 120%, rgba(220,38,38,0.06) 0%, transparent 60%)",
+              background: "radial-gradient(ellipse 60% 80% at 50% 120%, rgba(99,102,241,0.06) 0%, transparent 60%)",
             }}
           />
-          <Sparkles className="mx-auto mb-4 h-8 w-8 text-primary-400" />
+          <Sparkles className="mx-auto mb-4 h-8 w-8 text-indigo-400" />
           <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl mb-3">
-            Ready to work smarter?
+            Deploy your job search agents
           </h2>
           <p className="text-slate-500 mb-6 max-w-md mx-auto">
-            Paste any job description. Get your full AI analysis, gap report, and a tailored ATS resume and cover letter — ready to submit.
+            Set up your custom search agents, let them scan the web, and get notified about matching remote tech roles matched directly to your achievements.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Link
-              to="/analyze"
-              className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700"
+              to="/linkedin-hub"
+              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
             >
               <Zap className="h-4 w-4" />
-              Analyze your first job
+              Configure your agents
             </Link>
             <Link
               to="/profile"

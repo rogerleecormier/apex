@@ -246,6 +246,8 @@ export const linkedinSavedSearches = sqliteTable('linkedin_saved_searches', {
   name: text('name').notNull(),
   criteria: text('criteria').notNull(),
   isActive: integer('is_active').notNull().default(1),
+  runIntervalHours: integer('run_interval_hours').notNull().default(24), // customizable interval in hours (e.g. 1, 2, 4, 8, 12, 24)
+  sources: text('sources').notNull().default('["linkedin", "greenhouse", "lever"]'), // target sources for this search agent
   lastRunAt: text('last_run_at'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),

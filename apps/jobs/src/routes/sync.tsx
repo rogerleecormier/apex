@@ -45,9 +45,6 @@ interface DashboardStats {
     greenhouse: number
     lever: number
     workable: number
-    remoteok: number
-    himalayas: number
-    jobicy: number
   }
   lastSyncAt: string | null
   sourceSyncStatus: Record<string, SourceStatus>
@@ -217,7 +214,7 @@ function SyncDashboardContent() {
           title="Jobs by Source"
           description="Current inventory across ingestion sources."
         >
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <SourceCard
               source="greenhouse"
               count={stats?.jobsBySource?.greenhouse || 0}
@@ -233,21 +230,6 @@ function SyncDashboardContent() {
               count={stats?.jobsBySource?.workable || 0}
               accentColor="border-l-purple-500"
             />
-            <SourceCard
-              source="remoteok"
-              count={stats?.jobsBySource?.remoteok || 0}
-              accentColor="border-l-red-500"
-            />
-            <SourceCard
-              source="himalayas"
-              count={stats?.jobsBySource?.himalayas || 0}
-              accentColor="border-l-indigo-500"
-            />
-            <SourceCard
-              source="jobicy"
-              count={stats?.jobsBySource?.jobicy || 0}
-              accentColor="border-l-amber-500"
-            />
           </div>
         </PageSection>
 
@@ -255,14 +237,14 @@ function SyncDashboardContent() {
         <div>
           <h2 className="text-lg font-semibold text-slate-900 mb-4">Sync Workers</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Ordered: Discovery, ATS, Jobicy, RemoteOK, Himalayas */}
-            {['discovery', 'ats', 'jobicy', 'remoteok', 'himalayas'].map((id) => {
+            {/* Ordered: Discovery, ATS */}
+            {['discovery', 'ats'].map((id) => {
               const worker = stats?.workerStatus?.[id]
               if (!worker) return null
               return (
                 <WorkerCard
                   key={id}
-                  workerId={id as 'ats' | 'jobicy' | 'remoteok' | 'himalayas' | 'discovery'}
+                  workerId={id as 'ats' | 'discovery'}
                   worker={worker}
                   formatDate={formatDate}
                 />
@@ -339,7 +321,7 @@ function WorkerCard({
   worker,
   formatDate
 }: {
-  workerId: 'ats' | 'jobicy' | 'remoteok' | 'himalayas' | 'discovery'
+  workerId: 'ats' | 'discovery'
   worker: WorkerStatus
   formatDate: (iso: string | null) => string
 }) {

@@ -31,7 +31,7 @@ export default function SyncModal({ isOpen, onClose, activeSyncId, onSyncStart, 
   
   // Source selection
   const [selectedSources, setSelectedSources] = useState<string[]>([
-    'RemoteOK', 'Greenhouse', 'Lever', 'Himalayas'
+    'Greenhouse', 'Lever', 'Workable'
   ])
   
   const toggleSource = (source: string) => {
@@ -273,15 +273,6 @@ export default function SyncModal({ isOpen, onClose, activeSyncId, onSyncStart, 
                 <label className="cleanup-checkbox">
                   <input 
                     type="checkbox" 
-                    checked={selectedSources.includes('RemoteOK')}
-                    onChange={() => toggleSource('RemoteOK')}
-                  />
-                  <span>RemoteOK</span>
-                </label>
-                
-                <label className="cleanup-checkbox">
-                  <input 
-                    type="checkbox" 
                     checked={selectedSources.includes('Greenhouse')}
                     onChange={() => toggleSource('Greenhouse')}
                   />
@@ -297,14 +288,13 @@ export default function SyncModal({ isOpen, onClose, activeSyncId, onSyncStart, 
                   <span>Lever</span>
                 </label>
                 
-                
                 <label className="cleanup-checkbox">
                   <input 
                     type="checkbox" 
-                    checked={selectedSources.includes('Himalayas')}
-                    onChange={() => toggleSource('Himalayas')}
+                    checked={selectedSources.includes('Workable')}
+                    onChange={() => toggleSource('Workable')}
                   />
-                  <span>Himalayas</span>
+                  <span>Workable</span>
                 </label>
               </div>
             </div>

@@ -44,6 +44,7 @@ export type LinkedinResultCardJob = {
   resultSource?: string;
   ownerEmail?: string | null;
   status?: LinkedinJobStatus | null;
+  sourceName?: string | null;
   score?: {
     atsScore: number;
     careerScore: number;
@@ -231,6 +232,16 @@ export function LinkedinResultCard({
                   aria-label={`Select ${job.title} at ${job.company}`}
                 />
               ) : null}
+                {job.sourceName && (
+                  <Badge className={`border-0 px-2 py-0 text-[10px] text-white ${
+                    job.sourceName.toLowerCase() === 'linkedin' ? 'bg-sky-600' :
+                    job.sourceName.toLowerCase() === 'greenhouse' ? 'bg-emerald-600' :
+                    job.sourceName.toLowerCase() === 'lever' ? 'bg-indigo-600' :
+                    job.sourceName.toLowerCase() === 'workable' ? 'bg-violet-600' : 'bg-slate-600'
+                  }`}>
+                    {job.sourceName}
+                  </Badge>
+                )}
                 {job.postDateText ? (
                   <Caption className="text-xs text-slate-500">{job.postDateText}</Caption>
                 ) : null}

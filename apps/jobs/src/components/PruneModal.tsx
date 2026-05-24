@@ -81,8 +81,7 @@ export function PruneModal({ isOpen, onClose, source }: PruneModalProps) {
   const sourceIcons: Record<string, string> = {
     Greenhouse: '🏢',
     Lever: '🔧',
-    RemoteOK: '🌐',
-    Himalayas: '🏔️'
+    Workable: '💼'
   }
 
   return (

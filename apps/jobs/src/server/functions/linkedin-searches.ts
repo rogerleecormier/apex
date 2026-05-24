@@ -64,7 +64,14 @@ export const getLinkedinCronInfo = createServerFn({ method: "GET" }).handler(asy
 });
 
 export const saveLinkedinSearch = createServerFn({ method: "POST" })
-  .inputValidator((data: { id?: number; name: string; criteria: LinkedInSearchParams; isActive?: boolean }) => data)
+  .inputValidator((data: {
+    id?: number;
+    name: string;
+    criteria: LinkedInSearchParams;
+    isActive?: boolean;
+    runIntervalHours?: number;
+    sources?: string[];
+  }) => data)
   .handler(async ({ data }) => {
     const user = await resolveSessionUser();
     if (!user) throw new Error("Not authenticated");
@@ -75,6 +82,8 @@ export const saveLinkedinSearch = createServerFn({ method: "POST" })
       name: data.name,
       criteria: data.criteria,
       isActive: data.isActive,
+      runIntervalHours: data.runIntervalHours,
+      sources: data.sources,
     });
     return { success: true, id };
   });

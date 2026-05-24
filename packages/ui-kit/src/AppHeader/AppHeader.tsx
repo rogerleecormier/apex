@@ -371,54 +371,7 @@ export function AppHeader({
     window.location.reload();
   }
 
-  const toolsEntries: MenuEntry[] = [
-    {
-      type: "link",
-      key: "tools-home",
-      label: "Tools Home",
-      sublabel: "Browse all project tools",
-      href: "https://tools.spearyx.com",
-      path: "/",
-      icon: Home,
-      tone: "neutral",
-      appScope: "tools",
-    },
-    { type: "separator", key: "tools-separator-1" },
-    { type: "heading", key: "tools-heading-1", label: "Available" },
-    {
-      type: "link",
-      key: "raci-generator",
-      label: "RACI Generator",
-      sublabel: "AI-powered role mapping",
-      href: "https://tools.spearyx.com/raci-generator",
-      path: "/raci-generator",
-      icon: BarChart3,
-      tone: "primary",
-      appScope: "tools",
-    },
-    { type: "separator", key: "tools-separator-2" },
-    { type: "heading", key: "tools-heading-2", label: "Coming Soon" },
-    {
-      type: "disabled",
-      key: "project-charter",
-      label: "Project Charter Generator",
-    },
-    {
-      type: "disabled",
-      key: "communications-plan",
-      label: "Communications Plan",
-    },
-    {
-      type: "disabled",
-      key: "risk-register",
-      label: "Risk Register",
-    },
-    {
-      type: "disabled",
-      key: "stakeholder-register",
-      label: "Stakeholder Register",
-    },
-  ];
+  // Tools entries retired
 
   const jobsEntries: MenuEntry[] = [
     {
@@ -496,8 +449,8 @@ export function AppHeader({
           {
             type: "link",
             key: "linkedin-hub",
-            label: "LinkedIn Hub",
-            sublabel: "Job pipeline & search",
+            label: "Agent Dashboard",
+            sublabel: "AI job pipeline & agents",
             href: "https://jobs.spearyx.com/linkedin-hub",
             path: "/linkedin-hub",
             icon: Briefcase,
@@ -596,27 +549,19 @@ export function AppHeader({
   }
 
   const logo = (
-    <a href="https://spearyx.com" className="inline-flex items-center group">
+    <a href="/" className="inline-flex items-center group">
       <img
         src="/images/spearyx-logo.svg"
-        alt="Spearyx"
+        alt="ApexAgent"
         className="h-7 w-auto transition-opacity duration-200 group-hover:opacity-75"
       />
     </a>
   );
 
-  const label = app === "jobs" ? "Jobs" : app === "tools" ? "Tools" : "";
+  const label = "Agent";
 
   return (
     <Header logo={logo} label={label}>
-      <SharedDropdownMenu
-        label="Tools"
-        icon={Wrench}
-        active={isOnTools}
-        panelClass={styles.menuPanelTools}
-        entries={renderMenuEntries(toolsEntries)}
-      />
-
       <SharedDropdownMenu
         label="Jobs"
         icon={Briefcase}

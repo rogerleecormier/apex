@@ -16,12 +16,8 @@
     "db:studio": "drizzle-kit studio",
     "deploy:sync": "wrangler deploy --config wrangler.sync.toml",
     "deploy:ats": "wrangler deploy --config wrangler.ats.toml",
-    "deploy:aggregator": "wrangler deploy --config wrangler.aggregator.toml",
     "deploy:discovery": "wrangler deploy --config wrangler.discovery.toml",
-    "deploy:jobicy": "wrangler deploy --config wrangler.jobicy.toml",
-    "deploy:remoteok": "wrangler deploy --config wrangler.remoteok.toml",
-    "deploy:himalayas": "wrangler deploy --config wrangler.himalayas.toml",
-    "deploy:workers": "pnpm run deploy:ats && pnpm run deploy:discovery && pnpm run deploy:jobicy && pnpm run deploy:remoteok && pnpm run deploy:himalayas",
+    "deploy:workers": "pnpm run deploy:ats && pnpm run deploy:discovery",
     "deploy": "pnpm run build && wrangler deploy --config wrangler.toml"
   },
   "dependencies": {

@@ -63,6 +63,8 @@ export type SavedLinkedinSearchRow = {
   name: string;
   criteria: LinkedInSearchParams;
   isActive: boolean;
+  runIntervalHours: number;
+  sources: string[];
   lastRunAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -440,16 +442,29 @@ export async function listSavedLinkedinSearches(userId: number): Promise<SavedLi
     .where(eq(linkedinSavedSearches.userId, userId))
     .orderBy(desc(linkedinSavedSearches.updatedAt));
 
-  return rows.map((row) => ({
-    id: row.id,
-    userId: row.userId,
-    name: row.name,
-    criteria: JSON.parse(row.criteria) as LinkedInSearchParams,
-    isActive: row.isActive === 1,
-    lastRunAt: row.lastRunAt ?? null,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-  }));
+  return rows.map((row) => {
+    let parsedSources: string[] = ["linkedin", "greenhouse", "lever"];
+    try {
+      if (row.sources) {
+        parsedSources = JSON.parse(row.sources) as string[];
+      }
+    } catch (e) {
+      // fallback
+    }
+
+    return {
+      id: row.id,
+      userId: row.userId,
+      name: row.name,
+      criteria: JSON.parse(row.criteria) as LinkedInSearchParams,
+      isActive: row.isActive === 1,
+      runIntervalHours: row.runIntervalHours,
+      sources: parsedSources,
+      lastRunAt: row.lastRunAt ?? null,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    };
+  });
 }
 
 export async function saveLinkedinSearchDefinition(args: {
@@ -458,16 +473,20 @@ export async function saveLinkedinSearchDefinition(args: {
   criteria: LinkedInSearchParams;
   id?: number;
   isActive?: boolean;
+  runIntervalHours?: number;
+  sources?: string[];
 }) {
   const env = getCloudflareEnv();
   if (!env.DB) throw new Error("Database unavailable");
   const db = getDb(env.DB);
   const now = new Date().toISOString();
-  const values = {
+  const values: any = {
     userId: args.userId,
     name: args.name.trim(),
     criteria: JSON.stringify(args.criteria),
     isActive: args.isActive === false ? 0 : 1,
+    runIntervalHours: args.runIntervalHours ?? 24,
+    sources: JSON.stringify(args.sources ?? ["linkedin", "greenhouse", "lever"]),
     updatedAt: now,
   };
 

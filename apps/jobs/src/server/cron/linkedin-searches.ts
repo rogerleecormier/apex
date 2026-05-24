@@ -1,4 +1,4 @@
-import { getDb } from "@/db/db";
+import { getDb, schema } from "@/db/db";
 import { linkedinSavedSearches } from "@/db/schema";
 import type { CloudflareEnv } from "@/lib/cloudflare";
 import { getLinkedinSettings, pruneDuplicateLinkedinJobResults, pruneExpiredLinkedinJobResults } from "@/lib/linkedin-persistence";
@@ -11,25 +11,16 @@ import {
   findSemanticallyMatchingExistingLinkedinJobs,
   upsertLinkedinJobResults,
 } from "@/lib/linkedin-persistence";
+import { and, eq, lte, or, inArray, like } from "drizzle-orm";
 
 type BrowserPage = any;
 
-const FREQUENCY_HOURS: Record<string, number> = {
-  hourly: 1,
-  every_2_hours: 2,
-  every_4_hours: 4,
-  every_8_hours: 8,
-  every_12_hours: 12,
-  daily: 24,
-};
-
 function shouldRunFrequency(
   lastRunAt: string | null,
-  frequency: string,
+  intervalHours: number,
   varianceMinutes: number,
 ) {
   if (!lastRunAt) return true;
-  const intervalHours = FREQUENCY_HOURS[frequency] ?? 24;
   const varianceMs = Math.floor(Math.random() * varianceMinutes * 60 * 1000);
   const thresholdMs = intervalHours * 60 * 60 * 1000 - varianceMs;
   return Date.now() - new Date(lastRunAt).getTime() >= thresholdMs;
@@ -205,26 +196,121 @@ async function collectLinkedinJobsAcrossPages(args: {
 
 export async function runLinkedinSearchMaintenance(env: CloudflareEnv) {
   const settings = await getLinkedinSettings();
-  const duplicatePrunedCount = await pruneDuplicateLinkedinJobResults();
-  const prunedCount = await pruneExpiredLinkedinJobResults();
-
   const db = getDb(env.DB);
-  const searches = await db.select().from(linkedinSavedSearches).where((await import("drizzle-orm")).eq(linkedinSavedSearches.isActive, 1));
 
-  const dueSearches = searches.filter((search) => shouldRunFrequency(search.lastRunAt ?? null, settings.linkedinSearchCronFrequency, settings.linkedinCronVarianceMinutes));
+  // 1. Database Pruning: Perform daily database cleanup of jobs 30 days or older
+  const currentHour = new Date().getUTCHours();
+  let prunedCount = 0;
+  if (currentHour === 0) {
+    const cutoffDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const cutoffIso = cutoffDate.toISOString();
+    
+    // Prune general jobs cache table
+    const jobsDeletedResult = await db.delete(schema.jobs).where(lte(schema.jobs.createdAt, cutoffDate));
+    
+    // Prune agent job results (linkedinJobResults)
+    const { linkedinJobResults } = await import("@/db/schema");
+    const agentJobsDeletedResult = await db.delete(linkedinJobResults).where(lte(linkedinJobResults.createdAt, cutoffIso));
+    
+    prunedCount = (jobsDeletedResult as any)?.rowsAffected || 0;
+    console.log(`[Pruning] Deleted old cache and agent jobs.`);
+  }
+
+  const duplicatePrunedCount = await pruneDuplicateLinkedinJobResults();
+
+  // 2. Load active searches
+  const searches = await db.select().from(linkedinSavedSearches).where(eq(linkedinSavedSearches.isActive, 1));
+
+  // Filter due searches based on their custom runIntervalHours (default to 24 if null/undefined)
+  const dueSearches = searches.filter((search) => 
+    shouldRunFrequency(
+      search.lastRunAt ?? null, 
+      (search as any).runIntervalHours ?? 24, 
+      settings.linkedinCronVarianceMinutes
+    )
+  );
+
   if (dueSearches.length === 0) {
     return { duplicatePrunedCount, prunedCount, executedSearches: 0 };
   }
 
-  const puppeteer = await import("@cloudflare/puppeteer");
-  const browser = await puppeteer.default.launch(env.BROWSER);
+  // Check if browser is needed for LinkedIn scraping
+  const needBrowser = dueSearches.some(search => {
+    try {
+      const sourcesList = JSON.parse((search as any).sources || '["linkedin"]') as string[];
+      return sourcesList.includes('linkedin');
+    } catch {
+      return true;
+    }
+  });
+
+  let browser: any = null;
+  if (needBrowser) {
+    const puppeteer = await import("@cloudflare/puppeteer");
+    browser = await puppeteer.default.launch(env.BROWSER);
+  }
+
   const ai = env.AI;
 
   try {
     for (const search of dueSearches) {
+      let sourcesList: string[] = ['linkedin'];
+      try {
+        if ((search as any).sources) {
+          sourcesList = JSON.parse((search as any).sources) as string[];
+        }
+      } catch {
+        sourcesList = ['linkedin'];
+      }
+
       const criteria = normalizeLinkedInSearchParams(JSON.parse(search.criteria) as LinkedInSearchParams);
       const searchUrl = buildLinkedInSearchUrl(criteria);
-      let jobs = await collectLinkedinJobsAcrossPages({ browser, criteria });
+
+      // Scrape LinkedIn if enabled
+      let linkedinJobs: LinkedInScrapedJob[] = [];
+      if (sourcesList.includes('linkedin') && browser) {
+        linkedinJobs = await collectLinkedinJobsAcrossPages({ browser, criteria });
+      }
+
+      // Query local Greenhouse/Lever/Workable cache if enabled
+      const activeAtsSources: string[] = [];
+      if (sourcesList.includes('greenhouse')) activeAtsSources.push('Greenhouse');
+      if (sourcesList.includes('lever')) activeAtsSources.push('Lever');
+      if (sourcesList.includes('workable')) activeAtsSources.push('Workable');
+
+      const atsJobs: LinkedInScrapedJob[] = [];
+      if (activeAtsSources.length > 0) {
+        const matchedAtsJobs = await db.select()
+          .from(schema.jobs)
+          .where(
+            and(
+              inArray(schema.jobs.sourceName, activeAtsSources),
+              or(
+                like(schema.jobs.title, `%${criteria.keywords}%`),
+                like(schema.jobs.descriptionRaw, `%${criteria.keywords}%`)
+              )
+            )
+          );
+
+        for (const job of matchedAtsJobs) {
+          atsJobs.push({
+            id: `ats-${job.id}`,
+            title: job.title,
+            company: job.company || 'Unknown',
+            location: 'Remote',
+            sourceUrl: job.sourceUrl,
+            sourceName: job.sourceName as any,
+            postDateText: job.postDate ? new Date(job.postDate).toLocaleDateString() : null,
+            workplaceType: 'remote',
+            salary: job.payRange || null,
+            snippet: job.descriptionRaw ? job.descriptionRaw.substring(0, 300) : null,
+            description: job.descriptionRaw || null,
+          });
+        }
+      }
+
+      // Combine candidates from LinkedIn and ATS cache
+      let jobs = [...linkedinJobs, ...atsJobs];
 
       const existingJobsByUrl = await findExistingLinkedinJobs({
         userId: search.userId,
@@ -234,6 +320,7 @@ export async function runLinkedinSearchMaintenance(env: CloudflareEnv) {
         userId: search.userId,
         jobs,
       });
+
       jobs = dedupeJobsBySemanticKey(
         jobs.filter((job) => {
           const exactMatch = existingJobsByUrl.get(canonicalizeLinkedinJobUrl(job.sourceUrl, job.id));
@@ -246,6 +333,7 @@ export async function runLinkedinSearchMaintenance(env: CloudflareEnv) {
           return !exactMatch && !semanticMatch;
         }),
       );
+
       if (jobs.length === 0) {
         await upsertLinkedinJobResults({
           userId: search.userId,
@@ -257,7 +345,11 @@ export async function runLinkedinSearchMaintenance(env: CloudflareEnv) {
         continue;
       }
 
+      // Enrich job descriptions for LinkedIn jobs only (ATS jobs already have descriptions)
       for (const job of jobs) {
+        if (job.id.startsWith('ats-')) continue; // Skip ATS jobs
+        if (!browser) continue;
+
         const detailPage = await browser.newPage();
         try {
           await detailPage.goto(canonicalizeLinkedinJobUrl(job.sourceUrl, job.id), { waitUntil: "domcontentloaded", timeout: 60000 });
@@ -296,7 +388,9 @@ export async function runLinkedinSearchMaintenance(env: CloudflareEnv) {
       });
     }
   } finally {
-    await browser.close();
+    if (browser) {
+      await browser.close();
+    }
   }
 
   return { duplicatePrunedCount, prunedCount, executedSearches: dueSearches.length };
