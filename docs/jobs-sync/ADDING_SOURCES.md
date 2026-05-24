@@ -1,6 +1,6 @@
 # Adding New Job Sources
 
-> Guide for adding new ATS platforms or job aggregators to the Spearyx ecosystem.
+> Guide for adding new ATS platforms or job aggregators to the Caliber ecosystem.
 
 ## Overview
 

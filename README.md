@@ -1,4 +1,4 @@
-# Spearyx Jobs App
+# Caliber Jobs App
 
 This repository now runs as a standard single-package npm app (no monorepo workspace orchestration).
 

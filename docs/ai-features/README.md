@@ -1,6 +1,6 @@
 # AI Features Documentation
 
-> Overview of the AI-powered capabilities across the Spearyx ecosystem.
+> Overview of the AI-powered capabilities across the Caliber ecosystem.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@
 
 ## Overview
 
-Spearyx applications leverage Cloudflare Workers AI with the `@cf/meta/llama-3.3-70b-instruct-fp8-fast` model to provide intelligent features. These features range from smart job discovery to improved productivity tools validation.
+Caliber applications leverage Cloudflare Workers AI with the `@cf/meta/llama-3.3-70b-instruct-fp8-fast` model to provide intelligent features. These features range from smart job discovery to improved productivity tools validation.
 
 | Feature | App | Model | Purpose |
 |---------|-----|-------|---------|

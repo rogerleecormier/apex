@@ -1,378 +1,0 @@
-
-
-> @spearyx/jobs@ deploy /home/roger_lee_cormier/Documents/dev/spearyx/apps/jobs
-> pnpm run build && wrangler deploy --config wrangler.toml
-
-
-> @spearyx/jobs@ build /home/roger_lee_cormier/Documents/dev/spearyx/apps/jobs
-> vite build
-
-[33mThe plugin "vite-tsconfig-paths" is detected. Vite now supports tsconfig paths resolution natively via the [1mresolve.tsconfigPaths[22m option. You can remove the plugin and set [1mresolve.tsconfigPaths: true[22m in your Vite config instead.[39m
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-[1;1H[0J[33mThe plugin "vite-tsconfig-paths" is detected. Vite now supports tsconfig paths resolution natively via the [1mresolve.tsconfigPaths[22m option. You can remove the plugin and set [1mresolve.tsconfigPaths: true[22m in your Vite config instead.[39m [33m(x2)[39m
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-[1;1H[0J[33mThe plugin "vite-tsconfig-paths" is detected. Vite now supports tsconfig paths resolution natively via the [1mresolve.tsconfigPaths[22m option. You can remove the plugin and set [1mresolve.tsconfigPaths: true[22m in your Vite config instead.[39m [33m(x3)[39m
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-[1;1H[0J[33mThe plugin "vite-tsconfig-paths" is detected. Vite now supports tsconfig paths resolution natively via the [1mresolve.tsconfigPaths[22m option. You can remove the plugin and set [1mresolve.tsconfigPaths: true[22m in your Vite config instead.[39m [33m(x4)[39m
-[36mvite v8.0.10 [32mbuilding client environment for production...[36m[39m
-[2Ktransforming (117) [2msrc/routes/__root.tsx[0m[2Ktransforming (144) [2msrc/server/functions/auth.ts[0m[2Ktransforming (338) [2m../../node_modules/.pnpm/zod@3.25.76/node_modules/zod/[2Ktransforming (1342) [2m../../node_modules/.pnpm/lucide-react@0.544.0_react@1[2Ktransforming (2038) [2m../../node_modules/.pnpm/@tanstack+react-pacer@0.18.0[2Ktransforming (2039) [2msrc/components/SearchBar.tsx[0m[2Ktransforming (2248) [2m../../node_modules/.pnpm/lucide-react@0.545.0_react@1[2Ktransforming (3176) [2m../../node_modules/.pnpm/lucide-react@0.545.0_react@1[2Ktransforming (3838) [2msrc/server/functions/generate-resume.ts[0m[2K[32m✓[39m 4146 modules transformed.
-[2Krendering chunks (1)...[2Krendering chunks (2)...[2Krendering chunks (3)...[2Krendering chunks (4)...[2Krendering chunks (5)...[2Krendering chunks (6)...[2Krendering chunks (7)...[2Krendering chunks (8)...[2Krendering chunks (9)...[2Krendering chunks (10)...[2Krendering chunks (11)...[2Krendering chunks (12)...[2Krendering chunks (13)...[2Krendering chunks (14)...[2Krendering chunks (15)...[2Krendering chunks (16)...[2Krendering chunks (17)...[2Krendering chunks (18)...[2Krendering chunks (19)...[2Krendering chunks (20)...[2Krendering chunks (21)...[2Krendering chunks (22)...[2Krendering chunks (23)...[2Krendering chunks (24)...[2Krendering chunks (25)...[2Krendering chunks (26)...[2Krendering chunks (27)...[2Krendering chunks (28)...[2Krendering chunks (29)...[2Krendering chunks (30)...[2Krendering chunks (31)...[2Krendering chunks (32)...[2Krendering chunks (33)...[2Krendering chunks (34)...[2Krendering chunks (35)...[2Krendering chunks (36)...[2Krendering chunks (37)...[2Krendering chunks (38)...[2Krendering chunks (39)...[2Krendering chunks (40)...[2Krendering chunks (41)...[2Krendering chunks (42)...[2Krendering chunks (43)...[2Krendering chunks (44)...[2Krendering chunks (45)...[2Krendering chunks (46)...[2Krendering chunks (47)...[2Krendering chunks (48)...[2Krendering chunks (49)...[2Krendering chunks (50)...[2Kcomputing gzip size...
-[2K[2mdist/client/[0m[32m.assetsignore                        [39m[2m[1m  0.02 kB[0m[0m
-[2mdist/client/[0m[2massets/[0m[35mindex-CgrZrVYP.css            [39m[2m[1m  1.06 kB[0m[0m[2m │ gzip:   0.58 kB[0m
-[2mdist/client/[0m[2massets/[0m[35mstyles-TRmFInnX.css           [39m[2m[1m 99.71 kB[0m[0m[2m │ gzip:  17.41 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mroot-CjNcrWFJ.js              [39m[2m[1m  0.03 kB[0m[0m[2m │ gzip:   0.05 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mlogin-DUaM27T7.js             [39m[2m[1m  0.03 kB[0m[0m[2m │ gzip:   0.05 kB[0m
-[2mdist/client/[0m[2massets/[0m[36minvariant-O_LV4Lg7.js         [39m[2m[1m  0.06 kB[0m[0m[2m │ gzip:   0.08 kB[0m
-[2mdist/client/[0m[2massets/[0m[36manalyze-8BqiO3S9.js           [39m[2m[1m  0.10 kB[0m[0m[2m │ gzip:   0.11 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mchevron-down-D0RKDAKq.js      [39m[2m[1m  0.12 kB[0m[0m[2m │ gzip:   0.14 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mloader-circle-WFDmTD-a.js     [39m[2m[1m  0.14 kB[0m[0m[2m │ gzip:   0.15 kB[0m
-[2mdist/client/[0m[2massets/[0m[36marrow-right-CYcQLMEr.js       [39m[2m[1m  0.16 kB[0m[0m[2m │ gzip:   0.16 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mclock-Dv_2u5h8.js             [39m[2m[1m  0.16 kB[0m[0m[2m │ gzip:   0.16 kB[0m
-[2mdist/client/[0m[2massets/[0m[36msearch-BGpNG3FS.js            [39m[2m[1m  0.17 kB[0m[0m[2m │ gzip:   0.17 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mcircle-check-C3pxgIzb.js      [39m[2m[1m  0.17 kB[0m[0m[2m │ gzip:   0.17 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mcircle-x-B8DG4uW8.js          [39m[2m[1m  0.20 kB[0m[0m[2m │ gzip:   0.17 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mmail-CshLqxpl.js              [39m[2m[1m  0.21 kB[0m[0m[2m │ gzip:   0.20 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mbriefcase-DOHp-ouo.js         [39m[2m[1m  0.22 kB[0m[0m[2m │ gzip:   0.20 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mtarget-CM4gQBB1.js            [39m[2m[1m  0.22 kB[0m[0m[2m │ gzip:   0.16 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mdownload-CMRTbJBy.js          [39m[2m[1m  0.23 kB[0m[0m[2m │ gzip:   0.19 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mhistory-14m9QjX4.js           [39m[2m[1m  0.23 kB[0m[0m[2m │ gzip:   0.19 kB[0m
-[2mdist/client/[0m[2massets/[0m[36marrow-up-down-BQl27CMA.js     [39m[2m[1m  0.24 kB[0m[0m[2m │ gzip:   0.19 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mexternal-link-C9BaTOVE.js     [39m[2m[1m  0.25 kB[0m[0m[2m │ gzip:   0.20 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mmap-pin-CKS9Rf9q.js           [39m[2m[1m  0.25 kB[0m[0m[2m │ gzip:   0.22 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mzap-tBsKxT9z.js               [39m[2m[1m  0.26 kB[0m[0m[2m │ gzip:   0.20 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mtoggle-applied-QTRKi0Fb.js    [39m[2m[1m  0.26 kB[0m[0m[2m │ gzip:   0.21 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mshield-pJ1M2tWC.js            [39m[2m[1m  0.27 kB[0m[0m[2m │ gzip:   0.22 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mfile-user-4-aq6PGo.js         [39m[2m[1m  0.32 kB[0m[0m[2m │ gzip:   0.23 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mrefresh-cw-iSCsGbZW.js        [39m[2m[1m  0.32 kB[0m[0m[2m │ gzip:   0.22 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mtrash-2-7R3FR7Ks.js           [39m[2m[1m  0.32 kB[0m[0m[2m │ gzip:   0.21 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mfile-text-BN753fus.js         [39m[2m[1m  0.33 kB[0m[0m[2m │ gzip:   0.22 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mscoreUtils-BzHKeeuh.js        [39m[2m[1m  0.52 kB[0m[0m[2m │ gzip:   0.33 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mglobe-CQvFM5nV.js             [39m[2m[1m  0.57 kB[0m[0m[2m │ gzip:   0.31 kB[0m
-[2mdist/client/[0m[2massets/[0m[36manalyze._id-DD9QlsQR.js       [39m[2m[1m  0.68 kB[0m[0m[2m │ gzip:   0.44 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mtrending-up-CJaHxDmm.js       [39m[2m[1m  0.80 kB[0m[0m[2m │ gzip:   0.41 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mwand-sparkles-BhsL9ZpL.js     [39m[2m[1m  0.88 kB[0m[0m[2m │ gzip:   0.45 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mredirect-DZzzWE2w.js          [39m[2m[1m  0.94 kB[0m[0m[2m │ gzip:   0.52 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mchunk-62oNxeRG.js             [39m[2m[1m  1.08 kB[0m[0m[2m │ gzip:   0.62 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mpreload-helper-DWTEM3RW.js    [39m[2m[1m  1.19 kB[0m[0m[2m │ gzip:   0.68 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mcreateLucideIcon-B6SKXvDg.js  [39m[2m[1m  1.21 kB[0m[0m[2m │ gzip:   0.70 kB[0m
-[2mdist/client/[0m[2massets/[0m[36manalyze.index-BKoGrR6S.js     [39m[2m[1m  2.15 kB[0m[0m[2m │ gzip:   0.97 kB[0m
-[2mdist/client/[0m[2massets/[0m[36manalysis-form-BPRIGsTE.js     [39m[2m[1m  4.23 kB[0m[0m[2m │ gzip:   1.85 kB[0m
-[2mdist/client/[0m[2massets/[0m[36msync-MrX45HbH.js              [39m[2m[1m  8.67 kB[0m[0m[2m │ gzip:   2.94 kB[0m
-[2mdist/client/[0m[2massets/[0m[36museQuery-Yy2ZnDvb.js          [39m[2m[1m  8.78 kB[0m[0m[2m │ gzip:   3.19 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mprofile-C925CyvC.js           [39m[2m[1m  9.16 kB[0m[0m[2m │ gzip:   3.44 kB[0m
-[2mdist/client/[0m[2massets/[0m[36madmin-nF4bAalL.js             [39m[2m[1m 12.01 kB[0m[0m[2m │ gzip:   3.38 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mdashboard-DIkPjM1n.js         [39m[2m[1m 13.61 kB[0m[0m[2m │ gzip:   3.92 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mdocument-actions-BwTygd2y.js  [39m[2m[1m 21.87 kB[0m[0m[2m │ gzip:   5.97 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mroutes-qvbka9ga.js            [39m[2m[1m 29.98 kB[0m[0m[2m │ gzip:   7.26 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mlinkedin-hub-ibCe3tsd.js      [39m[2m[1m 51.40 kB[0m[0m[2m │ gzip:  13.72 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mjobs-CdlERf0C.js              [39m[2m[1m 64.03 kB[0m[0m[2m │ gzip:  17.39 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mhistory-aILyJTZB.js           [39m[2m[1m 65.09 kB[0m[0m[2m │ gzip:  17.37 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mpdf-BCBaocUK.js               [39m[2m[1m405.11 kB[0m[0m[2m │ gzip: 120.78 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mmammoth.browser-5v11i10U.js   [39m[2m[1m491.70 kB[0m[0m[2m │ gzip: 118.82 kB[0m
-[2mdist/client/[0m[2massets/[0m[36mindex-Ck2y24uT.js             [39m[33m[1m633.61 kB[0m[39m[2m │ gzip: 191.12 kB[0m
-
-[2K[1G[33m[plugin builtin:vite-reporter] [33m[1m
-(!) Some chunks are larger than 500 kB after minification. Consider:
-- Using dynamic import() to code-split the application
-- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
-- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[0m[33m[39m
-[32m✓ built in 2.17s[39m
-[36mvite v8.0.10 [32mbuilding ssr environment for production...[36m[39m
-[2Ktransforming (46) [2m../../node_modules/.pnpm/@tanstack+start-storage-contex[2Ktransforming (109) [2msrc/routeTree.gen.ts[0m[2Ktransforming (110) [2msrc/routes/api/v3/jobs/prune.ts[0m[2Ktransforming (176) [2m../../node_modules/.pnpm/drizzle-orm@0.44.7_@cloudflar[2Ktransforming (192) [2msrc/server/functions/manage-resume.ts[0m[2Ktransforming (374) [2msrc/components/features/applied-toggle.tsx[0m[2K[32m✓[39m 384 modules transformed.
-[2Krendering chunks (1)...[2Krendering chunks (2)...[2Krendering chunks (3)...[2Krendering chunks (4)...[2Krendering chunks (5)...[2Krendering chunks (6)...[2Krendering chunks (7)...[2Krendering chunks (8)...[2Krendering chunks (9)...[2Krendering chunks (10)...[2Krendering chunks (11)...[2Krendering chunks (12)...[2Krendering chunks (13)...[2Krendering chunks (14)...[2Krendering chunks (15)...[2Krendering chunks (16)...[2Krendering chunks (17)...[2Krendering chunks (18)...[2Krendering chunks (19)...[2Krendering chunks (20)...[2Krendering chunks (21)...[2Krendering chunks (22)...[2Krendering chunks (23)...[2Krendering chunks (24)...[2Krendering chunks (25)...[2Krendering chunks (26)...[2Krendering chunks (27)...[2Krendering chunks (28)...[2Krendering chunks (29)...[2Krendering chunks (30)...[2Krendering chunks (31)...[2Krendering chunks (32)...[2Krendering chunks (33)...[2Krendering chunks (34)...[2Krendering chunks (35)...[2Krendering chunks (36)...[2Krendering chunks (37)...[2Krendering chunks (38)...[2Krendering chunks (39)...[2Krendering chunks (40)...[2Krendering chunks (41)...[2Krendering chunks (42)...[2Krendering chunks (43)...[2Krendering chunks (44)...[2Krendering chunks (45)...[2Krendering chunks (46)...[2Krendering chunks (47)...[2Krendering chunks (48)...[2Krendering chunks (49)...[2Krendering chunks (50)...[2Krendering chunks (51)...[2Krendering chunks (52)...[2Krendering chunks (53)...[2Krendering chunks (54)...[2Krendering chunks (55)...[2Kcomputing gzip size...
-[2K[2mdist/server/[0m[2massets/[0m[36msrc-DqyPEKTz.js                                 [39m[2m[1m  0.05 kB[0m[0m[2m │ gzip:  0.06 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mlogin-BN6ZNjG8.js                               [39m[2m[1m  0.13 kB[0m[0m[2m │ gzip:  0.12 kB[0m
-[2mdist/server/[0m[2massets/[0m[36m__23tanstack-start-plugin-adapters-3QxJs4a0.js  [39m[2m[1m  0.18 kB[0m[0m[2m │ gzip:  0.13 kB[0m
-[2mdist/server/[0m[2massets/[0m[36manalyze-CacZEI3U.js                             [39m[2m[1m  0.25 kB[0m[0m[2m │ gzip:  0.19 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mstart-gHt3O_fA.js                               [39m[2m[1m  0.29 kB[0m[0m[2m │ gzip:  0.21 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mcreateServerRpc-BOBOCHpx.js                     [39m[2m[1m  0.44 kB[0m[0m[2m │ gzip:  0.28 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mscoreUtils-TehFO7Y3.js                          [39m[2m[1m  0.56 kB[0m[0m[2m │ gzip:  0.24 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mcreateSsrRpc-CWALp_Pz.js                        [39m[2m[1m  0.58 kB[0m[0m[2m │ gzip:  0.35 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mtoggle-applied-B84CSrpL.js                      [39m[2m[1m  0.59 kB[0m[0m[2m │ gzip:  0.34 kB[0m
-[2mdist/server/[0m[2massets/[0m[36manalyze.index-KINH5kl2.js                       [39m[2m[1m  0.68 kB[0m[0m[2m │ gzip:  0.39 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mmanage-resume-PHQvu62_.js                       [39m[2m[1m  0.73 kB[0m[0m[2m │ gzip:  0.39 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mauth-redirect-DPVt7LIM.js                       [39m[2m[1m  0.84 kB[0m[0m[2m │ gzip:  0.43 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mprofile-CmMgOp47.js                             [39m[2m[1m  0.95 kB[0m[0m[2m │ gzip:  0.52 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mget-history-BVJDZnME.js                         [39m[2m[1m  1.00 kB[0m[0m[2m │ gzip:  0.47 kB[0m
-[2mdist/server/[0m[2massets/[0m[36manalyze._id-BgwWNHyK.js                         [39m[2m[1m  1.00 kB[0m[0m[2m │ gzip:  0.53 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mresolve-user-DivDqs_X.js                        [39m[2m[1m  1.21 kB[0m[0m[2m │ gzip:  0.61 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mmanually-aggregate-analytics-B8U7bQGI.js        [39m[2m[1m  1.32 kB[0m[0m[2m │ gzip:  0.58 kB[0m
-[2mdist/server/[0m[2massets/[0m[36manalyze._id-Cez2vD6G.js                         [39m[2m[1m  1.43 kB[0m[0m[2m │ gzip:  0.72 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mhistory-C2F2XqUt.js                             [39m[2m[1m  1.43 kB[0m[0m[2m │ gzip:  0.70 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mdashboard-BlhZbvZt.js                           [39m[2m[1m  1.72 kB[0m[0m[2m │ gzip:  0.79 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mget-analysis-GVEgWiZ7.js                        [39m[2m[1m  2.22 kB[0m[0m[2m │ gzip:  0.97 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mget-analytics-Ce3xEzJE.js                       [39m[2m[1m  2.44 kB[0m[0m[2m │ gzip:  1.01 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mlinkedin-admin-De4PacBO.js                      [39m[2m[1m  2.56 kB[0m[0m[2m │ gzip:  0.83 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mauth-B76zS5ze.js                                [39m[2m[1m  2.60 kB[0m[0m[2m │ gzip:  1.05 kB[0m
-[2mdist/server/[0m[2massets/[0m[36manalyze.index-DFZGzayu.js                       [39m[2m[1m  2.90 kB[0m[0m[2m │ gzip:  1.16 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mtoggle-applied-BkMg9Pt2.js                      [39m[2m[1m  3.04 kB[0m[0m[2m │ gzip:  0.93 kB[0m
-[2mdist/server/[0m[2massets/[0m[36madmin-plN39E8A.js                               [39m[2m[1m  3.26 kB[0m[0m[2m │ gzip:  1.14 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mai-gateway-xMju4gbP.js                          [39m[2m[1m  3.99 kB[0m[0m[2m │ gzip:  1.49 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mauth-BendWJPi.js                                [39m[2m[1m  4.16 kB[0m[0m[2m │ gzip:  1.34 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mlinkedin-hub-tLvU0wvb.js                        [39m[2m[1m  4.65 kB[0m[0m[2m │ gzip:  1.83 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mgenerate-cover-letter-CKJOGXP4.js               [39m[2m[1m  5.45 kB[0m[0m[2m │ gzip:  2.10 kB[0m
-[2mdist/server/[0m[2massets/[0m[36maggregate-analytics-BZkNuSJ6.js                 [39m[2m[1m  6.54 kB[0m[0m[2m │ gzip:  1.92 kB[0m
-[2mdist/server/[0m[2massets/[0m[36m_tanstack-start-manifest_v-Cp7ro0Wb.js          [39m[2m[1m  6.70 kB[0m[0m[2m │ gzip:  1.44 kB[0m
-[2mdist/server/[0m[2massets/[0m[36manalysis-form-DDfqiVW6.js                       [39m[2m[1m  6.74 kB[0m[0m[2m │ gzip:  2.25 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mgenerate-resume-CqpVzTmI.js                     [39m[2m[1m  8.39 kB[0m[0m[2m │ gzip:  2.97 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mmanage-resume-CulJz6lq.js                       [39m[2m[1m  8.85 kB[0m[0m[2m │ gzip:  3.45 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mget-history-DOaQVvtV.js                         [39m[2m[1m 11.10 kB[0m[0m[2m │ gzip:  3.06 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mai-DNvcpYVR.js                                  [39m[2m[1m 11.52 kB[0m[0m[2m │ gzip:  4.70 kB[0m
-[2mdist/server/[0m[2massets/[0m[36msync-BvfDzF9j.js                                [39m[2m[1m 12.33 kB[0m[0m[2m │ gzip:  3.48 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mpdf-BcFGCW1R.js                                 [39m[2m[1m 13.19 kB[0m[0m[2m │ gzip:  4.42 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mprofile-D2AlRMzA.js                             [39m[2m[1m 13.43 kB[0m[0m[2m │ gzip:  3.88 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mlinkedin-searches-BAps8kyD.js                   [39m[2m[1m 13.69 kB[0m[0m[2m │ gzip:  3.56 kB[0m
-[2mdist/server/[0m[2massets/[0m[36madmin-BXUrvHBp.js                               [39m[2m[1m 19.25 kB[0m[0m[2m │ gzip:  4.14 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mdashboard-CxbqfuAL.js                           [39m[2m[1m 20.05 kB[0m[0m[2m │ gzip:  4.72 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mlinkedin-persistence-BZfz6KkD.js                [39m[2m[1m 21.61 kB[0m[0m[2m │ gzip:  4.87 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mhistory-Blp0Ncf_.js                             [39m[2m[1m 27.31 kB[0m[0m[2m │ gzip:  6.79 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mdocument-actions-BfmwWjZl.js                    [39m[2m[1m 28.49 kB[0m[0m[2m │ gzip:  6.12 kB[0m
-[2mdist/server/[0m[2massets/[0m[36msrc-n4HjeDe6.js                                 [39m[2m[1m 37.88 kB[0m[0m[2m │ gzip:  8.31 kB[0m
-[2mdist/server/[0m[2massets/[0m[36manalyze-job-B2q0P2Ab.js                         [39m[2m[1m 38.20 kB[0m[0m[2m │ gzip: 10.99 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mroutes-DMeeacxE.js                              [39m[2m[1m 39.33 kB[0m[0m[2m │ gzip:  8.10 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mjobs-CQTS4k8J.js                                [39m[2m[1m 64.57 kB[0m[0m[2m │ gzip: 13.22 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mlinkedin-hub-D2gwp_A0.js                        [39m[2m[1m 82.24 kB[0m[0m[2m │ gzip: 17.38 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mrouter-FWoJJ3K4.js                              [39m[2m[1m 86.22 kB[0m[0m[2m │ gzip: 22.39 kB[0m
-[2mdist/server/[0m[2massets/[0m[36mcloudflare-AE4e1tw0.js                          [39m[2m[1m152.62 kB[0m[0m[2m │ gzip: 31.12 kB[0m
-[2mdist/server/[0m[36mserver.js                                              [39m[2m[1m181.27 kB[0m[0m[2m │ gzip: 46.38 kB[0m
-
-[32m✓ built in 1.69s[39m
-[36mvite v8.0.10 [32mbuilding caliber_agent environment for production...[36m[39m
-[2Ktransforming (700) [2m../../node_modules/.pnpm/@tanstack+pacer@0.17.0/node_m[2Ktransforming (701) [2m../../node_modules/.pnpm/@tanstack+react-pacer@0.18.0_[2Ktransforming (702) [2m../../node_modules/.pnpm/@tanstack+react-pacer@0.18.0_[2Ktransforming (2750) [2m../../node_modules/.pnpm/use-sidecar@1.1.3_@types+rea[2Ktransforming (2751) [2m../../node_modules/.pnpm/react-remove-scroll@2.7.2_@t[2K[32m✓[39m 2816 modules transformed.
-[2Krendering chunks (1)...[2Krendering chunks (2)...[2Krendering chunks (3)...[2Krendering chunks (4)...[2Krendering chunks (5)...[2Krendering chunks (6)...[2Krendering chunks (7)...[2Krendering chunks (8)...[2Krendering chunks (9)...[2Krendering chunks (10)...[2Krendering chunks (11)...[2Krendering chunks (12)...[2Krendering chunks (13)...[2Krendering chunks (14)...[2Krendering chunks (15)...[2Krendering chunks (16)...[2Krendering chunks (17)...[2Krendering chunks (18)...[2Krendering chunks (19)...[2Krendering chunks (20)...[2Krendering chunks (21)...[2Krendering chunks (22)...[2Krendering chunks (23)...[2Krendering chunks (24)...[2Krendering chunks (25)...[2Krendering chunks (26)...[2Krendering chunks (27)...[2Krendering chunks (28)...[2Krendering chunks (29)...[2Krendering chunks (30)...[2Krendering chunks (31)...[2Krendering chunks (32)...[2Krendering chunks (33)...[2Krendering chunks (34)...[2Krendering chunks (35)...[2Krendering chunks (36)...[2Krendering chunks (37)...[2Krendering chunks (38)...[2Krendering chunks (39)...[2Krendering chunks (40)...[2Krendering chunks (41)...[2Krendering chunks (42)...[2Krendering chunks (43)...[2Krendering chunks (44)...[2Krendering chunks (45)...[2Krendering chunks (46)...[2Krendering chunks (47)...[2Krendering chunks (48)...[2Krendering chunks (49)...[2Krendering chunks (50)...[2Krendering chunks (51)...[2Krendering chunks (52)...[2Krendering chunks (53)...[2Krendering chunks (54)...[2Krendering chunks (55)...[2Krendering chunks (56)...[2Krendering chunks (57)...[2Krendering chunks (58)...[2Krendering chunks (59)...[2Krendering chunks (60)...[2Krendering chunks (61)...[2Krendering chunks (62)...[2Krendering chunks (63)...[2Krendering chunks (64)...[2Krendering chunks (65)...[2Krendering chunks (66)...[2Krendering chunks (67)...[2Krendering chunks (68)...[2Krendering chunks (69)...[2Krendering chunks (70)...[2Krendering chunks (71)...[2Krendering chunks (72)...[2Krendering chunks (73)...[2Krendering chunks (74)...[2Krendering chunks (75)...[2Krendering chunks (76)...[2Krendering chunks (77)...[2Krendering chunks (78)...[2Krendering chunks (79)...[2Krendering chunks (80)...[2Krendering chunks (81)...[2Krendering chunks (82)...[2Krendering chunks (83)...[2Krendering chunks (84)...[2Krendering chunks (85)...[2Krendering chunks (86)...[2Krendering chunks (87)...[2Krendering chunks (88)...[2Krendering chunks (89)...[2Krendering chunks (90)...[2Krendering chunks (91)...[2Krendering chunks (92)...[2Krendering chunks (93)...[2Krendering chunks (94)...[2Krendering chunks (95)...[2Kcomputing gzip size...
-[2K[2mdist/caliber_agent/[0m[32mwrangler.json                                                   [39m[2m[1m  1.93 kB[0m[0m[2m │ gzip:   0.92 kB[0m
-[2mdist/caliber_agent/[0m[32m.vite/manifest.json                                             [39m[2m[1m 32.02 kB[0m[0m[2m │ gzip:   3.98 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mstart-gHt3O_fA-M46J674r.js                               [39m[2m[1m  0.11 kB[0m[0m[2m │ gzip:   0.11 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mlogin-BN6ZNjG8-Darp65cj.js                               [39m[2m[1m  0.13 kB[0m[0m[2m │ gzip:   0.12 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36m__23tanstack-start-plugin-adapters-3QxJs4a0-BMyw28zm.js  [39m[2m[1m  0.21 kB[0m[0m[2m │ gzip:   0.15 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mloader-circle-B6KmFM7V.js                                [39m[2m[1m  0.22 kB[0m[0m[2m │ gzip:   0.19 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36marrow-right-DZtzRikb.js                                  [39m[2m[1m  0.25 kB[0m[0m[2m │ gzip:   0.20 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mclock-nb3MzM7c.js                                        [39m[2m[1m  0.25 kB[0m[0m[2m │ gzip:   0.20 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mcircle-check-De7eJOSD.js                                 [39m[2m[1m  0.27 kB[0m[0m[2m │ gzip:   0.21 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mmail-EiYSF_50.js                                         [39m[2m[1m  0.30 kB[0m[0m[2m │ gzip:   0.24 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mcircle-x-BD8ne5k4.js                                     [39m[2m[1m  0.31 kB[0m[0m[2m │ gzip:   0.22 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mzap-KxG4QrGG.js                                          [39m[2m[1m  0.32 kB[0m[0m[2m │ gzip:   0.24 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mdownload-jN7lrU75.js                                     [39m[2m[1m  0.33 kB[0m[0m[2m │ gzip:   0.23 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mmap-pin-CQX6-Wfc.js                                      [39m[2m[1m  0.34 kB[0m[0m[2m │ gzip:   0.26 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36manalyze-CacZEI3U-CxQVe9Jq.js                             [39m[2m[1m  0.34 kB[0m[0m[2m │ gzip:   0.24 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mtarget-D2o3D8Q9.js                                       [39m[2m[1m  0.35 kB[0m[0m[2m │ gzip:   0.20 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mexternal-link-DKAKid7x.js                                [39m[2m[1m  0.36 kB[0m[0m[2m │ gzip:   0.24 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36marrow-up-down-DJJyDjbn.js                                [39m[2m[1m  0.37 kB[0m[0m[2m │ gzip:   0.24 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mcreateServerRpc-BOBOCHpx-BxG4s10O.js                     [39m[2m[1m  0.37 kB[0m[0m[2m │ gzip:   0.25 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mrefresh-cw-0z3KOrgb.js                                   [39m[2m[1m  0.44 kB[0m[0m[2m │ gzip:   0.26 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mfile-user-Bfqz3kH7.js                                    [39m[2m[1m  0.44 kB[0m[0m[2m │ gzip:   0.28 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mtrash-2-DwChBs-H.js                                      [39m[2m[1m  0.45 kB[0m[0m[2m │ gzip:   0.25 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mcreateSsrRpc-CWALp_Pz-BgyhwwvM.js                        [39m[2m[1m  0.50 kB[0m[0m[2m │ gzip:   0.32 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mtoggle-applied-B84CSrpL-Cko8lOO-.js                      [39m[2m[1m  0.62 kB[0m[0m[2m │ gzip:   0.37 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mmanage-resume-PHQvu62_-HHoAtwuw.js                       [39m[2m[1m  0.76 kB[0m[0m[2m │ gzip:   0.42 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mglobe-C-BnIiB_.js                                        [39m[2m[1m  0.78 kB[0m[0m[2m │ gzip:   0.36 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mtrending-up-BdIv0L_x.js                                  [39m[2m[1m  0.79 kB[0m[0m[2m │ gzip:   0.39 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mauth-redirect-DPVt7LIM-BLqqFssi.js                       [39m[2m[1m  0.86 kB[0m[0m[2m │ gzip:   0.45 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mscoreUtils-TehFO7Y3-Cj9kASJs.js                          [39m[2m[1m  0.89 kB[0m[0m[2m │ gzip:   0.44 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mget-history-BVJDZnME-BS0rzdj7.js                         [39m[2m[1m  1.02 kB[0m[0m[2m │ gzip:   0.50 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mprofile-CmMgOp47-DrT52rKm.js                             [39m[2m[1m  1.18 kB[0m[0m[2m │ gzip:   0.60 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mBrowserWebSocketTransport-DYcGu-QX.js                    [39m[2m[1m  1.18 kB[0m[0m[2m │ gzip:   0.50 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mwand-sparkles-EBWtL4lQ.js                                [39m[2m[1m  1.21 kB[0m[0m[2m │ gzip:   0.53 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mresolve-user-DivDqs_X-CWib0Bw-.js                        [39m[2m[1m  1.23 kB[0m[0m[2m │ gzip:   0.63 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mmanually-aggregate-analytics-B8U7bQGI-B55abcqB.js        [39m[2m[1m  1.34 kB[0m[0m[2m │ gzip:   0.61 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36manalyze._id-BgwWNHyK-BGe4jeEd.js                         [39m[2m[1m  1.38 kB[0m[0m[2m │ gzip:   0.68 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36manalyze._id-Cez2vD6G-Cl1TfBcB.js                         [39m[2m[1m  1.60 kB[0m[0m[2m │ gzip:   0.77 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mhistory-C2F2XqUt-Denkz6Nq.js                             [39m[2m[1m  1.68 kB[0m[0m[2m │ gzip:   0.77 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mdashboard-BlhZbvZt-DPxNxDjN.js                           [39m[2m[1m  1.96 kB[0m[0m[2m │ gzip:   0.84 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mtty-DH3wKE_-.js                                          [39m[2m[1m  2.01 kB[0m[0m[2m │ gzip:   0.73 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mchunk-C3P2FGwC.js                                        [39m[2m[1m  2.18 kB[0m[0m[2m │ gzip:   0.99 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mget-analysis-GVEgWiZ7-DCVyHxEb.js                        [39m[2m[1m  2.25 kB[0m[0m[2m │ gzip:   1.01 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mget-analytics-Ce3xEzJE-CRk6yfIz.js                       [39m[2m[1m  2.46 kB[0m[0m[2m │ gzip:   1.05 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mNodeWebSocketTransport-MY-5ng6-.js                       [39m[2m[1m  2.51 kB[0m[0m[2m │ gzip:   1.14 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mlinkedin-admin-De4PacBO-D98OF1KI.js                      [39m[2m[1m  2.58 kB[0m[0m[2m │ gzip:   0.86 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mauth-B76zS5ze-CeqLZd0N.js                                [39m[2m[1m  2.59 kB[0m[0m[2m │ gzip:   1.05 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36museLoaderData-CcDHzZG8.js                                [39m[2m[1m  2.68 kB[0m[0m[2m │ gzip:   1.03 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mtoggle-applied-BkMg9Pt2-BZjH4iL0.js                      [39m[2m[1m  3.06 kB[0m[0m[2m │ gzip:   0.98 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36madmin-plN39E8A-kiYpI3h_.js                               [39m[2m[1m  3.33 kB[0m[0m[2m │ gzip:   1.20 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36manalyze.index-DFZGzayu-BqT-Gftb.js                       [39m[2m[1m  3.48 kB[0m[0m[2m │ gzip:   1.26 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mauth-BendWJPi-DpmDVWzg.js                                [39m[2m[1m  4.19 kB[0m[0m[2m │ gzip:   1.38 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36msearch-BS4nazmw.js                                       [39m[2m[1m  4.43 kB[0m[0m[2m │ gzip:   1.58 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mlinkedin-hub-tLvU0wvb-Dh4_yPNw.js                        [39m[2m[1m  4.65 kB[0m[0m[2m │ gzip:   1.86 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mgenerate-cover-letter-CKJOGXP4-BioXqswL.js               [39m[2m[1m  5.48 kB[0m[0m[2m │ gzip:   2.14 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mmutation-BZRCZevd.js                                     [39m[2m[1m  5.76 kB[0m[0m[2m │ gzip:   1.54 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36maggregate-analytics-BZkNuSJ6-DVA2tpkN.js                 [39m[2m[1m  6.56 kB[0m[0m[2m │ gzip:   1.94 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mreact-dom-C6KKZPiE.js                                    [39m[2m[1m  6.66 kB[0m[0m[2m │ gzip:   1.96 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36m_tanstack-start-manifest_v-Cp7ro0Wb-DZeTlWGO.js          [39m[2m[1m  6.73 kB[0m[0m[2m │ gzip:   1.45 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36manalysis-form-DDfqiVW6-DUI9Vw9T.js                       [39m[2m[1m  8.24 kB[0m[0m[2m │ gzip:   2.61 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mgenerate-resume-CqpVzTmI-BmcgH0rY.js                     [39m[2m[1m  8.44 kB[0m[0m[2m │ gzip:   3.03 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mmanage-resume-CulJz6lq-BpmP7vi-.js                       [39m[2m[1m  8.88 kB[0m[0m[2m │ gzip:   3.50 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mget-history-DOaQVvtV-Cy37wqRs.js                         [39m[2m[1m 11.13 kB[0m[0m[2m │ gzip:   3.11 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mlazyRouteComponent-BYxQiWj5.js                           [39m[2m[1m 13.53 kB[0m[0m[2m │ gzip:   3.52 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mlinkedin-searches-BAps8kyD-C6keO_xI.js                   [39m[2m[1m 13.69 kB[0m[0m[2m │ gzip:   3.60 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36msync-BvfDzF9j-Bcz8OjXw.js                                [39m[2m[1m 14.67 kB[0m[0m[2m │ gzip:   3.82 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mai-DNvcpYVR-CHhM5m3c.js                                  [39m[2m[1m 15.57 kB[0m[0m[2m │ gzip:   6.01 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mlink-Ih4pGkEi.js                                         [39m[2m[1m 15.96 kB[0m[0m[2m │ gzip:   4.37 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mprofile-D2AlRMzA-CVgV9PBL.js                             [39m[2m[1m 16.04 kB[0m[0m[2m │ gzip:   4.30 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mshim-dDP6RXnG.js                                         [39m[2m[1m 19.50 kB[0m[0m[2m │ gzip:   4.93 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mjsonrepair-CmeIzbJq.js                                   [39m[2m[1m 19.67 kB[0m[0m[2m │ gzip:   4.78 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36msrc-CJZbERGz.js                                          [39m[2m[1m 19.82 kB[0m[0m[2m │ gzip:   6.11 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36museQuery-CGa6QZ_O.js                                     [39m[2m[1m 20.25 kB[0m[0m[2m │ gzip:   4.77 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mlinkedin-persistence-BZfz6KkD-ZEz9TcdI.js                [39m[2m[1m 21.64 kB[0m[0m[2m │ gzip:   4.90 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36madmin-BXUrvHBp-BIE1kgM2.js                               [39m[2m[1m 21.73 kB[0m[0m[2m │ gzip:   4.30 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mdashboard-CxbqfuAL-DcbH01gv.js                           [39m[2m[1m 23.21 kB[0m[0m[2m │ gzip:   5.04 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mschema-Bn3AZfX5.js                                       [39m[2m[1m 26.98 kB[0m[0m[2m │ gzip:   5.55 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mQueryClientProvider-ChQKBunv.js                          [39m[2m[1m 31.77 kB[0m[0m[2m │ gzip:   8.07 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mbcryptjs-CUep792F.js                                     [39m[2m[1m 36.77 kB[0m[0m[2m │ gzip:  12.10 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mdocument-actions-BfmwWjZl-CPoEBiTp.js                    [39m[2m[1m 37.65 kB[0m[0m[2m │ gzip:   7.90 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36manalyze-job-B2q0P2Ab-CLYWfsN6.js                         [39m[2m[1m 38.15 kB[0m[0m[2m │ gzip:  11.07 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mdrizzle-orm-BJLo42lZ.js                                  [39m[2m[1m 42.39 kB[0m[0m[2m │ gzip:   9.99 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mroutes-DMeeacxE-BvCppi6z.js                              [39m[2m[1m 45.93 kB[0m[0m[2m │ gzip:   8.68 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36museStore-Bn2KFF9p.js                                     [39m[2m[1m 51.50 kB[0m[0m[2m │ gzip:  14.03 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mlinkedin-hub-D2gwp_A0-C87eSWpo.js                        [39m[2m[1m 91.96 kB[0m[0m[2m │ gzip:  18.35 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mMatch-B_MQHWDa.js                                        [39m[2m[1m100.45 kB[0m[0m[2m │ gzip:  23.48 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36manalyze.index-KINH5kl2-PLVFj28O.js                       [39m[2m[1m100.82 kB[0m[0m[2m │ gzip:  17.63 kB[0m
-[2mdist/caliber_agent/[0m[36mindex.js                                                        [39m[2m[1m133.45 kB[0m[0m[2m │ gzip:  30.60 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mhistory-Blp0Ncf_-DN7TfDQT.js                             [39m[2m[1m134.00 kB[0m[0m[2m │ gzip:  26.83 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mjobs-CQTS4k8J-4dSSuf6M.js                                [39m[2m[1m140.50 kB[0m[0m[2m │ gzip:  29.26 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mcloudflare-AE4e1tw0-DTJ4xaFG.js                          [39m[2m[1m144.89 kB[0m[0m[2m │ gzip:  30.60 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36msrc-n4HjeDe6-DQ69c0bW.js                                 [39m[2m[1m361.01 kB[0m[0m[2m │ gzip:  73.20 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mpuppeteer-cloudflare-DkA-Ek0A.js                         [39m[33m[1m525.15 kB[0m[39m[2m │ gzip: 110.74 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mrouter-FWoJJ3K4-vnMW-WA0.js                              [39m[33m[1m628.86 kB[0m[39m[2m │ gzip: 162.02 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mserver-CCsfnJKI.js                                       [39m[33m[1m631.70 kB[0m[39m[2m │ gzip: 136.04 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mpdf-CZFWCcUU.js                                          [39m[33m[1m715.99 kB[0m[39m[2m │ gzip: 160.23 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mpdf-BcFGCW1R-DP2xdqM4.js                                 [39m[33m[1m915.09 kB[0m[39m[2m │ gzip: 255.72 kB[0m
-[2mdist/caliber_agent/[0m[2massets/[0m[36mmammoth.browser-DqAbURus.js                              [39m[33m[1m915.38 kB[0m[39m[2m │ gzip: 164.08 kB[0m
-
-[32m✓ built in 504ms[39m
-
- ⛅️ wrangler 4.87.0 (update available [32m4.94.0[39m)
-[38;2;255;136;0m─────────────────────────────────────────────[39m
-[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mIgnoring this import because "../../node_modules/.pnpm/tailwind-merge@3.5.0/node_modules/tailwind-merge/dist/bundle-mjs.mjs" was marked as having no side effects[0m [ignored-bare-import]
-
-    dist/server/assets/src-DqyPEKTz.js:2:7:
-[37m      2 │ import [32m"tailwind-merge"[37m;
-        ╵        [32m~~~~~~~~~~~~~~~~[0m
-
-  "sideEffects" is false in the enclosing "package.json" file:
-
-    ../../node_modules/.pnpm/tailwind-merge@3.5.0/node_modules/tailwind-merge/package.json:51:4:
-[37m      51 │     [32m"sideEffects"[37m: false,
-         ╵     [32m~~~~~~~~~~~~~[0m
-
-
-🌀 Building list of assets...
-✨ Read 74 files from the assets directory /home/roger_lee_cormier/Documents/dev/spearyx/apps/jobs/dist/client
-🌀 Starting asset upload...
-No updated asset files to upload. Proceeding with deployment...
-Total Upload: [32m7603.87 KiB / gzip: 1455.00 KiB[39m
-Worker Startup Time: 26 ms
-Your Worker has access to the following bindings:
-[2mBinding[22m        [2mResource[22m        
-[37menv.KV[39m         [38;2;189;91;8mKV Namespace[39m    
-  [2m0356f2290c784e4789b76a9c1956bdda[22m
-[37menv.DB[39m         [38;2;189;91;8mD1 Database [39m    
-  [2m55a19e36-ed5b-4a31-83db-56ec83dd9a71[22m
-[37menv.R2[39m         [38;2;189;91;8mR2 Bucket   [39m    
-  [2mcaliber-documents[22m
-[37menv.BROWSER[39m    [38;2;189;91;8mBrowser Run [39m    
-[37menv.AI[39m         [38;2;189;91;8mAI          [39m    
-
-Uploaded caliber-agent (9.53 sec)
-Deployed caliber-agent triggers (2.54 sec)
-  jobs.spearyx.com (custom domain)
-  schedule: 0 * * * *
-Current Version ID: 5cbdb891-1d1a-474d-a404-6f6178fa05e1

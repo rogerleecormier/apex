@@ -4,7 +4,7 @@ import { loadUserProfile } from "./SkillsModal";
 import type { JobWithCategory } from "../../lib/search-utils";
 import JobCard from "../JobCard";
 
-const CACHE_KEY = "spearyx_unicorn_cache";
+const CACHE_KEY = "caliber_unicorn_cache";
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 interface UnicornCache {

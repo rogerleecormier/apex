@@ -7,7 +7,7 @@ interface SkillsModalProps {
   onSave: (data: { resume?: string; skills: string[] }) => void;
 }
 
-const STORAGE_KEY = "spearyx_user_profile";
+const STORAGE_KEY = "caliber_user_profile";
 
 export interface UserProfile {
   resume?: string;

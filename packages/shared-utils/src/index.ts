@@ -3,8 +3,8 @@ export { getCloudflareContext, getD1Database } from "./cloudflare-dev";
 export {
   SESSION_COOKIE,
   SESSION_TTL,
-  SPEARYX_ROOT_DOMAIN,
-  SPEARYX_JOBS_ORIGIN,
+  ROOT_DOMAIN,
+  CALIBER_JOBS_ORIGIN,
   createSession,
   deleteSession,
   extractSessionToken,

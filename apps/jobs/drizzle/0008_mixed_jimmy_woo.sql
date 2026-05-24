@@ -1,1 +1,0 @@
-ALTER TABLE `jobs` ADD `full_description` text;

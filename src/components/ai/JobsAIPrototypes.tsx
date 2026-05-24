@@ -1,5 +1,5 @@
 /**
- * Spearyx Jobs — AI Feature Mock Prototype Graphics
+ * Caliber Jobs — AI Feature Mock Prototype Graphics
  * Visual prototype components for AI-powered job features
  */
 

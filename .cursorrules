@@ -1,6 +1,6 @@
-# Spearyx AI Agent Guardrails & Architecture
+# Caliber AI Agent Guardrails & Architecture
 
-This document provides the foundational rules, tech stack, and architecture guidelines for any autonomous AI agent (e.g., AutoGPT, Aider, Devin) operating within the Spearyx monorepo.
+This document provides the foundational rules, tech stack, and architecture guidelines for any autonomous AI agent (e.g., AutoGPT, Aider, Devin) operating within the Caliber monorepo.
 
 ## 1. Tech Stack Overview
 - **Monorepo:** npm workspaces + Turborepo (`apps/app-web`, `apps/corporate`, `apps/tools`, `apps/jobs`, `packages/ui-kit`, `packages/shared-config`).
@@ -11,8 +11,8 @@ This document provides the foundational rules, tech stack, and architecture guid
 - **Styling:** Tailwind CSS v4 (CSS-first architecture), shadcn/ui.
 
 ## 2. Monorepo & Import Standards
-- **UI Components:** ALWAYS import UI components from `@spearyx/ui-kit` (e.g., `import { Button, Hero } from '@spearyx/ui-kit';`). Do not build new base components in the `apps/*` directories.
-- **Shared Config:** All global styles and design tokens live in `@spearyx/shared-config/styles.css`.
+- **UI Components:** ALWAYS import UI components from `@caliber/ui-kit` (e.g., `import { Button, Hero } from '@caliber/ui-kit';`). Do not build new base components in the `apps/*` directories.
+- **Shared Config:** All global styles and design tokens live in `@caliber/shared-config/styles.css`.
 - **No Cross-App Imports:** Apps should not import directly from other apps. Use shared packages for common logic.
 
 ## 3. Styling & UI Guardrails (STRICT)

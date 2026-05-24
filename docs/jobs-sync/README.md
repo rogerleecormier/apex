@@ -1,4 +1,4 @@
-# Spearyx Jobs V3 Sync Architecture
+# Caliber Jobs V3 Sync Architecture
 
 > Comprehensive documentation for the V3 jobs discovery and synchronization system.
 

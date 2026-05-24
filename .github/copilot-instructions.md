@@ -1,6 +1,6 @@
 # GitHub Copilot Instructions
 
-These instructions dictate how GitHub Copilot should autocomplete and generate code in the Spearyx monorepo.
+These instructions dictate how GitHub Copilot should autocomplete and generate code in the Caliber monorepo.
 
 ## Core Stack
 - TanStack Start (React SSR), TanStack Query, Vite
@@ -8,9 +8,9 @@ These instructions dictate how GitHub Copilot should autocomplete and generate c
 - Tailwind CSS v4, shadcn/ui
 
 ## Imports
-- Always import reusable components from `@spearyx/ui-kit` (e.g., `import { Button, Card, Body } from '@spearyx/ui-kit';`).
+- Always import reusable components from `@caliber/ui-kit` (e.g., `import { Button, Card, Body } from '@caliber/ui-kit';`).
 - Do not build raw HTML components if a UI kit component exists.
-- Import shared config styles as `@import "@spearyx/shared-config/styles";`.
+- Import shared config styles as `@import "@caliber/shared-config/styles";`.
 
 ## Styling Rules
 - **Tailwind v4:** Use CSS-first theming (`@theme` in CSS). Do not use `tailwind.config.ts`.

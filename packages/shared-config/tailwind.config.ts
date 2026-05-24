@@ -3,7 +3,7 @@ import type { Config } from "tailwindcss";
 /**
  * Tailwind v4 compatibility stub.
  *
- * The Spearyx design system is now CSS-first:
+ * The Caliber design system is now CSS-first:
  * - tokens live in `packages/shared-config/styles.css` via `@theme`
  * - plugins are loaded in CSS via `@plugin`
  * - shared package sources are registered in CSS via `@source`

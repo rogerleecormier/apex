@@ -188,7 +188,7 @@ The largest and most prominent typography component. Use for brand statements an
 
 `tsx`tsx
 
-<Hero>Welcome to Spearyx</Hero><Headline>Section Heading</Headline>
+<Hero>Welcome to Caliber</Hero><Headline>Section Heading</Headline>
 
 <Hero variant="semibold">Precision Project Management</Hero><Headline variant="semibold">Semibold Section</Headline>
 
@@ -816,7 +816,7 @@ Responsive Hero
 
   <Overline className="text-red-500">Welcome</Overline>    <Body className="text-neutral">{description}</Body>
 
-  <Hero className="my-4">Spearyx</Hero>  </>
+  <Hero className="my-4">Caliber</Hero>  </>
 
   <Subtitle className="text-slate-600">);
 

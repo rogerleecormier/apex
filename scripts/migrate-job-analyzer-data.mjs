@@ -5,11 +5,11 @@ import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 
-const APP_DIR = "/run/media/rogerleecormier/Storage/dev/spearyx/apps/jobs";
+const APP_DIR = "/run/media/rogerleecormier/Storage/dev/caliber/apps/jobs";
 const SOURCE_DB = "job-analyzer-db";
-const TARGET_DB = "spearyx-jobs";
+const TARGET_DB = "caliber-jobs";
 const SOURCE_BUCKET = "job-analyzer-documents";
-const TARGET_BUCKET = "spearyx-documents";
+const TARGET_BUCKET = "caliber-documents";
 const MAX_SQL_CHARS = 50000;
 
 const args = new Set(process.argv.slice(2));
@@ -171,7 +171,7 @@ function lastRowId(result) {
 }
 
 async function main() {
-  console.log(isDryRun ? "Running dry-run migration from job-analyzer to spearyx..." : "Running migration from job-analyzer to spearyx...");
+  console.log(isDryRun ? "Running dry-run migration from job-analyzer to caliber..." : "Running migration from job-analyzer to caliber...");
 
   const report = {
     usersInserted: 0,

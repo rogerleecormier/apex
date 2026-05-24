@@ -2124,7 +2124,7 @@ To add new card types or improve existing ones:
 
 ## License
 
-These card components are part of the Spearyx project.
+These card components are part of the Caliber project.
 
 ---
 

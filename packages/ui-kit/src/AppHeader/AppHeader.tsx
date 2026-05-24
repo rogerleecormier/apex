@@ -546,7 +546,7 @@ export function AppHeader({
   const logo = (
     <a href="/" className="inline-flex items-center group">
       <img
-        src="/images/spearyx-logo.svg"
+        src="/images/caliber-logo.svg"
         alt="Caliber"
         className="h-7 w-auto transition-opacity duration-200 group-hover:opacity-75"
       />

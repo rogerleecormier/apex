@@ -1,7 +1,7 @@
-export const SESSION_COOKIE = "spearyx-session";
+export const SESSION_COOKIE = "caliber-session";
 export const SESSION_TTL = 60 * 60 * 24 * 7; // 7 days in seconds
 export const ROOT_DOMAIN = "rcormier.dev";
-export const SPEARYX_JOBS_ORIGIN = "https://caliber.rcormier.dev";
+export const CALIBER_JOBS_ORIGIN = "https://caliber.rcormier.dev";
 
 interface SessionKvStore {
   put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
@@ -48,7 +48,7 @@ export function shouldUseSecureSessionCookie(request: Request): boolean {
 
 export function extractSessionToken(request: Request): string | null {
   const cookie = request.headers.get("cookie") ?? "";
-  const match = cookie.match(/spearyx-session=([^;]+)/);
+  const match = cookie.match(/caliber-session=([^;]+)/);
   return match ? match[1] : null;
 }
 
@@ -117,5 +117,5 @@ export function getSharedAuthOrigin(currentUrl?: string): string {
     }
   }
 
-  return SPEARYX_JOBS_ORIGIN;
+  return CALIBER_JOBS_ORIGIN;
 }

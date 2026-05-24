@@ -1,6 +1,6 @@
-# Spearyx Unified Design System
+# Caliber Unified Design System
 
-Complete design guidance for all Spearyx applications: `@spearyx/corporate`, `@spearyx/tools`, and `@spearyx/jobs`.
+Complete design guidance for all Caliber applications: `@caliber/corporate`, `@caliber/tools`, and `@caliber/jobs`.
 
 **Last Updated**: April 29, 2026  
 **Version**: 1.2.0  
@@ -24,9 +24,9 @@ Complete design guidance for all Spearyx applications: `@spearyx/corporate`, `@s
 
 ## Overview
 
-The Spearyx design system provides a **unified, consistent experience** across all applications through:
+The Caliber design system provides a **unified, consistent experience** across all applications through:
 
-- **Single source of truth**: All design tokens defined in `@spearyx/shared-config/styles.css`
+- **Single source of truth**: All design tokens defined in `@caliber/shared-config/styles.css`
 - **Three-tier architecture**: Shared config → UI Kit → Individual apps
 - **Tailwind CSS v4**: Shared styling uses `@theme`, `@plugin`, and `@source`
 - **shadcn/ui basis**: Components leverage Radix UI primitives and Tailwind
@@ -83,7 +83,7 @@ apps/jobs/
 
 ### Tailwind v4 Rule
 
-Spearyx uses Tailwind v4 in **CSS-first mode**.
+Caliber uses Tailwind v4 in **CSS-first mode**.
 
 - Put shared tokens in `packages/shared-config/styles.css`
 - Prefer `@theme` over `theme.extend`
@@ -248,13 +248,13 @@ Overline  → 0.75rem (12px)   - Section markers
 
 ### Typography Components
 
-All typography is implemented as React components in `@spearyx/ui-kit/Typography`.
+All typography is implemented as React components in `@caliber/ui-kit/Typography`.
 
 ```tsx
 import {
   Hero, Display, Headline, Title, Subtitle,
   Body, Caption, Label, Overline
-} from '@spearyx/ui-kit';
+} from '@caliber/ui-kit';
 
 // Basic usage
 <Hero>Large Brand Statement</Hero>
@@ -334,7 +334,7 @@ Located in `packages/ui-kit/src/ui/`, extending shadcn/ui.
 #### Button
 
 ```tsx
-import { Button } from '@spearyx/ui-kit';
+import { Button } from '@caliber/ui-kit';
 
 // Variants: default, destructive, outline, secondary, ghost, link
 <Button>Primary Action</Button>
@@ -353,7 +353,7 @@ import { Button } from '@spearyx/ui-kit';
 #### Badge
 
 ```tsx
-import { Badge } from '@spearyx/ui-kit';
+import { Badge } from '@caliber/ui-kit';
 
 // Variants: default, secondary, destructive, outline
 <Badge>Default</Badge>
@@ -372,7 +372,7 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from "@spearyx/ui-kit";
+} from "@caliber/ui-kit";
 
 <Card>
   <CardHeader>
@@ -389,8 +389,8 @@ import {
 All available with standard shadcn/ui patterns and semantic colors.
 
 ```tsx
-import { Avatar, AvatarImage, AvatarFallback } from '@spearyx/ui-kit';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@spearyx/ui-kit';
+import { Avatar, AvatarImage, AvatarFallback } from '@caliber/ui-kit';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@caliber/ui-kit';
 
 <Avatar>
   <AvatarImage src="..." />
@@ -435,7 +435,7 @@ Located in `packages/ui-kit/src/Cards/`.
 import {
   BasicCard, FeaturedCard, StatCard, ImageCard, CTACard,
   PricingCard, AlertCard, ProductCard, ProfileCard
-} from '@spearyx/ui-kit';
+} from '@caliber/ui-kit';
 
 <BasicCard
   title="Card Title"
@@ -466,7 +466,7 @@ Added after the original November 30, 2025 snapshot. These are now the preferred
 Shared sticky product navigation used by `corporate`, `tools`, and `jobs`.
 
 ```tsx
-import { AppHeader } from "@spearyx/ui-kit";
+import { AppHeader } from "@caliber/ui-kit";
 
 <AppHeader
   app="jobs"
@@ -481,7 +481,7 @@ import { AppHeader } from "@spearyx/ui-kit";
 Primary page-introduction surface. Supports eyebrow, icon, actions, stats, and tone variants.
 
 ```tsx
-import { PageHero } from "@spearyx/ui-kit";
+import { PageHero } from "@caliber/ui-kit";
 
 <PageHero
   eyebrow="Job Tools"
@@ -508,7 +508,7 @@ Available tones:
 Standard content container with shared glass surface, optional header, and tone variants.
 
 ```tsx
-import { PageSection } from "@spearyx/ui-kit";
+import { PageSection } from "@caliber/ui-kit";
 
 <PageSection
   title="Resume Profile"
@@ -531,7 +531,7 @@ Available tones:
 Shared footer/action strip for pagination, batch actions, and status summaries.
 
 ```tsx
-import { PageActionBar } from "@spearyx/ui-kit";
+import { PageActionBar } from "@caliber/ui-kit";
 
 <PageActionBar tone="default">
   <span>Showing 25 results</span>
@@ -544,7 +544,7 @@ import { PageActionBar } from "@spearyx/ui-kit";
 Compact alternative to `PageHero` for internal pages that need breadcrumb/action framing without metric tiles.
 
 ```tsx
-import { PageHeader } from "@spearyx/ui-kit";
+import { PageHeader } from "@caliber/ui-kit";
 
 <PageHeader
   overline="Admin"
@@ -841,7 +841,7 @@ animate-glow          - Glow effect loop
 
 ```tsx
 // Import from shared config
-import "@spearyx/shared-config/styles";
+import "@caliber/shared-config/styles";
 
 // Import components
 import {
@@ -858,7 +858,7 @@ import {
   BasicCard,
   FeaturedCard,
   StatCard,
-} from "@spearyx/ui-kit";
+} from "@caliber/ui-kit";
 
 // Use design tokens via Tailwind classes
 export function MyComponent() {
@@ -877,7 +877,7 @@ export function MyComponent() {
 Each app should import the shared stylesheet directly:
 
 ```css
-@import "@spearyx/shared-config/styles";
+@import "@caliber/shared-config/styles";
 ```
 
 The shared stylesheet is responsible for Tailwind v4 design-system setup:
