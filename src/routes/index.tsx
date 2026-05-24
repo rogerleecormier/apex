@@ -397,7 +397,7 @@ function JobsHome() {
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Link
-            to="/linkedin-hub"
+            to="/jobs"
             className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:text-amber-400 border border-slate-700 shadow-sm transition hover:bg-slate-800"
           >
             <Zap className="h-4 w-4 text-amber-400" />
@@ -601,7 +601,7 @@ function JobsHome() {
                 icon: <Search size={16} className="text-violet-600" />,
                 title: "Configure your Search Agents",
                 body: "Set up automated agents with keywords, target locations, specific sources (LinkedIn, Greenhouse, Lever), and custom check intervals (e.g. hourly, daily).",
-                to: "/linkedin-hub",
+                to: "/jobs",
                 cta: "Configure Agents",
               },
               {
@@ -609,7 +609,7 @@ function JobsHome() {
                 icon: <Target size={16} className="text-emerald-600" />,
                 title: "Review matching jobs",
                 body: "Watch matches flow into your dashboard. See AI scores, requirement gaps, verdicts, and transferable skill highlights computed automatically.",
-                to: "/linkedin-hub",
+                to: "/jobs",
                 cta: "View Dashboard",
               },
               {
@@ -669,7 +669,7 @@ function JobsHome() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Link
-              to="/linkedin-hub"
+              to="/jobs"
               className="inline-flex items-center gap-2 rounded-xl bg-slate-900 border border-slate-700 text-white hover:text-amber-400 px-6 py-3 text-sm font-semibold shadow-sm transition hover:bg-slate-800"
             >
               <Zap className="h-4 w-4 text-amber-400" />

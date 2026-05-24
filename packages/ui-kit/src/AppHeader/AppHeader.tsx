@@ -339,8 +339,6 @@ export function AppHeader({
       : getSharedAuthOrigin(window.location.href);
   const appOrigin = getAppOrigin(app, currentPath);
   const resolvedUser = user ?? null;
-  const canAccessLinkedInSearch = app === "jobs" && resolvedUser?.role === "admin";
-
   const loginHref = useMemo(() => {
     if (app === "corporate") return "/login";
 
@@ -384,9 +382,9 @@ export function AppHeader({
     { type: "heading", key: "jobs-heading-1", label: "Job Tools" },
     {
       type: "link",
-      key: "job-listings",
-      label: "Job Listings",
-      sublabel: "AI-curated tech jobs",
+      key: "job-pipeline",
+      label: "Job Pipeline",
+      sublabel: "Agent searches & job tracking",
       href: "https://caliber.rcormier.dev/jobs",
       path: "/jobs",
       icon: Briefcase,
@@ -439,21 +437,6 @@ export function AppHeader({
       tone: "primary",
       appScope: "jobs",
     },
-    ...(canAccessLinkedInSearch
-      ? [
-          {
-            type: "link",
-            key: "linkedin-hub",
-            label: "Agent Dashboard",
-            sublabel: "AI job pipeline & agents",
-            href: "https://caliber.rcormier.dev/linkedin-hub",
-            path: "/linkedin-hub",
-            icon: Briefcase,
-            tone: "indigo",
-            appScope: "jobs",
-          } as MenuEntry,
-        ]
-      : []),
     ...(resolvedUser?.role === "admin"
       ? [
           { type: "separator", key: "user-separator-admin" },

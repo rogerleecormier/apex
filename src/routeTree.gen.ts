@@ -15,7 +15,6 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LinkedinSearchRouteImport } from './routes/linkedin-search'
 import { Route as LinkedinJobsRouteImport } from './routes/linkedin-jobs'
-import { Route as LinkedinHubRouteImport } from './routes/linkedin-hub'
 import { Route as JobsRouteImport } from './routes/jobs'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -24,6 +23,7 @@ import { Route as AdminSetupRouteImport } from './routes/admin-setup'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AnalyzeIndexRouteImport } from './routes/analyze.index'
+import { Route as ApiTestRouteImport } from './routes/api/test'
 import { Route as AnalyzeIdRouteImport } from './routes/analyze.$id'
 import { Route as ApiV3StatsRouteImport } from './routes/api/v3/stats'
 import { Route as ApiV3LogsRouteImport } from './routes/api/v3/logs'
@@ -31,7 +31,8 @@ import { Route as ApiV3JobsRouteImport } from './routes/api/v3/jobs'
 import { Route as ApiV3JobContentRouteImport } from './routes/api/v3/job-content'
 import { Route as ApiV3CategoriesRouteImport } from './routes/api/v3/categories'
 import { Route as ApiLinkedinSearchRouteImport } from './routes/api/linkedin/search'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiAuthSignOutRouteImport } from './routes/api/auth/sign-out'
+import { Route as ApiAuthGetSessionRouteImport } from './routes/api/auth/get-session'
 import { Route as ApiAiUnicornRouteImport } from './routes/api/ai/unicorn'
 import { Route as ApiAiSearchRouteImport } from './routes/api/ai/search'
 import { Route as ApiAiScoreAllRouteImport } from './routes/api/ai/score-all'
@@ -40,6 +41,8 @@ import { Route as ApiAiMatchRouteImport } from './routes/api/ai/match'
 import { Route as ApiAiInsightsRouteImport } from './routes/api/ai/insights'
 import { Route as ApiAiGenerateResumeRouteImport } from './routes/api/ai/generate-resume'
 import { Route as ApiV3JobsPruneRouteImport } from './routes/api/v3/jobs/prune'
+import { Route as ApiAuthSignUpEmailRouteImport } from './routes/api/auth/sign-up/email'
+import { Route as ApiAuthSignInEmailRouteImport } from './routes/api/auth/sign-in/email'
 
 const SyncRoute = SyncRouteImport.update({
   id: '/sync',
@@ -69,11 +72,6 @@ const LinkedinSearchRoute = LinkedinSearchRouteImport.update({
 const LinkedinJobsRoute = LinkedinJobsRouteImport.update({
   id: '/linkedin-jobs',
   path: '/linkedin-jobs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LinkedinHubRoute = LinkedinHubRouteImport.update({
-  id: '/linkedin-hub',
-  path: '/linkedin-hub',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JobsRoute = JobsRouteImport.update({
@@ -116,6 +114,11 @@ const AnalyzeIndexRoute = AnalyzeIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AnalyzeRoute,
 } as any)
+const ApiTestRoute = ApiTestRouteImport.update({
+  id: '/api/test',
+  path: '/api/test',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnalyzeIdRoute = AnalyzeIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -151,9 +154,14 @@ const ApiLinkedinSearchRoute = ApiLinkedinSearchRouteImport.update({
   path: '/api/linkedin/search',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
+const ApiAuthSignOutRoute = ApiAuthSignOutRouteImport.update({
+  id: '/api/auth/sign-out',
+  path: '/api/auth/sign-out',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthGetSessionRoute = ApiAuthGetSessionRouteImport.update({
+  id: '/api/auth/get-session',
+  path: '/api/auth/get-session',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAiUnicornRoute = ApiAiUnicornRouteImport.update({
@@ -196,6 +204,16 @@ const ApiV3JobsPruneRoute = ApiV3JobsPruneRouteImport.update({
   path: '/prune',
   getParentRoute: () => ApiV3JobsRoute,
 } as any)
+const ApiAuthSignUpEmailRoute = ApiAuthSignUpEmailRouteImport.update({
+  id: '/api/auth/sign-up/email',
+  path: '/api/auth/sign-up/email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSignInEmailRoute = ApiAuthSignInEmailRouteImport.update({
+  id: '/api/auth/sign-in/email',
+  path: '/api/auth/sign-in/email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -205,7 +223,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/history': typeof HistoryRoute
   '/jobs': typeof JobsRoute
-  '/linkedin-hub': typeof LinkedinHubRoute
   '/linkedin-jobs': typeof LinkedinJobsRoute
   '/linkedin-search': typeof LinkedinSearchRoute
   '/login': typeof LoginRoute
@@ -213,6 +230,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/sync': typeof SyncRoute
   '/analyze/$id': typeof AnalyzeIdRoute
+  '/api/test': typeof ApiTestRoute
   '/analyze/': typeof AnalyzeIndexRoute
   '/api/ai/generate-resume': typeof ApiAiGenerateResumeRoute
   '/api/ai/insights': typeof ApiAiInsightsRoute
@@ -221,13 +239,16 @@ export interface FileRoutesByFullPath {
   '/api/ai/score-all': typeof ApiAiScoreAllRoute
   '/api/ai/search': typeof ApiAiSearchRoute
   '/api/ai/unicorn': typeof ApiAiUnicornRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/auth/get-session': typeof ApiAuthGetSessionRoute
+  '/api/auth/sign-out': typeof ApiAuthSignOutRoute
   '/api/linkedin/search': typeof ApiLinkedinSearchRoute
   '/api/v3/categories': typeof ApiV3CategoriesRoute
   '/api/v3/job-content': typeof ApiV3JobContentRoute
   '/api/v3/jobs': typeof ApiV3JobsRouteWithChildren
   '/api/v3/logs': typeof ApiV3LogsRoute
   '/api/v3/stats': typeof ApiV3StatsRoute
+  '/api/auth/sign-in/email': typeof ApiAuthSignInEmailRoute
+  '/api/auth/sign-up/email': typeof ApiAuthSignUpEmailRoute
   '/api/v3/jobs/prune': typeof ApiV3JobsPruneRoute
 }
 export interface FileRoutesByTo {
@@ -237,7 +258,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/history': typeof HistoryRoute
   '/jobs': typeof JobsRoute
-  '/linkedin-hub': typeof LinkedinHubRoute
   '/linkedin-jobs': typeof LinkedinJobsRoute
   '/linkedin-search': typeof LinkedinSearchRoute
   '/login': typeof LoginRoute
@@ -245,6 +265,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/sync': typeof SyncRoute
   '/analyze/$id': typeof AnalyzeIdRoute
+  '/api/test': typeof ApiTestRoute
   '/analyze': typeof AnalyzeIndexRoute
   '/api/ai/generate-resume': typeof ApiAiGenerateResumeRoute
   '/api/ai/insights': typeof ApiAiInsightsRoute
@@ -253,13 +274,16 @@ export interface FileRoutesByTo {
   '/api/ai/score-all': typeof ApiAiScoreAllRoute
   '/api/ai/search': typeof ApiAiSearchRoute
   '/api/ai/unicorn': typeof ApiAiUnicornRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/auth/get-session': typeof ApiAuthGetSessionRoute
+  '/api/auth/sign-out': typeof ApiAuthSignOutRoute
   '/api/linkedin/search': typeof ApiLinkedinSearchRoute
   '/api/v3/categories': typeof ApiV3CategoriesRoute
   '/api/v3/job-content': typeof ApiV3JobContentRoute
   '/api/v3/jobs': typeof ApiV3JobsRouteWithChildren
   '/api/v3/logs': typeof ApiV3LogsRoute
   '/api/v3/stats': typeof ApiV3StatsRoute
+  '/api/auth/sign-in/email': typeof ApiAuthSignInEmailRoute
+  '/api/auth/sign-up/email': typeof ApiAuthSignUpEmailRoute
   '/api/v3/jobs/prune': typeof ApiV3JobsPruneRoute
 }
 export interface FileRoutesById {
@@ -271,7 +295,6 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/history': typeof HistoryRoute
   '/jobs': typeof JobsRoute
-  '/linkedin-hub': typeof LinkedinHubRoute
   '/linkedin-jobs': typeof LinkedinJobsRoute
   '/linkedin-search': typeof LinkedinSearchRoute
   '/login': typeof LoginRoute
@@ -279,6 +302,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/sync': typeof SyncRoute
   '/analyze/$id': typeof AnalyzeIdRoute
+  '/api/test': typeof ApiTestRoute
   '/analyze/': typeof AnalyzeIndexRoute
   '/api/ai/generate-resume': typeof ApiAiGenerateResumeRoute
   '/api/ai/insights': typeof ApiAiInsightsRoute
@@ -287,13 +311,16 @@ export interface FileRoutesById {
   '/api/ai/score-all': typeof ApiAiScoreAllRoute
   '/api/ai/search': typeof ApiAiSearchRoute
   '/api/ai/unicorn': typeof ApiAiUnicornRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/auth/get-session': typeof ApiAuthGetSessionRoute
+  '/api/auth/sign-out': typeof ApiAuthSignOutRoute
   '/api/linkedin/search': typeof ApiLinkedinSearchRoute
   '/api/v3/categories': typeof ApiV3CategoriesRoute
   '/api/v3/job-content': typeof ApiV3JobContentRoute
   '/api/v3/jobs': typeof ApiV3JobsRouteWithChildren
   '/api/v3/logs': typeof ApiV3LogsRoute
   '/api/v3/stats': typeof ApiV3StatsRoute
+  '/api/auth/sign-in/email': typeof ApiAuthSignInEmailRoute
+  '/api/auth/sign-up/email': typeof ApiAuthSignUpEmailRoute
   '/api/v3/jobs/prune': typeof ApiV3JobsPruneRoute
 }
 export interface FileRouteTypes {
@@ -306,7 +333,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/history'
     | '/jobs'
-    | '/linkedin-hub'
     | '/linkedin-jobs'
     | '/linkedin-search'
     | '/login'
@@ -314,6 +340,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sync'
     | '/analyze/$id'
+    | '/api/test'
     | '/analyze/'
     | '/api/ai/generate-resume'
     | '/api/ai/insights'
@@ -322,13 +349,16 @@ export interface FileRouteTypes {
     | '/api/ai/score-all'
     | '/api/ai/search'
     | '/api/ai/unicorn'
-    | '/api/auth/$'
+    | '/api/auth/get-session'
+    | '/api/auth/sign-out'
     | '/api/linkedin/search'
     | '/api/v3/categories'
     | '/api/v3/job-content'
     | '/api/v3/jobs'
     | '/api/v3/logs'
     | '/api/v3/stats'
+    | '/api/auth/sign-in/email'
+    | '/api/auth/sign-up/email'
     | '/api/v3/jobs/prune'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -338,7 +368,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/history'
     | '/jobs'
-    | '/linkedin-hub'
     | '/linkedin-jobs'
     | '/linkedin-search'
     | '/login'
@@ -346,6 +375,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sync'
     | '/analyze/$id'
+    | '/api/test'
     | '/analyze'
     | '/api/ai/generate-resume'
     | '/api/ai/insights'
@@ -354,13 +384,16 @@ export interface FileRouteTypes {
     | '/api/ai/score-all'
     | '/api/ai/search'
     | '/api/ai/unicorn'
-    | '/api/auth/$'
+    | '/api/auth/get-session'
+    | '/api/auth/sign-out'
     | '/api/linkedin/search'
     | '/api/v3/categories'
     | '/api/v3/job-content'
     | '/api/v3/jobs'
     | '/api/v3/logs'
     | '/api/v3/stats'
+    | '/api/auth/sign-in/email'
+    | '/api/auth/sign-up/email'
     | '/api/v3/jobs/prune'
   id:
     | '__root__'
@@ -371,7 +404,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/history'
     | '/jobs'
-    | '/linkedin-hub'
     | '/linkedin-jobs'
     | '/linkedin-search'
     | '/login'
@@ -379,6 +411,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sync'
     | '/analyze/$id'
+    | '/api/test'
     | '/analyze/'
     | '/api/ai/generate-resume'
     | '/api/ai/insights'
@@ -387,13 +420,16 @@ export interface FileRouteTypes {
     | '/api/ai/score-all'
     | '/api/ai/search'
     | '/api/ai/unicorn'
-    | '/api/auth/$'
+    | '/api/auth/get-session'
+    | '/api/auth/sign-out'
     | '/api/linkedin/search'
     | '/api/v3/categories'
     | '/api/v3/job-content'
     | '/api/v3/jobs'
     | '/api/v3/logs'
     | '/api/v3/stats'
+    | '/api/auth/sign-in/email'
+    | '/api/auth/sign-up/email'
     | '/api/v3/jobs/prune'
   fileRoutesById: FileRoutesById
 }
@@ -405,13 +441,13 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   HistoryRoute: typeof HistoryRoute
   JobsRoute: typeof JobsRoute
-  LinkedinHubRoute: typeof LinkedinHubRoute
   LinkedinJobsRoute: typeof LinkedinJobsRoute
   LinkedinSearchRoute: typeof LinkedinSearchRoute
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
   SignupRoute: typeof SignupRoute
   SyncRoute: typeof SyncRoute
+  ApiTestRoute: typeof ApiTestRoute
   ApiAiGenerateResumeRoute: typeof ApiAiGenerateResumeRoute
   ApiAiInsightsRoute: typeof ApiAiInsightsRoute
   ApiAiMatchRoute: typeof ApiAiMatchRoute
@@ -419,13 +455,16 @@ export interface RootRouteChildren {
   ApiAiScoreAllRoute: typeof ApiAiScoreAllRoute
   ApiAiSearchRoute: typeof ApiAiSearchRoute
   ApiAiUnicornRoute: typeof ApiAiUnicornRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiAuthGetSessionRoute: typeof ApiAuthGetSessionRoute
+  ApiAuthSignOutRoute: typeof ApiAuthSignOutRoute
   ApiLinkedinSearchRoute: typeof ApiLinkedinSearchRoute
   ApiV3CategoriesRoute: typeof ApiV3CategoriesRoute
   ApiV3JobContentRoute: typeof ApiV3JobContentRoute
   ApiV3JobsRoute: typeof ApiV3JobsRouteWithChildren
   ApiV3LogsRoute: typeof ApiV3LogsRoute
   ApiV3StatsRoute: typeof ApiV3StatsRoute
+  ApiAuthSignInEmailRoute: typeof ApiAuthSignInEmailRoute
+  ApiAuthSignUpEmailRoute: typeof ApiAuthSignUpEmailRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -470,13 +509,6 @@ declare module '@tanstack/react-router' {
       path: '/linkedin-jobs'
       fullPath: '/linkedin-jobs'
       preLoaderRoute: typeof LinkedinJobsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/linkedin-hub': {
-      id: '/linkedin-hub'
-      path: '/linkedin-hub'
-      fullPath: '/linkedin-hub'
-      preLoaderRoute: typeof LinkedinHubRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/jobs': {
@@ -535,6 +567,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnalyzeIndexRouteImport
       parentRoute: typeof AnalyzeRoute
     }
+    '/api/test': {
+      id: '/api/test'
+      path: '/api/test'
+      fullPath: '/api/test'
+      preLoaderRoute: typeof ApiTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/analyze/$id': {
       id: '/analyze/$id'
       path: '/$id'
@@ -584,11 +623,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLinkedinSearchRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
+    '/api/auth/sign-out': {
+      id: '/api/auth/sign-out'
+      path: '/api/auth/sign-out'
+      fullPath: '/api/auth/sign-out'
+      preLoaderRoute: typeof ApiAuthSignOutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/get-session': {
+      id: '/api/auth/get-session'
+      path: '/api/auth/get-session'
+      fullPath: '/api/auth/get-session'
+      preLoaderRoute: typeof ApiAuthGetSessionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ai/unicorn': {
@@ -647,6 +693,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiV3JobsPruneRouteImport
       parentRoute: typeof ApiV3JobsRoute
     }
+    '/api/auth/sign-up/email': {
+      id: '/api/auth/sign-up/email'
+      path: '/api/auth/sign-up/email'
+      fullPath: '/api/auth/sign-up/email'
+      preLoaderRoute: typeof ApiAuthSignUpEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/sign-in/email': {
+      id: '/api/auth/sign-in/email'
+      path: '/api/auth/sign-in/email'
+      fullPath: '/api/auth/sign-in/email'
+      preLoaderRoute: typeof ApiAuthSignInEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -683,13 +743,13 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   HistoryRoute: HistoryRoute,
   JobsRoute: JobsRoute,
-  LinkedinHubRoute: LinkedinHubRoute,
   LinkedinJobsRoute: LinkedinJobsRoute,
   LinkedinSearchRoute: LinkedinSearchRoute,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
   SignupRoute: SignupRoute,
   SyncRoute: SyncRoute,
+  ApiTestRoute: ApiTestRoute,
   ApiAiGenerateResumeRoute: ApiAiGenerateResumeRoute,
   ApiAiInsightsRoute: ApiAiInsightsRoute,
   ApiAiMatchRoute: ApiAiMatchRoute,
@@ -697,13 +757,16 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiScoreAllRoute: ApiAiScoreAllRoute,
   ApiAiSearchRoute: ApiAiSearchRoute,
   ApiAiUnicornRoute: ApiAiUnicornRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiAuthGetSessionRoute: ApiAuthGetSessionRoute,
+  ApiAuthSignOutRoute: ApiAuthSignOutRoute,
   ApiLinkedinSearchRoute: ApiLinkedinSearchRoute,
   ApiV3CategoriesRoute: ApiV3CategoriesRoute,
   ApiV3JobContentRoute: ApiV3JobContentRoute,
   ApiV3JobsRoute: ApiV3JobsRouteWithChildren,
   ApiV3LogsRoute: ApiV3LogsRoute,
   ApiV3StatsRoute: ApiV3StatsRoute,
+  ApiAuthSignInEmailRoute: ApiAuthSignInEmailRoute,
+  ApiAuthSignUpEmailRoute: ApiAuthSignUpEmailRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,418 +1,637 @@
-import { Link, createFileRoute, useLoaderData } from "@tanstack/react-router";
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import type { ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Archive,
+  BookMarked,
   Briefcase,
   Loader2,
-  X,
-  Sparkles,
-  Info,
   Search,
-  Settings2,
-  ArrowRight,
-  Zap,
+  Trash2,
+  Wand2,
 } from "lucide-react";
-import { useDebouncedCallback } from "@tanstack/react-pacer";
-import { PageHero, PageSection } from "@caliber/ui-kit";
-import JobCard from "../components/JobCard";
-import SearchBar from "../components/SearchBar";
-import FilterDropdown from "../components/FilterDropdown";
-import SortControls from "../components/SortControls";
-import type { JobWithCategory } from "../lib/search-utils";
+import { Link } from "@tanstack/react-router";
+import {
+  Button,
+  Input,
+  PageActionBar,
+  PageHero,
+  PageSection,
+  Pagination,
+} from "@caliber/ui-kit";
+import { requireLoginRedirect } from "@/lib/auth-redirect";
+import {
+  LinkedinResultCard,
+  type LinkedinJobStatus,
+} from "@/components/features/linkedin-result-card";
+import { LinkedinSearchDrawer } from "@/components/features/linkedin-search-drawer";
+import { getResume } from "@/server/functions/manage-resume";
+import {
+  archiveLinkedinJobs,
+  deleteLinkedinJobs,
+  getLinkedinCronInfo,
+  getLinkedinJobHistory,
+  getSavedLinkedinSearches,
+  setLinkedinJobStatus,
+} from "@/server/functions/linkedin-searches";
+import type { LinkedInScrapedJob } from "@/lib/linkedin-search";
 
-import { getDbFromContext, schema } from "../db/db";
-import { desc, sql } from "drizzle-orm";
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type SortOption = "posted-date" | "title" | "score" | "company" | "location";
+
+type JobSearchParams = {
+  page: number;
+  query: string;
+  remote: boolean;
+  green: boolean;
+  sortBy: SortOption;
+  status: string;
+};
+
+type HubJob = Awaited<ReturnType<typeof getLinkedinJobHistory>>["rows"][number] & {
+  isNew?: boolean;
+};
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const PAGE_SIZE = 20;
+const VALID_SORT_OPTIONS: SortOption[] = ["posted-date", "title", "score", "company", "location"];
+const JOB_STATUSES: LinkedinJobStatus[] = [
+  "Analyzed",
+  "Prepped",
+  "Applied",
+  "Interviewed",
+  "Hired",
+  "Archived",
+];
+
+const STATUS_PIPELINE_TONES: Record<LinkedinJobStatus, string> = {
+  Analyzed: "bg-slate-500",
+  Prepped: "bg-slate-600",
+  Applied: "bg-emerald-500",
+  Interviewed: "bg-sky-500",
+  Hired: "bg-amber-500",
+  Archived: "bg-slate-300",
+};
+
+// ─── Route ────────────────────────────────────────────────────────────────────
 
 export const Route = createFileRoute("/jobs")({
-  loader: async ({ context }: { context: any }) => {
-    try {
-      const db = await getDbFromContext(context as any);
-
-      const countResult = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(schema.jobs);
-      const totalCount = countResult[0]?.count || 0;
-
-      const jobsData = await db
-        .select()
-        .from(schema.jobs)
-        .orderBy(desc(schema.jobs.postDate))
-        .limit(30);
-
-      const categoriesData = await db.select().from(schema.categories);
-      const categoriesMap = new Map(categoriesData.map((c: any) => [c.id, c]));
-
-      const jobs = jobsData.map((job: any) => ({
-        ...job,
-        category: categoriesMap.get(job.categoryId) || categoriesData[0],
-      }));
-
-      return {
-        initialJobs: jobs,
-        categories: categoriesData,
-        totalCount,
-        hasMore: jobsData.length >= 30,
-      };
-    } catch (error) {
-      console.error("Loader error:", error);
-      return { initialJobs: [], categories: [], totalCount: 0, hasMore: false };
-    }
+  validateSearch: (search: Record<string, unknown>): JobSearchParams => ({
+    page: Math.max(1, Number(search.page) || 1),
+    query: String(search.query ?? ""),
+    remote: search.remote === true || search.remote === "true",
+    green: search.green === true || search.green === "true",
+    sortBy: (VALID_SORT_OPTIONS.includes(search.sortBy as SortOption)
+      ? search.sortBy
+      : "posted-date") as SortOption,
+    status: typeof search.status === "string" ? search.status : "",
+  }),
+  loaderDeps: ({ search }: { search: JobSearchParams }) => search,
+  beforeLoad: ({ context }) => {
+    const ctx = context as { user?: { id: number; role: string } | null };
+    if (!ctx.user) requireLoginRedirect();
   },
-  component: HomePage,
+  loader: async ({ deps }: { deps: JobSearchParams }) => {
+    const [resume, savedSearches, history, cronInfo] = await Promise.all([
+      getResume(),
+      getSavedLinkedinSearches(),
+      getLinkedinJobHistory({ data: { ...deps, pageSize: PAGE_SIZE } }),
+      getLinkedinCronInfo(),
+    ]);
+    return {
+      hasResume: !!resume?.rawText,
+      fullName: resume?.fullName || null,
+      savedSearches,
+      rows: history.rows,
+      total: history.total,
+      statusCounts: history.statusCounts,
+      canViewAllUsers: history.canViewAllUsers,
+      cronStartHour: cronInfo.cronStartHour,
+    };
+  },
+  component: JobsPage,
 });
 
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
-}
+// ─── Page component ───────────────────────────────────────────────────────────
 
-interface JobsResponse {
-  success: boolean;
-  data: {
-    jobs: JobWithCategory[];
-    total: number;
-    limit: number;
-    offset: number;
-    hasMore: boolean;
-  };
-}
+function JobsPage() {
+  const { page, query, remote, green, sortBy, status: activeStatus } = Route.useSearch();
+  const { hasResume, fullName, savedSearches: loaderSavedSearches, rows, total, statusCounts, canViewAllUsers, cronStartHour } =
+    Route.useLoaderData();
+  const navigate = Route.useNavigate();
+  const router = useRouter();
 
-function HomePage() {
-  const loaderData = useLoaderData({ from: "/jobs" });
+  const [jobs, setJobs] = useState<HubJob[]>(rows);
+  const [localTotal, setLocalTotal] = useState(total);
+  const [inputValue, setInputValue] = useState(query);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(() => new Set());
+  const [pendingStatusId, setPendingStatusId] = useState<number | null>(null);
+  const [pendingBulkAction, setPendingBulkAction] = useState<"archive" | "delete" | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchWarnings, setSearchWarnings] = useState<string[]>([]);
+  const [cronNewCount, setCronNewCount] = useState(0);
+  const didMount = useRef(false);
 
-  const [jobs, setJobs] = useState<JobWithCategory[]>(loaderData.initialJobs);
-  const [categories] = useState<Category[]>(loaderData.categories);
-  const [loading, setLoading] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
-  const [selectedSource, setSelectedSource] = useState<string | null>(null);
-  const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<
-    "newest" | "oldest" | "title-asc" | "title-desc" | "recently-added"
-  >("newest");
-  const [totalJobs, setTotalJobs] = useState(loaderData.totalCount || 0);
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(loaderData.hasMore);
-  const [showAIInfoModal, setShowAIInfoModal] = useState(false);
+  const totalPages = Math.ceil(localTotal / PAGE_SIZE);
+  const selectedCount = selectedIds.size;
+  const allVisibleSelected = jobs.length > 0 && jobs.every((job) => selectedIds.has(job.id));
+  const hasActiveFilters = !!(query || green || remote || activeStatus);
 
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-  const isInitialLoad = useRef(true);
-
-  const debouncedFetchJobs = useDebouncedCallback(
-    async (params: URLSearchParams) => {
-      setLoading(true);
-      try {
-        const response = await fetch(`/api/v3/jobs?${params.toString()}`);
-        const data = (await response.json()) as JobsResponse;
-        if (data.success) {
-          setJobs(data.data.jobs);
-          setTotalJobs(data.data.total);
-          setHasMore(data.data.hasMore);
-          setOffset(0);
-        }
-      } catch (error) {
-        console.error("Error fetching jobs:", error);
-      } finally {
-        setLoading(false);
-      }
-    },
-    { wait: 300 }
+  const pipeline = useMemo(
+    () =>
+      JOB_STATUSES.map((status) => ({
+        status,
+        count: Number(statusCounts?.[status] ?? 0),
+        percent: localTotal > 0 ? Math.round((Number(statusCounts?.[status] ?? 0) / localTotal) * 100) : 0,
+      })),
+    [localTotal, statusCounts],
   );
 
   useEffect(() => {
-    if (isInitialLoad.current) {
-      isInitialLoad.current = false;
+    setJobs(rows);
+    setLocalTotal(total);
+    setSelectedIds(new Set());
+  }, [rows, total]);
+
+  useEffect(() => {
+    if (!didMount.current) {
+      didMount.current = true;
       return;
     }
-    const params = new URLSearchParams();
-    if (searchQuery) params.set("search", searchQuery);
-    if (selectedCategoryId) params.set("category", selectedCategoryId.toString());
-    if (selectedSource) params.set("source", selectedSource);
-    if (selectedCompany) params.set("company", selectedCompany);
-    params.set("sortBy", sortBy);
-    params.set("limit", "30");
-    params.set("offset", "0");
-    debouncedFetchJobs(params);
-  }, [searchQuery, selectedCategoryId, selectedSource, selectedCompany, sortBy]);
-
-  const loadMore = useCallback(async () => {
-    if (loadingMore || !hasMore) return;
-    setLoadingMore(true);
-    const nextOffset = offset + 30;
-    const params = new URLSearchParams();
-    if (searchQuery) params.set("search", searchQuery);
-    if (selectedCategoryId) params.set("category", selectedCategoryId.toString());
-    if (selectedSource) params.set("source", selectedSource);
-    if (selectedCompany) params.set("company", selectedCompany);
-    params.set("sortBy", sortBy);
-    params.set("limit", "30");
-    params.set("offset", nextOffset.toString());
-    try {
-      const response = await fetch(`/api/v3/jobs?${params.toString()}`);
-      const data = (await response.json()) as JobsResponse;
-      if (data.success) {
-        setJobs((prev: JobWithCategory[]) => [...prev, ...data.data.jobs]);
-        setOffset(nextOffset);
-        setHasMore(data.data.hasMore);
+    const timer = setTimeout(() => {
+      if (inputValue.trim() !== query) {
+        navigate({ search: (prev) => ({ ...prev, query: inputValue.trim(), page: 1 }) });
       }
-    } catch (error) {
-      console.error("Error loading more jobs:", error);
-    } finally {
-      setLoadingMore(false);
-    }
-  }, [offset, hasMore, loadingMore, searchQuery, selectedCategoryId, selectedSource, selectedCompany, sortBy]);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [inputValue, navigate, query]);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading && !loadingMore) {
-          loadMore();
+    const hasActiveCron = loaderSavedSearches.some((s) => s.isActive);
+    if (!hasActiveCron) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const check = await getLinkedinJobHistory({ data: { page: 1, pageSize: 1 } });
+        if (check.total > localTotal) {
+          setCronNewCount(check.total - localTotal);
         }
-      },
-      { threshold: 0.1, rootMargin: "100px" }
-    );
-    if (loadMoreRef.current) observer.observe(loadMoreRef.current);
-    return () => observer.disconnect();
-  }, [hasMore, loading, loadingMore, loadMore]);
+      } catch {
+        // ignore polling errors silently
+      }
+    }, 60_000);
 
-  const handleSearch = useCallback((query: string) => setSearchQuery(query), []);
-  const handleCategorySelect = useCallback((id: number | null) => setSelectedCategoryId(id), []);
-  const handleSourceSelect = useCallback((source: string | null) => setSelectedSource(source), []);
+    return () => clearInterval(interval);
+  }, [loaderSavedSearches, localTotal]);
 
-  const handleCompanySelect = useCallback((company: string | null) => {
-    if (company) {
-      setSelectedCategoryId(null);
-      setSelectedSource(null);
-      setSearchQuery("");
+  // ─── Handlers ─────────────────────────────────────────────────────────────
+
+  function handlePageChange(newPage: number) {
+    navigate({ search: (prev) => ({ ...prev, page: newPage }) });
+  }
+
+  function toggleSelected(id: number) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAllVisible() {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allVisibleSelected) {
+        for (const job of jobs) next.delete(job.id);
+      } else {
+        for (const job of jobs) next.add(job.id);
+      }
+      return next;
+    });
+  }
+
+  async function handleStatusChange(id: number, status: LinkedinJobStatus) {
+    const previousRows = jobs;
+    setPendingStatusId(id);
+    setJobs((prev) => prev.map((job) => (job.id === id ? { ...job, status } : job)));
+    try {
+      await setLinkedinJobStatus({ data: { id, status } });
+      await router.invalidate();
+    } catch (error) {
+      setJobs(previousRows);
+      alert(error instanceof Error ? error.message : "Unable to update job status.");
+    } finally {
+      setPendingStatusId(null);
     }
-    setSelectedCompany(company);
-  }, []);
+  }
 
-  const handleSortChange = useCallback(
-    (newSort: "newest" | "oldest" | "title-asc" | "title-desc" | "recently-added") =>
-      setSortBy(newSort),
-    []
-  );
+  async function handleBulkArchive() {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    const previousRows = jobs;
+    setPendingBulkAction("archive");
+    setJobs((prev) =>
+      prev.map((job) => (selectedIds.has(job.id) ? { ...job, status: "Archived" as const } : job)),
+    );
+    try {
+      await archiveLinkedinJobs({ data: { ids } });
+      setSelectedIds(new Set());
+      await router.invalidate();
+    } catch (error) {
+      setJobs(previousRows);
+      alert(error instanceof Error ? error.message : "Unable to archive selected jobs.");
+    } finally {
+      setPendingBulkAction(null);
+    }
+  }
 
-  const clearCompanyFilter = useCallback(() => setSelectedCompany(null), []);
+  async function handleBulkDelete() {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    if (!window.confirm(`Delete ${ids.length} selected job${ids.length === 1 ? "" : "s"}?`)) return;
+
+    setPendingBulkAction("delete");
+    try {
+      const result = await deleteLinkedinJobs({ data: { ids } });
+      const deleted = result.deleted ?? ids.length;
+      const nextTotal = Math.max(0, localTotal - deleted);
+      setJobs((prev) => prev.filter((job) => !selectedIds.has(job.id)));
+      setLocalTotal(nextTotal);
+      setSelectedIds(new Set());
+
+      const nextTotalPages = Math.max(1, Math.ceil(nextTotal / PAGE_SIZE));
+      if (page > nextTotalPages) {
+        await navigate({ search: (prev) => ({ ...prev, page: nextTotalPages }) });
+      } else {
+        await router.invalidate();
+      }
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Unable to delete selected jobs.");
+    } finally {
+      setPendingBulkAction(null);
+    }
+  }
+
+  function handleSearchComplete(
+    freshJobs: LinkedInScrapedJob[],
+    meta: { warnings: string[]; searchUrl: string },
+  ) {
+    setSearchWarnings(meta.warnings);
+    const existingUrls = new Set(jobs.map((j) => j.sourceUrl));
+    const incoming = freshJobs
+      .filter((j) => !existingUrls.has(j.sourceUrl))
+      .map((j) => ({ ...j, isNew: true } as unknown as HubJob));
+    if (incoming.length > 0) {
+      setJobs((prev) => [...incoming, ...prev]);
+    }
+    void router.invalidate();
+  }
+
+  function openFreshDrawer() {
+    setDrawerOpen(true);
+  }
+
+  function toggleStatusFilter(status: LinkedinJobStatus) {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        status: prev.status === status ? "" : status,
+        page: 1,
+      }),
+    });
+  }
+
+  // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
     <div className="spx-page spx-stack">
       <PageHero
-        eyebrow="Remote Opportunities"
+        eyebrow="Caliber"
         icon={<Briefcase className="h-3.5 w-3.5" />}
-        title="Find Your Next Role"
-        description="AI-curated remote jobs from top tech companies — searched, scored, and ready for you to analyze."
+        title="Your High-Caliber Job Pipeline"
+        description={
+          canViewAllUsers
+            ? "Browse all users' agent jobs and manage the full pipeline."
+            : "Deploy background agents to search LinkedIn, Greenhouse, Lever, and Workable on your schedule — surfacing only top-tier matches."
+        }
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Link
-              to="/analyze"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700"
+              to="/profile"
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-white"
             >
-              <Zap className="h-4 w-4" />
-              Analyze a Job
-            </Link>
-            <Link
-              to="/sync"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white/70 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-white hover:text-slate-900"
-            >
-              <Settings2 size={14} />
-              Sources
+              <Wand2 className="h-4 w-4" />
+              Manage Resume
             </Link>
             <button
-              onClick={() => setShowAIInfoModal(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 transition hover:bg-amber-100"
+              type="button"
+              onClick={openFreshDrawer}
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-white"
             >
-              <Sparkles size={14} className="text-amber-500" />
-              How AI Works
-              <Info size={12} className="text-amber-400" />
+              <BookMarked className="h-4 w-4" />
+              Active Agents
+              {loaderSavedSearches.length > 0 && (
+                <span className="rounded-full bg-amber-600 px-1.5 py-0.5 text-[10px] font-bold text-white leading-none">
+                  {loaderSavedSearches.length}
+                </span>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={openFreshDrawer}
+              className="inline-flex items-center gap-2 rounded-lg bg-slate-900 border border-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 hover:text-amber-400"
+            >
+              <Search className="h-4 w-4" />
+              Configure Agents
             </button>
           </div>
         }
       />
 
-      {/* Analyze CTA Banner */}
-      <div
-        className="relative overflow-hidden rounded-2xl px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-        style={{
-          background: "linear-gradient(135deg, rgba(220,38,38,0.07) 0%, rgba(220,38,38,0.03) 50%, rgba(99,102,241,0.05) 100%)",
-          border: "1px solid rgba(220,38,38,0.15)",
-          backdropFilter: "blur(12px)",
-        }}
-      >
-        <div className="flex items-center gap-4">
-          <div
-            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
-            style={{ background: "rgba(220,38,38,0.1)", border: "1px solid rgba(220,38,38,0.2)" }}
-          >
-            <Sparkles className="h-5 w-5 text-primary-600" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-slate-900">
-              Have a job description you'd like to analyze?
+      {/* Cron new-jobs banner */}
+      {cronNewCount > 0 && (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
+          <div className="flex items-center justify-between gap-4">
+            <p>
+              {cronNewCount} new job{cronNewCount === 1 ? "" : "s"} added by your active agents.
             </p>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Paste any JD to get AI match scoring, gap analysis, and a tailored resume strategy.
-            </p>
-          </div>
-        </div>
-        <Link
-          to="/analyze"
-          className="inline-flex flex-shrink-0 items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary-900/10 transition-all hover:bg-primary-700 hover:shadow-md hover:shadow-primary-900/15"
-        >
-          Analyze Now
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
-
-      {/* Search, Filters, and Job Grid */}
-      <PageSection>
-        {/* Search + filters row */}
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
-          <div className="w-full lg:flex-[2] min-w-[300px]">
-            <SearchBar onSearch={handleSearch} />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <FilterDropdown
-              label="Categories"
-              value={selectedCategoryId}
-              options={categories.map((c: any) => ({ id: c.id, label: c.name }))}
-              onChange={handleCategorySelect}
-            />
-            <FilterDropdown
-              label="Source"
-              value={selectedSource}
-              options={[
-                { id: "Greenhouse", label: "Greenhouse" },
-                { id: "Lever", label: "Lever" },
-                { id: "Workable", label: "Workable" },
-              ]}
-              onChange={handleSourceSelect}
-            />
-          </div>
-        </div>
-
-        {/* Active company filter */}
-        {selectedCompany && (
-          <div className="mt-3 flex items-center gap-2">
-            <span className="text-sm text-slate-500">Filtering by company:</span>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 border border-primary-100 px-3 py-1 text-sm font-medium text-primary-700">
-              {selectedCompany}
+            <div className="flex shrink-0 items-center gap-3">
               <button
-                onClick={clearCompanyFilter}
-                className="rounded-full p-0.5 hover:bg-primary-100 transition-colors"
-                aria-label="Clear company filter"
+                type="button"
+                onClick={() => {
+                  setCronNewCount(0);
+                  void router.invalidate();
+                }}
+                className="text-sm font-semibold text-emerald-700 hover:underline"
               >
-                <X size={13} />
+                Refresh
               </button>
-            </span>
-          </div>
-        )}
-
-        {/* Count + sort */}
-        <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
-          <span className="text-sm text-slate-500">
-            {loading ? (
-              "Loading…"
-            ) : (
-              <>
-                <strong className="text-slate-900">{totalJobs || jobs.length}</strong> remote jobs
-              </>
-            )}
-          </span>
-          <SortControls sortBy={sortBy} onSortChange={handleSortChange} />
-        </div>
-
-        {/* Job cards */}
-        <div className="mt-6 min-h-[400px]">
-          {loading && jobs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center text-slate-500">
-              <Loader2 className="mb-4 animate-spin text-primary-600" size={40} />
-              <p className="text-sm">Finding the best remote jobs for you…</p>
-            </div>
-          ) : jobs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 py-16 text-center">
-              <Briefcase size={48} className="mb-4 text-slate-300" />
-              <h2 className="text-lg font-semibold text-slate-900">No jobs found</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                Try adjusting your search or filters to find more opportunities.
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-                {jobs.map((job: JobWithCategory) => (
-                  <JobCard
-                    key={job.id}
-                    job={job}
-                    onCompanyClick={handleCompanySelect}
-                  />
-                ))}
-              </div>
-
-              <div ref={loadMoreRef} className="flex h-20 items-center justify-center">
-                {loadingMore && (
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <Loader2 className="animate-spin" size={18} />
-                    <span className="text-sm">Loading more…</span>
-                  </div>
-                )}
-                {!hasMore && jobs.length > 0 && (
-                  <p className="text-sm text-slate-400">You've seen all jobs</p>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      </PageSection>
-
-      {/* AI Info Modal */}
-      {showAIInfoModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4"
-          onClick={() => setShowAIInfoModal(false)}
-        >
-          <div
-            className="w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
-            onClick={(e: React.MouseEvent) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-amber-100 bg-amber-50 px-5 py-4">
-              <div className="flex items-center gap-2">
-                <Sparkles size={16} className="text-amber-500" />
-                <h2 className="font-semibold text-amber-800">How AI Works Here</h2>
-              </div>
               <button
-                onClick={() => setShowAIInfoModal(false)}
-                className="rounded-full p-1 transition-colors hover:bg-amber-100"
+                type="button"
+                onClick={() => setCronNewCount(0)}
+                className="text-emerald-600 hover:text-emerald-800"
+                aria-label="Dismiss"
               >
-                <X size={16} className="text-amber-600" />
+                ✕
               </button>
-            </div>
-            <div className="space-y-4 p-5 text-sm text-slate-700">
-              <div>
-                <h3 className="mb-1 font-medium text-slate-900">✨ Intelligent Job Analysis</h3>
-                <p>Get a deep-dive evaluation of any role. Our AI performs multi-dimensional checks to assess role quality and your compatibility.</p>
-              </div>
-              <div>
-                <h3 className="mb-1 font-medium text-slate-900">🎯 Personalized Match Score</h3>
-                <p>Your saved resume is compared against each role, highlighting alignment, gaps, and likely strengths.</p>
-              </div>
-              <div>
-                <h3 className="mb-1 font-medium text-slate-900">🔍 Deep Insights</h3>
-                <p>Discover estimated salary ranges, work-life balance indicators, culture signals, and potential red flags.</p>
-              </div>
-              <div>
-                <h3 className="mb-1 font-medium text-slate-900">🛡️ Privacy First</h3>
-                <p>Analysis runs only when requested. Your documents stay tied to your account and are used only for your workflow.</p>
-              </div>
-              <div className="border-t border-slate-100 pt-3 text-xs text-slate-400">
-                Powered by Cloudflare Workers AI and your Caliber account data.
-              </div>
             </div>
           </div>
         </div>
       )}
+
+      {/* Search warnings banner */}
+      {searchWarnings.length > 0 && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1">
+              {searchWarnings.map((w) => (
+                <p key={w}>{w}</p>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setSearchWarnings([])}
+              className="shrink-0 text-amber-600 hover:text-amber-800"
+              aria-label="Dismiss warnings"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-5">
+        <PageSection
+          title="Job Pipeline"
+          description="Agent jobs are pruned daily when older than 30 days."
+          actions={
+            <div className="min-w-[220px] rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                {hasActiveFilters
+                  ? canViewAllUsers ? "Filtered Stored Jobs" : "Your Filtered Jobs"
+                  : canViewAllUsers ? "Total Stored Jobs" : "Your Stored Jobs"}
+              </p>
+              <div className="mt-2 flex items-center justify-between gap-3">
+                <p className="text-sm text-slate-600">
+                  {hasActiveFilters ? `${localTotal} matching` : "Currently saved"}
+                </p>
+                <div className="rounded-full bg-slate-900 px-4 py-2 text-sm font-bold text-white">
+                  {localTotal}
+                </div>
+              </div>
+            </div>
+          }
+        >
+          {/* Pipeline counts */}
+          <div className="mb-5 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Pipeline</p>
+                <p className="text-sm text-slate-600">
+                  Click a status to filter the list below.
+                </p>
+              </div>
+              <div className="text-sm font-semibold text-slate-700">{localTotal} total</div>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
+              {pipeline.map(({ status, count, percent }) => (
+                <button
+                  key={status}
+                  type="button"
+                  onClick={() => toggleStatusFilter(status)}
+                  className={`rounded-xl border p-3 text-left transition ${
+                    activeStatus === status
+                      ? "border-indigo-300 bg-indigo-50 ring-1 ring-indigo-300"
+                      : "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white"
+                  }`}
+                >
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <span className="truncate text-xs font-semibold text-slate-700">{status}</span>
+                    <span className="text-xs font-bold text-slate-900">{count}</span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-white">
+                    <div
+                      className={`h-full rounded-full ${STATUS_PIPELINE_TONES[status]}`}
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                  <p className="mt-1 text-[11px] text-slate-500">{percent}%</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Filters + sort */}
+          <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center">
+            <div className="flex h-9 w-full items-center rounded-md border border-input bg-transparent px-3 text-sm shadow-sm focus-within:ring-1 focus-within:ring-ring lg:flex-1">
+              <Search className="h-4 w-4 shrink-0 text-slate-400" />
+              <Input
+                value={inputValue}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
+                placeholder="Search agent jobs by title or company"
+                className="h-auto border-0 bg-transparent px-2 py-0 shadow-none focus-visible:ring-0"
+              />
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={sortBy}
+                onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                  navigate({ search: (prev) => ({ ...prev, sortBy: e.target.value as SortOption, page: 1 }) })
+                }
+                className="h-10 rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-slate-600 shadow-sm"
+                aria-label="Sort jobs"
+              >
+                <option value="posted-date">Sort: Posted date</option>
+                <option value="title">Sort: Job title</option>
+                <option value="score">Sort: Score</option>
+                <option value="company">Sort: Company</option>
+                <option value="location">Sort: Location</option>
+              </select>
+              <button
+                type="button"
+                aria-pressed={green}
+                onClick={() => navigate({ search: (prev) => ({ ...prev, green: !green, page: 1 }) })}
+                className={`inline-flex items-center rounded-full border px-3 py-2 text-sm font-medium transition ${
+                  green
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                Green jobs only
+              </button>
+              <button
+                type="button"
+                aria-pressed={remote}
+                onClick={() => navigate({ search: (prev) => ({ ...prev, remote: !remote, page: 1 }) })}
+                className={`inline-flex items-center rounded-full border px-3 py-2 text-sm font-medium transition ${
+                  remote
+                    ? "border-sky-200 bg-sky-50 text-sky-700"
+                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                Remote only
+              </button>
+              {activeStatus && (
+                <button
+                  type="button"
+                  onClick={() => navigate({ search: (prev) => ({ ...prev, status: "", page: 1 }) })}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-700 transition hover:bg-indigo-100"
+                >
+                  {activeStatus}
+                  <span className="text-indigo-400">×</span>
+                </button>
+              )}
+              {jobs.length > 0 && (
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50">
+                  <input
+                    type="checkbox"
+                    checked={allVisibleSelected}
+                    onChange={toggleAllVisible}
+                    className="h-4 w-4 rounded border-slate-300 text-primary-600"
+                    aria-label="Select all visible jobs"
+                  />
+                  Select all
+                </label>
+              )}
+            </div>
+          </div>
+
+          {/* Bulk action bar */}
+          {selectedCount > 0 && (
+            <PageActionBar tone="primary" className="mb-5">
+              <span className="font-semibold text-slate-700">{selectedCount} selected</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBulkArchive}
+                  disabled={pendingBulkAction !== null}
+                >
+                  {pendingBulkAction === "archive" ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Archive className="h-4 w-4" />
+                  )}
+                  Archive
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleBulkDelete}
+                  disabled={pendingBulkAction !== null}
+                >
+                  {pendingBulkAction === "delete" ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
+                  Delete
+                </Button>
+              </div>
+            </PageActionBar>
+          )}
+
+          {/* Job cards */}
+          <div className="grid gap-4 xl:grid-cols-2">
+            {jobs.map((job) => (
+              <LinkedinResultCard
+                key={job.id ?? job.sourceUrl}
+                job={{ ...job, resultSource: "history" }}
+                isNew={!!job.isNew}
+                selected={job.id ? selectedIds.has(job.id) : false}
+                showSelection={!!job.id}
+                onSelect={job.id ? () => toggleSelected(job.id!) : undefined}
+                statusOptions={JOB_STATUSES}
+                onStatusChange={job.id ? (status) => handleStatusChange(job.id!, status) : undefined}
+                statusPending={job.id ? pendingStatusId === job.id : false}
+              />
+            ))}
+          </div>
+
+          {jobs.length === 0 && (
+            <div className="mt-6 flex flex-col items-center gap-4 py-12 text-center">
+              <p className="text-sm text-slate-500">
+                {hasActiveFilters
+                  ? "No agent jobs match the current filters."
+                  : "No agent jobs yet. Configure an agent search to get started."}
+              </p>
+              {!hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={openFreshDrawer}
+                  className="inline-flex items-center gap-2 rounded-lg bg-slate-900 border border-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 hover:text-amber-400"
+                >
+                  <Search className="h-4 w-4" />
+                  Configure Agents
+                </button>
+              )}
+            </div>
+          )}
+
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            className="mt-8"
+          />
+        </PageSection>
+      </div>
+
+      <LinkedinSearchDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        hasResume={hasResume}
+        fullName={fullName}
+        initialSavedSearches={loaderSavedSearches}
+        preload={null}
+        cronStartHour={cronStartHour}
+        onSearchComplete={handleSearchComplete}
+      />
     </div>
   );
 }
