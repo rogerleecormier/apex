@@ -2,30 +2,19 @@
   "permissions": {
     "allow": [
       "Bash(npx wrangler *)",
-      "Bash(pnpm wrangler *)",
       "Bash(node -e ' *)",
-      "Bash(pnpm run *)",
-      "Bash(pnpm --filter @caliber/corporate build)",
-      "Bash(pnpm add *)",
+      "Bash(npm run *)",
+      "Bash(npm ci)",
       "Bash(wait)",
       "Read(//home/rogerleecormier/.config/.wrangler/logs/**)",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('main:', d.get\\('main'\\)\\); print\\('assets:', d.get\\('assets'\\)\\)\")",
       "Bash(wrangler deploy *)",
-      "Bash(pnpm --filter @caliber/corporate deploy)",
       "Bash(python3 -c ' *)",
-      "Bash(pnpm exec *)",
       "Read(//run/media/rogerleecormier/Storage/dev/**)",
       "Bash(npx tsc *)",
       "Bash(xargs ls *)",
-      "Bash(npx turbo *)",
-      "Bash(pnpm turbo *)",
-      "Bash(pnpm --filter=@caliber/corporate build)",
-      "Bash(pnpm --filter=@caliber/jobs build)",
-      "Bash(pnpm --filter=@caliber/tools build)",
       "Bash(node -e \"const c = require\\('./tailwind.config.ts'\\); console.log\\(JSON.stringify\\(c?.default?.safelist || c?.safelist || 'no safelist', null, 2\\)\\)\")",
-      "Bash(pnpm --filter @caliber/jobs deploy)",
-      "Bash(xargs cat *)",
-      "Bash(pnpm --filter @caliber/tools --filter @caliber/corporate --filter @caliber/jobs deploy)"
+      "Bash(xargs cat *)"
     ]
   }
 }

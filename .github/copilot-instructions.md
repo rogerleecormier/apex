@@ -1,6 +1,6 @@
 # GitHub Copilot Instructions
 
-These instructions dictate how GitHub Copilot should autocomplete and generate code in the Caliber monorepo.
+These instructions dictate how GitHub Copilot should autocomplete and generate code in the Caliber repository.
 
 ## Core Stack
 - TanStack Start (React SSR), TanStack Query, Vite
