@@ -2,7 +2,7 @@ import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@caliber/ui-kit";
 import Header from "../components/Header";
-import { getCurrentUser } from "@/server/functions/auth";
+import { getSessionUser } from "@/server/functions/auth";
 import type { SessionUser } from "@/lib/cloudflare";
 
 import appCss from "../styles.css?url";
@@ -27,7 +27,7 @@ export const Route = createRootRoute({
   }),
 
   beforeLoad: async () => {
-    const user = await getCurrentUser();
+    const user = await getSessionUser();
     return { user };
   },
 

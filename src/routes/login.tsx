@@ -1,6 +1,6 @@
-import { createFileRoute, redirect, useNavigate, useRouter, useSearch } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
-import { loginUser } from "@/server/functions/auth";
+import { authClient } from "@/auth/client";
 
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -17,31 +17,35 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
-  const router = useRouter();
   const { redirect: redirectTo } = useSearch({ from: Route.id });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError("");
+    setError(null);
     setLoading(true);
 
     try {
-      const result = await loginUser({ email, password });
-      if (result.user) {
-        await router.invalidate();
+      const result = await authClient.signIn.email({
+        email,
+        password,
+      });
+
+      if (result.error) {
+        setError(result.error.message ?? "Sign in failed. Please try again.");
+      } else {
         if (redirectTo) {
           const url = new URL(redirectTo);
           window.location.href = url.pathname + url.search;
         } else {
-          navigate({ to: "/" });
+          await navigate({ to: "/" });
         }
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+    } catch {
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }

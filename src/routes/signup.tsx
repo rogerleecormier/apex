@@ -1,6 +1,6 @@
-import { createFileRoute, redirect, useNavigate, useRouter } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { registerUser } from "@/server/functions/auth";
+import { authClient } from "@/auth/client";
 
 export const Route = createFileRoute("/signup")({
   beforeLoad: ({ context }) => {
@@ -14,26 +14,31 @@ export const Route = createFileRoute("/signup")({
 
 function SignupPage() {
   const navigate = useNavigate();
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError("");
+    setError(null);
     setLoading(true);
 
     try {
-      const result = await registerUser({ name, email, password });
-      if (result.user) {
-        await router.invalidate();
-        navigate({ to: "/" });
+      const result = await authClient.signUp.email({
+        name,
+        email,
+        password,
+      });
+
+      if (result.error) {
+        setError(result.error.message ?? "Account creation failed. Please try again.");
+      } else {
+        await navigate({ to: "/" });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Signup failed");
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }

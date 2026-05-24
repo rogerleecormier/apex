@@ -1,7 +1,7 @@
 import { Link, useLocation, useRouter } from "@tanstack/react-router";
 import { AppHeader } from "@caliber/ui-kit";
 import type { SessionUser } from "@/lib/cloudflare";
-import { logoutUser } from "@/server/functions/auth";
+import { authClient } from "@/auth/client";
 
 interface HeaderProps {
   user?: SessionUser | null;
@@ -13,7 +13,7 @@ export default function Header({ user }: HeaderProps) {
   const router = useRouter();
 
   async function handleLogout() {
-    await logoutUser();
+    await authClient.signOut();
     await router.invalidate();
     window.location.href = "/";
   }
