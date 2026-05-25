@@ -90,7 +90,7 @@ export const Route = createFileRoute("/jobs")({
   }),
   loaderDeps: ({ search }: { search: JobSearchParams }) => search,
   beforeLoad: ({ context }) => {
-    const ctx = context as { user?: { id: number; role: string } | null };
+    const ctx = context as { user?: { id: string; role: string } | null };
     if (!ctx.user) requireLoginRedirect();
   },
   loader: async ({ deps }: { deps: JobSearchParams }) => {

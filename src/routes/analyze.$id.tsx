@@ -7,7 +7,7 @@ import { requireLoginRedirect } from "@/lib/auth-redirect";
 
 export const Route = createFileRoute("/analyze/$id")({
   beforeLoad: ({ context }) => {
-    const ctx = context as { user?: { id: number } | null };
+    const ctx = context as { user?: { id: string } | null };
     if (!ctx.user) requireLoginRedirect();
   },
   loader: async ({ params }) => getAnalysis({ data: { id: Number(params.id) } }),

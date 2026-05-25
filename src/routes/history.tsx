@@ -39,7 +39,7 @@ type HistorySearchParams = {
 
 export const Route = createFileRoute("/history")({
   beforeLoad: ({ context }) => {
-    const ctx = context as { user?: { id: number } | null };
+    const ctx = context as { user?: { id: string } | null };
     if (!ctx.user) requireLoginRedirect();
   },
   validateSearch: (search: Record<string, unknown>) => ({

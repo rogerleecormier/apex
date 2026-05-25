@@ -28,7 +28,7 @@ import styles from "../Header/Header.module.css";
 import { getSharedAuthOrigin } from "../../../shared-utils/src/auth";
 
 interface AppHeaderUser {
-  id?: number;
+  id?: string;
   email: string;
   role: string;
 }
