@@ -85,7 +85,7 @@ export const getSearchLogs = createServerFn({ method: "GET" })
       .from(searchLogs)
       .where(and(
         eq(searchLogs.userId, user.id),
-        sql`${searchLogs.eventType} IN ('search_started', 'search_completed')`,
+        eq(searchLogs.eventType, 'search_completed'),
       ));
 
     const [foundCount] = await db
