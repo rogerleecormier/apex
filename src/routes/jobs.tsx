@@ -162,6 +162,23 @@ function JobsPage() {
     [localTotal, statusCounts],
   );
 
+  const sortedJobs = useMemo(() => {
+    const jobsCopy = [...jobs];
+    switch (sortBy) {
+      case "title":
+        return jobsCopy.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+      case "score":
+        return jobsCopy.sort((a, b) => (b.matchScore ?? 0) - (a.matchScore ?? 0));
+      case "company":
+        return jobsCopy.sort((a, b) => (a.company || "").localeCompare(b.company || ""));
+      case "location":
+        return jobsCopy.sort((a, b) => (a.location || "").localeCompare(b.location || ""));
+      case "posted-date":
+      default:
+        return jobsCopy.sort((a, b) => new Date(b.postDate || 0).getTime() - new Date(a.postDate || 0).getTime());
+    }
+  }, [jobs, sortBy]);
+
   useEffect(() => {
     setJobs(rows);
     setLocalTotal(total);
@@ -688,7 +705,7 @@ function JobsPage() {
           {/* Job cards or table */}
           {viewMode === "cards" ? (
             <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-              {jobs.map((job) => (
+              {sortedJobs.map((job) => (
                 <JobResultCard
                   key={job.id ?? job.sourceUrl}
                   job={{ ...job, resultSource: "history" }}
@@ -706,7 +723,7 @@ function JobsPage() {
             </div>
           ) : (
             <JobTableView
-              jobs={jobs.map((job) => ({ ...job, resultSource: "history" }))}
+              jobs={sortedJobs.map((job) => ({ ...job, resultSource: "history" }))}
               selectedIds={selectedIds}
               onSelect={(id) => toggleSelected(id)}
               onSelectAll={(checked) => {

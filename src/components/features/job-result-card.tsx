@@ -147,7 +147,7 @@ export function JobResultCard({
 
 
   return (
-    <div className="relative">
+    <div className="relative h-full flex flex-col">
       {showSelection ? (
         <input
           type="checkbox"
@@ -160,7 +160,7 @@ export function JobResultCard({
       <PrimaryCard
         title={job.title}
         description={`${job.company}${job.location ? ' · ' + job.location : ''}`}
-        className={`shadow-sm transition hover:shadow-md ${
+        className={`shadow-sm transition hover:shadow-md flex flex-col h-full ${
           selected
             ? "ring-2 ring-primary-300 bg-white/85"
             : isNew
