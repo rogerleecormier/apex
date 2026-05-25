@@ -43,6 +43,7 @@ import {
   PIPELINE_STATUSES,
   STATUS_TONES,
 } from "@/lib/pipeline-constants";
+import { useJobsQuery } from "@/hooks/useJobsQuery";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -133,8 +134,9 @@ function JobsPage() {
   const navigate = Route.useNavigate();
   const router = useRouter();
 
-  const [jobs, setJobs] = useState<HubJob[]>(rows);
-  const [localTotal, setLocalTotal] = useState(total);
+  const searchParams = { page, query, remote, sortBy, status: activeStatus, analyzedOnly };
+  const jobsQuery = useJobsQuery({ searchParams });
+
   const [inputValue, setInputValue] = useState(query);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(() => new Set());
   const [pendingStatusId, setPendingStatusId] = useState<number | null>(null);
@@ -148,6 +150,10 @@ function JobsPage() {
   const [storedAnalysis, setStoredAnalysis] = useState<any>(null);
   const didMount = useRef(false);
 
+  const jobs = (jobsQuery.data?.rows ?? rows) as HubJob[];
+  const localTotal = jobsQuery.data?.total ?? total;
+  const currentStatusCounts = jobsQuery.data?.statusCounts ?? statusCounts;
+
   const totalPages = Math.ceil(localTotal / PAGE_SIZE);
   const selectedCount = selectedIds.size;
   const allVisibleSelected = jobs.length > 0 && jobs.every((job) => selectedIds.has(job.id));
@@ -157,10 +163,10 @@ function JobsPage() {
     () =>
       JOB_STATUSES.map((status) => ({
         status,
-        count: Number(statusCounts?.[status] ?? 0),
-        percent: localTotal > 0 ? Math.round((Number(statusCounts?.[status] ?? 0) / localTotal) * 100) : 0,
+        count: Number(currentStatusCounts?.[status] ?? 0),
+        percent: localTotal > 0 ? Math.round((Number(currentStatusCounts?.[status] ?? 0) / localTotal) * 100) : 0,
       })),
-    [localTotal, statusCounts],
+    [localTotal, currentStatusCounts],
   );
 
   const sortedJobs = useMemo(() => {
@@ -181,10 +187,8 @@ function JobsPage() {
   }, [jobs, sortBy]);
 
   useEffect(() => {
-    setJobs(rows);
-    setLocalTotal(total);
     setSelectedIds(new Set());
-  }, [rows, total]);
+  }, [page, query, remote, sortBy, activeStatus, analyzedOnly]);
 
   useEffect(() => {
     if (!didMount.current) {
@@ -245,14 +249,19 @@ function JobsPage() {
   }
 
   async function handleStatusChange(id: number, status: JobStatus) {
-    const previousRows = jobs;
     setPendingStatusId(id);
-    setJobs((prev) => prev.map((job) => (job.id === id ? { ...job, status } : job)));
+    jobsQuery.updateJobsOptimistically((data) => {
+      if (!data) return data;
+      return {
+        ...data,
+        rows: data.rows.map((job) => (job.id === id ? { ...job, status } : job)),
+      };
+    });
     try {
       await setPipelineJobStatus({ data: { id, status } });
-      await router.invalidate();
+      await jobsQuery.invalidateJobs();
     } catch (error) {
-      setJobs(previousRows);
+      jobsQuery.invalidateJobs();
       alert(error instanceof Error ? error.message : "Unable to update job status.");
     } finally {
       setPendingStatusId(null);
@@ -262,17 +271,20 @@ function JobsPage() {
   async function handleBulkArchive() {
     const ids = Array.from(selectedIds);
     if (ids.length === 0) return;
-    const previousRows = jobs;
     setPendingBulkAction("archive");
-    setJobs((prev) =>
-      prev.map((job) => (selectedIds.has(job.id) ? { ...job, status: "Archived" as const } : job)),
-    );
+    jobsQuery.updateJobsOptimistically((data) => {
+      if (!data) return data;
+      return {
+        ...data,
+        rows: data.rows.map((job) => (selectedIds.has(job.id) ? { ...job, status: "Archived" as const } : job)),
+      };
+    });
     try {
       await archivePipelineJobs({ data: { ids } });
       setSelectedIds(new Set());
-      await router.invalidate();
+      await jobsQuery.invalidateJobs();
     } catch (error) {
-      setJobs(previousRows);
+      jobsQuery.invalidateJobs();
       alert(error instanceof Error ? error.message : "Unable to archive selected jobs.");
     } finally {
       setPendingBulkAction(null);
@@ -285,21 +297,30 @@ function JobsPage() {
     if (!window.confirm(`Delete ${ids.length} selected job${ids.length === 1 ? "" : "s"}?`)) return;
 
     setPendingBulkAction("delete");
+    jobsQuery.updateJobsOptimistically((data) => {
+      if (!data) return data;
+      const filtered = data.rows.filter((job) => !selectedIds.has(job.id));
+      const deleted = data.rows.length - filtered.length;
+      return {
+        ...data,
+        rows: filtered,
+        total: Math.max(0, data.total - deleted),
+      };
+    });
     try {
       const result = await deletePipelineJobs({ data: { ids } });
       const deleted = result.deleted ?? ids.length;
       const nextTotal = Math.max(0, localTotal - deleted);
-      setJobs((prev) => prev.filter((job) => !selectedIds.has(job.id)));
-      setLocalTotal(nextTotal);
       setSelectedIds(new Set());
 
       const nextTotalPages = Math.max(1, Math.ceil(nextTotal / PAGE_SIZE));
       if (page > nextTotalPages) {
         await navigate({ search: (prev) => ({ ...prev, page: nextTotalPages }) });
       } else {
-        await router.invalidate();
+        await jobsQuery.invalidateJobs();
       }
     } catch (error) {
+      jobsQuery.invalidateJobs();
       alert(error instanceof Error ? error.message : "Unable to delete selected jobs.");
     } finally {
       setPendingBulkAction(null);
@@ -316,9 +337,16 @@ function JobsPage() {
       .filter((j) => !existingUrls.has(j.sourceUrl))
       .map((j) => ({ ...j, isNew: true } as unknown as HubJob));
     if (incoming.length > 0) {
-      setJobs((prev) => [...incoming, ...prev]);
+      jobsQuery.updateJobsOptimistically((data) => {
+        if (!data) return data;
+        return {
+          ...data,
+          rows: [...incoming, ...data.rows],
+          total: data.total + incoming.length,
+        };
+      });
     }
-    void router.invalidate();
+    void jobsQuery.invalidateJobs();
   }
 
   function openFreshDrawer() {
@@ -453,7 +481,7 @@ function JobsPage() {
                 type="button"
                 onClick={() => {
                   setCronNewCount(0);
-                  void router.invalidate();
+                  void jobsQuery.invalidateJobs();
                 }}
                 className="text-sm font-semibold text-emerald-700 hover:underline"
               >
