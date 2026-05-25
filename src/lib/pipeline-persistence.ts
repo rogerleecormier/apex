@@ -295,7 +295,7 @@ export async function listPipelineJobs(args: {
     args.excludeDiscovered ? sql`${pipelineJobs.status} != 'Discovered'` : undefined,
   );
   const whereClause = args.status
-    ? and(baseWhereClause, eq(pipelineJobs.status, args.status))
+    ? and(baseWhereClause, eq(pipelineJobs.status, args.status as any))
     : baseWhereClause;
 
   const orderBy = (() => {
@@ -361,7 +361,7 @@ export async function listPipelineJobs(args: {
       analyzedAt: pipelineJobs.analyzedAt,
       createdAt: pipelineJobs.createdAt,
       updatedAt: pipelineJobs.updatedAt,
-      ownerEmail: sql<string | null>`${sql.raw(canViewAllUsers ? "(select email from users where users.id = pipeline_jobs.user_id)" : "null")}`,
+      ownerEmail: sql<string | null>`${sql.raw(canViewAllUsers ? "(select email from users where users.id = pipeline_jobs.user_id)" : "null")}`.as('ownerEmail'),
     })
     .from(pipelineJobs)
     .where(whereClause)

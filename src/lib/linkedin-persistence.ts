@@ -390,7 +390,7 @@ export async function findSemanticallyMatchingExistingLinkedinJobs(args: {
     const key = buildLinkedinJobSemanticKey({
       title: row.title,
       company: row.company,
-      location: row.location,
+      location: row.location || "",
     });
     const existing = map.get(key);
     if (!existing || (row.masterScore ?? 0) > (existing.masterScore ?? 0)) {
@@ -403,10 +403,10 @@ export async function findSemanticallyMatchingExistingLinkedinJobs(args: {
 
 export function mapStoredLinkedinJobToScrapedJob(row: LinkedinJobResult): LinkedInScrapedJob {
   return {
-    id: row.externalJobId,
+    id: row.externalJobId || "",
     title: row.title,
     company: row.company,
-    location: row.location,
+    location: row.location || "",
     sourceUrl: row.sourceUrl,
     sourceName: "LinkedIn",
     postDateText: row.postDateText ?? null,
@@ -419,7 +419,7 @@ export function mapStoredLinkedinJobToScrapedJob(row: LinkedinJobResult): Linked
       row.masterScore == null || row.atsScore == null || row.careerScore == null || row.outlookScore == null
         ? undefined
         : {
-            jobId: row.externalJobId,
+            jobId: row.externalJobId || "",
             atsScore: row.atsScore,
             careerScore: row.careerScore,
             outlookScore: row.outlookScore,
@@ -677,7 +677,7 @@ export async function listLinkedinHistory(args: {
     args.green ? gte(pipelineJobs.masterScore, 80) : undefined,
   );
   const whereClause = args.status
-    ? and(baseWhereClause, eq(pipelineJobs.status, args.status))
+    ? and(baseWhereClause, eq(pipelineJobs.status, args.status as any))
     : baseWhereClause;
 
   const orderBy = (() => {
@@ -728,7 +728,7 @@ export async function listLinkedinHistory(args: {
       lastSeenAt: pipelineJobs.lastSeenAt,
       createdAt: pipelineJobs.createdAt,
       updatedAt: pipelineJobs.updatedAt,
-      ownerEmail: sql<string | null>`${sql.raw(canViewAllUsers ? "(select email from users where users.id = pipeline_jobs.user_id)" : "null")}`,
+      ownerEmail: sql<string | null>`${sql.raw(canViewAllUsers ? "(select email from users where users.id = pipeline_jobs.user_id)" : "null")}`.as('ownerEmail'),
     })
     .from(pipelineJobs)
     .where(whereClause)
@@ -810,7 +810,7 @@ export async function pruneDuplicateLinkedinJobResults() {
   const canonicalByKeeperId = new Map<number, string>();
 
   for (const row of rows) {
-    const canonicalSourceUrl = canonicalizeLinkedinJobUrl(row.sourceUrl, row.externalJobId);
+    const canonicalSourceUrl = canonicalizeLinkedinJobUrl(row.sourceUrl, row.externalJobId ?? undefined);
     const dedupeKey = `${row.userId}:${canonicalSourceUrl}`;
     if (keeperIdByCanonicalKey.has(dedupeKey)) {
       duplicateIds.push(row.id);
@@ -859,7 +859,7 @@ export async function pruneSemanticDuplicateLinkedinJobResults() {
     const semanticKey = `${row.userId}:${buildLinkedinJobSemanticKey({
       title: row.title,
       company: row.company,
-      location: row.location,
+      location: row.location || "",
     })}`;
 
     if (bestBySemanticKey.has(semanticKey)) {

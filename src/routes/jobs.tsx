@@ -44,6 +44,16 @@ import {
 
 type SortOption = "posted-date" | "title" | "score" | "company" | "location";
 
+type JobSearchInput = {
+  page?: number;
+  query?: string;
+  remote?: boolean;
+  green?: boolean;
+  sortBy?: SortOption;
+  status?: string;
+  analyzedOnly?: boolean;
+};
+
 type JobSearchParams = {
   page: number;
   query: string;
@@ -67,7 +77,7 @@ const JOB_STATUSES = PIPELINE_STATUSES as unknown as LinkedinJobStatus[];
 // ─── Route ────────────────────────────────────────────────────────────────────
 
 export const Route = createFileRoute("/jobs")({
-  validateSearch: (search: Record<string, unknown>): JobSearchParams => ({
+  validateSearch: (search: Record<string, unknown> & JobSearchInput): JobSearchParams => ({
     page: Math.max(1, Number(search.page) || 1),
     query: String(search.query ?? ""),
     remote: search.remote === true || search.remote === "true",

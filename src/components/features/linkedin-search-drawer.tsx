@@ -162,7 +162,7 @@ function formatSortSummary(value: FormState["sortBy"]) {
   return value === "recent" ? "Most recent" : "Most relevant";
 }
 
-function criteriaToForm(criteria: LinkedInSearchParams): FormState {
+function criteriaToForm(criteria: LinkedInSearchParams): Omit<FormState, "runIntervalHours" | "sources"> {
   return {
     keywords: criteria.keywords || "",
     location: criteria.location || "",
@@ -210,7 +210,7 @@ export function LinkedinSearchDrawer({
   open,
   onOpenChange,
   hasResume,
-  fullName,
+  fullName: _fullName,
   initialSavedSearches,
   preload,
   cronStartHour,
