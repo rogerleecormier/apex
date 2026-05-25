@@ -37,6 +37,8 @@ export async function searchAtsJobs(
     sourceUrl: job.sourceUrl,
     sourceName: job.sourceName as any,
     postDateText: job.postDate ? new Date(job.postDate).toLocaleDateString() : null,
+    firstSeenAt: job.createdAt?.toISOString() || null,
+    createdAt: job.createdAt?.toISOString() || null,
     workplaceType: 'remote',
     salary: job.payRange || null,
     snippet: job.descriptionRaw ? job.descriptionRaw.substring(0, 300) : null,

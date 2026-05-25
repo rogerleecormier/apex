@@ -29,6 +29,8 @@ export type JobResultCardJob = {
   snippet?: string | null;
   description?: string | null;
   postDateText?: string | null;
+  firstSeenAt?: string | null;
+  createdAt?: string | null;
   resultSource?: string;
   ownerEmail?: string | null;
   status?: JobStatus | null;
@@ -197,10 +199,21 @@ export function JobResultCard({
               </Badge>
             ) : null}
           </div>
-          {job.postDateText || job.ownerEmail ? (
-            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+          {job.postDateText || job.firstSeenAt || job.ownerEmail ? (
+            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
               {job.postDateText ? (
-                <Caption className="text-xs text-slate-500">{job.postDateText}</Caption>
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] font-medium text-slate-400">Posted:</span>
+                  <Caption className="text-xs text-slate-600">{job.postDateText}</Caption>
+                </div>
+              ) : null}
+              {job.firstSeenAt ? (
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] font-medium text-slate-400">Found:</span>
+                  <Caption className="text-xs text-slate-600">
+                    {new Date(job.firstSeenAt).toLocaleDateString()}
+                  </Caption>
+                </div>
               ) : null}
               {job.ownerEmail ? (
                 <Caption className="text-[11px] text-slate-500">

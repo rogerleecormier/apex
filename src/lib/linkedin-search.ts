@@ -46,6 +46,8 @@ export interface LinkedInScrapedJob {
   sourceUrl: string;
   sourceName: "LinkedIn";
   postDateText: string | null;
+  firstSeenAt?: string | null;
+  createdAt?: string | null;
   workplaceType: string | null;
   salary: string | null;
   snippet: string | null;
@@ -96,9 +98,24 @@ const POSTED_WITHIN_CODES: Record<Exclude<LinkedInPostedWithin, "any">, string> 
   "30d": "r2592000",
 };
 
+export interface NormalizedLinkedInSearchParams extends LinkedInSearchParams {
+  location: string;
+  company: string;
+  region: string;
+  workplaceTypes: LinkedInWorkplaceType[];
+  experienceLevels: LinkedInExperienceLevel[];
+  jobTypes: LinkedInJobType[];
+  postedWithin: LinkedInPostedWithin;
+  easyApply: boolean;
+  sortBy: LinkedInSortBy;
+  page: number;
+  pagesToScan: number;
+  limit: number;
+}
+
 export function normalizeLinkedInSearchParams(
   params: Partial<LinkedInSearchParams>,
-): LinkedInSearchParams {
+): NormalizedLinkedInSearchParams {
   return {
     keywords: (params.keywords || "").trim(),
     location: params.location?.trim() || "",

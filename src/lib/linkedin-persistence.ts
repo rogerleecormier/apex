@@ -410,6 +410,8 @@ export function mapStoredLinkedinJobToScrapedJob(row: LinkedinJobResult): Linked
     sourceUrl: row.sourceUrl,
     sourceName: "LinkedIn",
     postDateText: row.postDateText ?? null,
+    firstSeenAt: row.firstSeenAt ?? null,
+    createdAt: row.createdAt ?? null,
     workplaceType: row.workplaceType ?? null,
     salary: row.salary ?? null,
     snippet: row.snippet ?? null,

@@ -702,6 +702,10 @@ export const Route = createFileRoute("/api/linkedin/search")({
             },
           });
 
+          const jobsWithoutDescription = scoredJobs.filter((job) => !job.description);
+          const linkedInJobsWithoutDescription = jobsWithoutDescription.filter((job) => job.sourceName === "LinkedIn");
+          const atsJobsWithoutDescription = jobsWithoutDescription.filter((job) => job.sourceName !== "LinkedIn");
+
           return json({
             success: true,
             data: {
@@ -710,8 +714,11 @@ export const Route = createFileRoute("/api/linkedin/search")({
               total: combinedJobs.length,
               warnings: [
                 ...warnings,
-                ...(scoredJobs.some((job) => !job.description)
-                  ? ["Some jobs were scored from snippets because description content was unavailable."]
+                ...(linkedInJobsWithoutDescription.length > 0
+                  ? ["Some jobs were scored from snippets because LinkedIn did not expose a full description."]
+                  : []),
+                ...(atsJobsWithoutDescription.length > 0
+                  ? [`Some jobs were scored from snippets because ${[...new Set(atsJobsWithoutDescription.map(j => j.sourceName))].join(", ")} did not expose a full description.`]
                   : []),
                 ...(reusedCount > 0
                   ? [`Reused ${reusedCount} previously saved job${reusedCount === 1 ? "" : "s"} without rescoring.`]
