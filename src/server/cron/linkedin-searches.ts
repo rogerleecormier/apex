@@ -1,7 +1,7 @@
 import { getDb, schema } from "@/db/db";
 import { linkedinSavedSearches, pipelineJobs, masterResume } from "@/db/schema";
 import type { CloudflareEnv } from "@/lib/cloudflare";
-import { getLinkedinSettings, pruneDuplicateLinkedinJobResults, pruneExpiredLinkedinJobResults } from "@/lib/linkedin-persistence";
+import { getLinkedinSettings, pruneDuplicateLinkedinJobResults } from "@/lib/linkedin-persistence";
 import { buildLinkedInSearchUrl, buildLinkedInSearchUrlForPage, normalizeLinkedInSearchParams, type LinkedInScrapedJob, type LinkedInSearchParams } from "@/lib/linkedin-search";
 import { scoreJobAgainstProfile } from "@/lib/ai/job-score";
 import {
@@ -11,9 +11,10 @@ import {
   findSemanticallyMatchingExistingLinkedinJobs,
   upsertLinkedinJobResults,
 } from "@/lib/linkedin-persistence";
-import { and, eq, lte, or, inArray, like } from "drizzle-orm";
+import { and, eq, lte } from "drizzle-orm";
 import { searchAtsJobs } from "@/lib/ats-search";
 import { logSearchEvent, logSearchEvents } from "@/lib/pipeline-persistence";
+import { withRetry } from "@/lib/sync-queue";
 
 type BrowserPage = any;
 
@@ -232,7 +233,7 @@ export async function runLinkedinSearchMaintenance(env: CloudflareEnv) {
     const jobsDeletedResult = await db.delete(schema.jobs).where(lte(schema.jobs.createdAt, cutoffDate));
     
     // Prune agent job results (pipelineJobs) - only prune Discovered status
-    const agentJobsDeletedResult = await db.delete(pipelineJobs).where(
+    await db.delete(pipelineJobs).where(
       and(
         lte(pipelineJobs.createdAt, cutoffIso),
         eq(pipelineJobs.status, 'Discovered')
@@ -259,22 +260,6 @@ export async function runLinkedinSearchMaintenance(env: CloudflareEnv) {
 
   if (dueSearches.length === 0) {
     return { duplicatePrunedCount, prunedCount, executedSearches: 0 };
-  }
-
-  // Check if browser is needed for LinkedIn scraping
-  const needBrowser = dueSearches.some(search => {
-    try {
-      const sourcesList = JSON.parse((search as any).sources || '["linkedin"]') as string[];
-      return sourcesList.includes('linkedin');
-    } catch {
-      return true;
-    }
-  });
-
-  let browser: any = null;
-  if (needBrowser) {
-    const puppeteer = await import("@cloudflare/puppeteer");
-    browser = await puppeteer.default.launch(env.BROWSER);
   }
 
   const ai = env.AI;
@@ -321,8 +306,29 @@ export async function runLinkedinSearchMaintenance(env: CloudflareEnv) {
 
         // Scrape LinkedIn if enabled
         let linkedinJobs: LinkedInScrapedJob[] = [];
-        if (sourcesList.includes('linkedin') && browser) {
-          linkedinJobs = await collectLinkedinJobsAcrossPages({ browser, criteria });
+        if (sourcesList.includes('linkedin')) {
+          const puppeteer = await import("@cloudflare/puppeteer");
+          linkedinJobs = await withRetry(
+            async () => {
+              const currentBrowser = await puppeteer.default.launch(env.BROWSER);
+              try {
+                return await collectLinkedinJobsAcrossPages({ browser: currentBrowser, criteria });
+              } finally {
+                try {
+                  await currentBrowser.close();
+                } catch (err) {
+                  console.error("[cron-search] failed to close browser during search list scraping:", err);
+                }
+              }
+            },
+            {
+              maxRetries: 2,
+              baseDelayMs: 2000,
+              onRetry: (attempt, error) => {
+                console.warn(`[cron-search] Search list scraping failed, retrying (attempt ${attempt}):`, error);
+              },
+            }
+          );
         }
 
         // Query local Greenhouse/Lever/Workable cache if enabled
@@ -401,7 +407,7 @@ export async function runLinkedinSearchMaintenance(env: CloudflareEnv) {
             platform: job.sourceName,
             agentName: search.name,
             message: `Skipped duplicate: "${job.title}" at ${job.company} already exists`,
-            level: "info",
+            level: "info" as const,
             metadata: {
               jobId: job.id,
               jobTitle: job.title,
@@ -445,20 +451,46 @@ export async function runLinkedinSearchMaintenance(env: CloudflareEnv) {
         }
 
         // Enrich job descriptions for LinkedIn jobs only (ATS jobs already have descriptions)
-        for (const job of jobs) {
-          if (job.id.startsWith('ats-')) continue; // Skip ATS jobs
-          if (!browser) continue;
-
-          const detailPage = await browser.newPage();
-          try {
-            await detailPage.goto(canonicalizeLinkedinJobUrl(job.sourceUrl, job.id), { waitUntil: "domcontentloaded", timeout: 60000 });
-            await new Promise((resolve) => setTimeout(resolve, 1500));
-            job.description = await extractJobDescription(detailPage);
-          } catch {
-            job.description = job.snippet;
-          } finally {
-            await detailPage.close();
-          }
+        const needEnrichment = jobs.some(job => !job.id.startsWith('ats-'));
+        if (needEnrichment) {
+          const puppeteer = await import("@cloudflare/puppeteer");
+          await withRetry(
+            async () => {
+              const currentBrowser = await puppeteer.default.launch(env.BROWSER);
+              try {
+                for (const job of jobs) {
+                  if (job.id.startsWith('ats-')) continue;
+                  const detailPage = await currentBrowser.newPage();
+                  try {
+                    await detailPage.goto(canonicalizeLinkedinJobUrl(job.sourceUrl, job.id), { waitUntil: "domcontentloaded", timeout: 60000 });
+                    await new Promise((resolve) => setTimeout(resolve, 1500));
+                    job.description = await extractJobDescription(detailPage);
+                  } catch {
+                    job.description = job.snippet;
+                  } finally {
+                    try {
+                      await detailPage.close();
+                    } catch (err) {
+                      console.error("[cron-search] failed to close detail page:", err);
+                    }
+                  }
+                }
+              } finally {
+                try {
+                  await currentBrowser.close();
+                } catch (err) {
+                  console.error("[cron-search] failed to close browser during enrichment:", err);
+                }
+              }
+            },
+            {
+              maxRetries: 2,
+              baseDelayMs: 2000,
+              onRetry: (attempt, error) => {
+                console.warn(`[cron-search] Job enrichment failed, retrying (attempt ${attempt}):`, error);
+              },
+            }
+          );
         }
 
         const profile = await buildProfile(db, search.userId);
@@ -505,7 +537,7 @@ export async function runLinkedinSearchMaintenance(env: CloudflareEnv) {
             platform: job.sourceName,
             agentName: search.name,
             message: `New job surfaced: "${job.title}" at ${job.company} (${job.location})`,
-            level: "success",
+            level: "success" as const,
             metadata: {
               jobId: job.id,
               jobTitle: job.title,
@@ -557,9 +589,7 @@ export async function runLinkedinSearchMaintenance(env: CloudflareEnv) {
       }
     }
   } finally {
-    if (browser) {
-      await browser.close();
-    }
+    // Outer browser cleanup not needed anymore as sessions are managed per-search
   }
 
   return { duplicatePrunedCount, prunedCount, executedSearches: dueSearches.length };

@@ -1,6 +1,7 @@
 'use server';
 import { createServerFn } from "@tanstack/react-start";
 import { getCloudflareEnv } from "@/lib/cloudflare";
+import { withRetry } from "@/lib/sync-queue";
 
 function cleanUrl(raw: string): string {
   try {
@@ -36,39 +37,64 @@ export async function scrapeJobInternal(url: string) {
 
   try {
     const env = getCloudflareEnv();
-    if (!env.BROWSER || !env.KV) {
+    const browserWorker = env.BROWSER;
+    const kvNamespace = env.KV;
+    if (!browserWorker || !kvNamespace) {
       throw new Error("Browser rendering not available in development mode. Deploy to Cloudflare Workers to use this feature.");
     }
 
     const cacheKey = await makeCacheKey(url);
     const navigateUrl = cleanUrl(url);
 
-    const cached = await env.KV.get(cacheKey);
+    const cached = await kvNamespace.get(cacheKey);
     if (cached) {
       return { text: cached, fromCache: true };
     }
 
     const puppeteer = await import("@cloudflare/puppeteer");
-    const browser = await puppeteer.default.launch(env.BROWSER);
-    const page = await browser.newPage();
 
-    try {
-      await page.goto(navigateUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
-      await new Promise((r) => setTimeout(r, 3000));
+    return await withRetry(
+      async () => {
+        const browser = await puppeteer.default.launch(browserWorker);
+        try {
+          const page = await browser.newPage();
+          try {
+            await page.goto(navigateUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
+            await new Promise((r) => setTimeout(r, 3000));
 
-      const text = await page.evaluate(() => {
-        const scripts = document.querySelectorAll("script, style, nav, footer, header");
-        scripts.forEach((el) => el.remove());
-        return document.body?.innerText?.trim() ?? "";
-      });
+            const text = await page.evaluate(() => {
+              const scripts = document.querySelectorAll("script, style, nav, footer, header");
+              scripts.forEach((el) => el.remove());
+              return document.body?.innerText?.trim() ?? "";
+            });
 
-      if (!text) throw new Error("No text content extracted from the page");
+            if (!text) throw new Error("No text content extracted from the page");
 
-      await env.KV.put(cacheKey, text, { expirationTtl: 7 * 24 * 60 * 60 });
-      return { text, fromCache: false };
-    } finally {
-      await browser.close();
-    }
+            await kvNamespace.put(cacheKey, text, { expirationTtl: 7 * 24 * 60 * 60 });
+            return { text, fromCache: false };
+          } finally {
+            try {
+              await page.close();
+            } catch (err) {
+              console.error("[scrape-job] failed to close page:", err);
+            }
+          }
+        } finally {
+          try {
+            await browser.close();
+          } catch (err) {
+            console.error("[scrape-job] failed to close browser:", err);
+          }
+        }
+      },
+      {
+        maxRetries: 2,
+        baseDelayMs: 2000,
+        onRetry: (attempt, error) => {
+          console.warn(`[scrape-job] Single job scrape attempt failed, retrying (attempt ${attempt}):`, error);
+        },
+      }
+    );
   } catch (error) {
     console.error("scrapeJob error:", error);
     throw error;

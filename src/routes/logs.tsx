@@ -115,7 +115,7 @@ function MetricCard({
   label,
   value,
   note,
-  accent = "bg-white/80 border-slate-200",
+  accent = "bg-slate-900 border-slate-700",
 }: {
   icon: React.ReactNode;
   label: string;
@@ -124,19 +124,19 @@ function MetricCard({
   accent?: string;
 }) {
   return (
-    <div className={`rounded-[1.6rem] border p-5 shadow-sm ${accent}`}>
+    <div className={`rounded-xl border p-4 shadow-sm ${accent}`}>
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white border shadow-sm shrink-0">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 border border-slate-700 shrink-0">
           {icon}
         </div>
         <div>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">
             {label}
           </span>
-          <h3 className="text-xl font-bold text-slate-900 leading-tight mt-0.5">{value}</h3>
+          <h3 className="text-lg font-bold text-slate-100 leading-tight mt-0.5">{value}</h3>
         </div>
       </div>
-      {note && <p className="text-[11px] text-slate-500 mt-2.5 leading-snug">{note}</p>}
+      {note && <p className="text-[10px] text-slate-400 mt-2 leading-snug">{note}</p>}
     </div>
   );
 }
@@ -226,7 +226,7 @@ function LogsPage() {
             <button
               onClick={handleExportCsv}
               disabled={rows.length === 0}
-              className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-slate-700 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-600 disabled:opacity-50"
             >
               <Download className="h-4 w-4" />
               Export CSV
@@ -238,32 +238,32 @@ function LogsPage() {
       {/* Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
-          icon={<Search className="h-5 w-5 text-indigo-600" />}
+          icon={<Search className="h-5 w-5 text-indigo-400" />}
           label="Total Searches"
           value={summary.totalSearches.toLocaleString()}
           note="Saved agents and manual scans run"
-          accent="bg-indigo-50/50 border-indigo-100"
+          accent="bg-slate-900/80 border-indigo-900/40"
         />
         <MetricCard
-          icon={<CheckCircle className="h-5 w-5 text-emerald-600" />}
+          icon={<CheckCircle className="h-5 w-5 text-emerald-400" />}
           label="Jobs Found"
           value={summary.totalJobsFound.toLocaleString()}
           note="Surfaced opportunities in pipeline"
-          accent="bg-emerald-50/50 border-emerald-100"
+          accent="bg-slate-900/80 border-emerald-900/40"
         />
         <MetricCard
-          icon={<Layers className="h-5 w-5 text-slate-600" />}
+          icon={<Layers className="h-5 w-5 text-slate-400" />}
           label="Jobs Skipped"
           value={summary.totalJobsSkipped.toLocaleString()}
           note="Duplicates or score threshold rejects"
-          accent="bg-slate-50 border-slate-200"
+          accent="bg-slate-900/80 border-slate-700/40"
         />
         <MetricCard
-          icon={<AlertTriangle className="h-5 w-5 text-red-600" />}
+          icon={<AlertTriangle className="h-5 w-5 text-red-400" />}
           label="Errors Logged"
           value={summary.totalErrors.toLocaleString()}
           note="Background runner or API issues"
-          accent="bg-red-50/50 border-red-100"
+          accent="bg-slate-900/80 border-red-900/40"
         />
       </div>
 
@@ -274,13 +274,13 @@ function LogsPage() {
         {/* Filters */}
         <div className="mb-6 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
           <div>
-            <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+            <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-2">
               Event Type
             </label>
             <select
               value={search.eventType}
               onChange={(e) => handleFilterChange("eventType", e.target.value)}
-              className="w-full h-10 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="w-full h-9 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-300 focus:outline-none focus:ring-1 focus:ring-amber-500"
             >
               <option value="">All Events</option>
               {Object.entries(EVENT_TYPE_LABELS).map(([val, label]) => (
@@ -292,13 +292,13 @@ function LogsPage() {
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+            <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-2">
               Channel / Platform
             </label>
             <select
               value={search.platform}
               onChange={(e) => handleFilterChange("platform", e.target.value)}
-              className="w-full h-10 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="w-full h-9 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-300 focus:outline-none focus:ring-1 focus:ring-amber-500"
             >
               <option value="">All Channels</option>
               {Object.entries(PLATFORM_LABELS).map(([val, label]) => (
@@ -310,13 +310,13 @@ function LogsPage() {
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+            <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-2">
               Log Level
             </label>
             <select
               value={search.level}
               onChange={(e) => handleFilterChange("level", e.target.value)}
-              className="w-full h-10 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="w-full h-9 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-300 focus:outline-none focus:ring-1 focus:ring-amber-500"
             >
               <option value="">All Levels</option>
               <option value="info">Info</option>
@@ -327,7 +327,7 @@ function LogsPage() {
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+            <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-2">
               Agent Search
             </label>
             <div className="relative">
@@ -336,68 +336,73 @@ function LogsPage() {
                 value={localAgentName}
                 onChange={(e) => setLocalAgentName(e.target.value)}
                 placeholder="Agent name..."
-                className="w-full h-10 rounded-lg border border-slate-200 bg-white pl-8 pr-3 text-xs font-semibold text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full h-9 rounded-lg border border-slate-700 bg-slate-800 pl-8 pr-3 text-xs font-semibold text-slate-300 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
               />
-              <Search className="absolute left-2.5 top-3 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-500" />
             </div>
           </div>
         </div>
 
         {/* Logs Table / List */}
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="divide-y divide-slate-100">
+        <div className="overflow-hidden rounded-xl border border-slate-700 bg-slate-900/50 shadow-lg">
+          <div className="divide-y divide-slate-700/50">
             {rows.map((row) => {
               const tone = LEVEL_TONES[row.level] || LEVEL_TONES.info;
               const Icon = tone.icon;
+              const levelColor = row.level === 'error' ? 'text-red-400 bg-red-950 border-red-900' :
+                               row.level === 'warning' ? 'text-amber-400 bg-amber-950 border-amber-900' :
+                               row.level === 'success' ? 'text-emerald-400 bg-emerald-950 border-emerald-900' :
+                               'text-slate-400 bg-slate-800 border-slate-700';
+
               return (
                 <div
                   key={row.id}
-                  className={`p-4 transition hover:bg-slate-50/50 ${tone.bg}`}
+                  className={`p-3.5 transition hover:bg-slate-800/50 border-0`}
                 >
-                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                    <div className="flex items-start gap-3">
-                      <div className={`mt-0.5 rounded-lg border p-1.5 shrink-0 bg-white shadow-sm border-slate-100`}>
-                        <Icon className={`h-4 w-4 ${row.level === 'error' ? 'text-red-500' : row.level === 'warning' ? 'text-amber-500' : row.level === 'success' ? 'text-emerald-500' : 'text-slate-500'}`} />
+                  <div className="flex flex-col gap-2.5 md:flex-row md:items-start md:justify-between">
+                    <div className="flex items-start gap-2.5 flex-1">
+                      <div className={`mt-0.5 rounded-md p-1.5 shrink-0 ${levelColor}`}>
+                        <Icon className={`h-3.5 w-3.5`} />
                       </div>
-                      <div className="space-y-1 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className={`rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${row.level === 'error' ? 'bg-red-50 text-red-700 border-red-100' : row.level === 'warning' ? 'bg-amber-50 text-amber-700 border-amber-100' : row.level === 'success' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-slate-50 text-slate-700 border-slate-200'}`}>
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className={`rounded-md px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider ${levelColor} border`}>
                             {row.level}
                           </span>
-                          <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
+                          <span className="rounded-md border border-slate-600 bg-slate-800 px-1.5 py-0.5 text-[8px] font-semibold text-slate-300">
                             {EVENT_TYPE_LABELS[row.eventType] || row.eventType}
                           </span>
                           {row.platform && (
-                            <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
+                            <span className="rounded-md border border-slate-600 bg-slate-800 px-1.5 py-0.5 text-[8px] font-semibold text-slate-300">
                               {PLATFORM_LABELS[row.platform] || row.platform}
                             </span>
                           )}
                           {row.agentName && (
-                            <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-bold text-amber-700 bg-amber-50 border-amber-100">
-                              Agent: {row.agentName}
+                            <span className="rounded-md border border-amber-800 bg-amber-950 px-1.5 py-0.5 text-[8px] font-bold text-amber-300">
+                              {row.agentName}
                             </span>
                           )}
                           {row.metadata && typeof row.metadata.matchScore === 'number' && (
-                            <span className="rounded-md border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-700">
+                            <span className="rounded-md border border-indigo-800 bg-indigo-950 px-1.5 py-0.5 text-[8px] font-semibold text-indigo-300">
                               Match: {row.metadata.matchScore}%
                             </span>
                           )}
                           {row.metadata && row.metadata.pursue === true && (
-                            <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                            <span className="rounded-md border border-emerald-800 bg-emerald-950 px-1.5 py-0.5 text-[8px] font-bold text-emerald-300">
                               ✓ Pursue
                             </span>
                           )}
                           {row.metadata && row.metadata.pursue === false && (
-                            <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
+                            <span className="rounded-md border border-slate-600 bg-slate-800 px-1.5 py-0.5 text-[8px] font-semibold text-slate-400">
                               Skip
                             </span>
                           )}
                         </div>
-                        <p className="text-sm font-semibold text-slate-900 leading-normal">
+                        <p className="text-sm font-semibold text-slate-200 leading-normal">
                           {row.message}
                         </p>
                         {row.metadata && (row.metadata.jobTitle || row.metadata.company) && (
-                          <p className="text-xs text-slate-500 leading-normal">
+                          <p className="text-xs text-slate-400 leading-normal">
                             {row.metadata.jobTitle && <span>{row.metadata.jobTitle}</span>}
                             {row.metadata.jobTitle && row.metadata.company && <span> at </span>}
                             {row.metadata.company && <span>{row.metadata.company}</span>}
@@ -405,20 +410,18 @@ function LogsPage() {
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center justify-between pl-11 md:pl-0 md:text-right shrink-0">
-                      <div className="flex flex-col items-start md:items-end gap-1">
-                        <div className="flex items-center gap-1 text-[11px] font-medium text-slate-400">
-                          <Clock className="h-3.5 w-3.5" />
+                    <div className="flex items-center justify-between pl-9 md:pl-0 md:text-right shrink-0">
+                      <div className="flex flex-col items-start md:items-end gap-0.5">
+                        <div className="flex items-center gap-1 text-[10px] font-medium text-slate-500">
+                          <Clock className="h-3 w-3" />
                           <span>{formatDistanceToNow(parseISO(row.createdAt), { addSuffix: true })}</span>
                         </div>
-                        <div className="text-[10px] text-slate-300">
+                        <div className="text-[9px] text-slate-500">
                           {new Date(row.createdAt).toLocaleString("en-US", {
                             month: "short",
                             day: "numeric",
-                            year: "numeric",
                             hour: "2-digit",
                             minute: "2-digit",
-                            second: "2-digit",
                           })}
                         </div>
                       </div>
@@ -427,28 +430,28 @@ function LogsPage() {
 
                   {/* Details block - analysis data */}
                   {row.metadata && Object.keys(row.metadata).length > 0 && (
-                    <div className="mt-3 pl-11">
-                      <details className="group rounded-xl border border-slate-200/60 bg-white overflow-hidden shadow-sm">
-                        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-50 transition select-none">
+                    <div className="mt-2.5 pl-9">
+                      <details className="group rounded-lg border border-slate-700 bg-slate-800 overflow-hidden shadow-sm">
+                        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-xs font-semibold text-slate-400 hover:bg-slate-700/50 transition select-none">
                           <span className="flex items-center gap-1.5">
-                            <Terminal className="h-3.5 w-3.5 text-indigo-500" />
-                            Event Details & Metadata
+                            <Terminal className="h-3.5 w-3.5 text-indigo-400" />
+                            Details
                           </span>
-                          <ChevronDown className="h-3.5 w-3.5 text-slate-400 transition group-open:rotate-180" />
+                          <ChevronDown className="h-3.5 w-3.5 text-slate-500 transition group-open:rotate-180" />
                         </summary>
-                        <div className="border-t border-slate-200/60 p-4 bg-slate-50/50 space-y-4">
+                        <div className="border-t border-slate-700 p-3.5 bg-slate-800/50 space-y-3.5">
                           {/* Structured metadata display */}
                           {Object.entries(row.metadata as Record<string, unknown>).some(([key, value]) => key !== "workerLogs" && key !== "stats" && typeof value !== "object") && (
-                            <div className="grid gap-3 sm:grid-cols-2">
+                            <div className="grid gap-2.5 sm:grid-cols-2">
                               {Object.entries(row.metadata as Record<string, unknown>).map(([key, value]) => {
                                 if (key === "workerLogs" || key === "stats") return null;
                                 if (typeof value === "object") return null;
                                 return (
-                                  <div key={key} className="rounded-lg bg-white border border-slate-100 p-2">
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                                  <div key={key} className="rounded-md bg-slate-900 border border-slate-700 p-2">
+                                    <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1">
                                       {key.replace(/_/g, " ")}
                                     </p>
-                                    <p className="text-sm font-semibold text-slate-900 break-words leading-tight">
+                                    <p className="text-xs font-semibold text-slate-100 break-words leading-tight">
                                       {String(value)}
                                     </p>
                                   </div>
@@ -460,18 +463,18 @@ function LogsPage() {
                           {/* Stats dashboard display */}
                           {row.metadata.stats && typeof row.metadata.stats === 'object' && (
                             <div className="space-y-1.5">
-                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                              <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500">
                                 Run Statistics
                               </p>
-                              <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
+                              <div className="grid gap-2.5 grid-cols-2 sm:grid-cols-4">
                                 {Object.entries(row.metadata.stats as Record<string, unknown>).map(([key, value]) => {
                                   if (typeof value === "object" || value === null) return null;
                                   return (
-                                    <div key={key} className="rounded-lg bg-white border border-slate-150 p-2.5 shadow-sm">
-                                      <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                                    <div key={key} className="rounded-md bg-slate-900 border border-slate-700 p-2">
+                                      <p className="text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-1">
                                         {key.replace(/([A-Z])/g, " $1").trim()}
                                       </p>
-                                      <p className="text-sm font-bold text-slate-900 leading-none">
+                                      <p className="text-xs font-bold text-slate-100 leading-none">
                                         {String(value)}
                                       </p>
                                     </div>
@@ -481,27 +484,27 @@ function LogsPage() {
                             </div>
                           )}
 
-                          {/* Beautiful Interactive Terminal for Ingestion Console Logs */}
+                          {/* Terminal for Ingestion Console Logs */}
                           {Array.isArray(row.metadata.workerLogs) && row.metadata.workerLogs.length > 0 && (
-                            <div className="rounded-xl border border-slate-800 bg-slate-950 overflow-hidden shadow-md">
-                              <div className="flex items-center justify-between bg-slate-900 px-4 py-2 border-b border-slate-800">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 font-mono">
-                                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
-                                  Ingestion Sync Worker Console Log
+                            <div className="rounded-lg border border-slate-700 bg-slate-950 overflow-hidden">
+                              <div className="flex items-center justify-between bg-slate-900 px-3 py-2 border-b border-slate-700">
+                                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 font-mono">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+                                  Sync Logs
                                 </span>
-                                <span className="text-[9px] text-slate-500 font-mono">
-                                  {row.metadata.workerLogs.length} entries
+                                <span className="text-[8px] text-slate-500 font-mono">
+                                  {row.metadata.workerLogs.length}
                                 </span>
                               </div>
-                              <div className="text-[11px] leading-relaxed overflow-y-auto max-h-72 text-emerald-400 font-mono p-4 space-y-1 select-text scrollbar-thin scrollbar-thumb-slate-800">
+                              <div className="text-[10px] leading-relaxed overflow-y-auto max-h-60 text-emerald-400 font-mono p-3 space-y-1 select-text scrollbar-thin scrollbar-thumb-slate-700">
                                 {[...row.metadata.workerLogs].reverse().map((entry: any, i: number) => {
                                   const textTone = entry.type === 'error' ? 'text-red-400 font-semibold' :
                                                    entry.type === 'warning' ? 'text-yellow-400 font-semibold' :
                                                    entry.type === 'success' ? 'text-emerald-300 font-semibold' :
                                                    'text-slate-300';
                                   return (
-                                    <div key={i} className={`${textTone} flex items-start gap-2 hover:bg-slate-900/50 py-0.5 rounded px-1 transition-colors`}>
-                                      <span className="text-slate-500 shrink-0 select-none">
+                                    <div key={i} className={`${textTone} flex items-start gap-2 hover:bg-slate-800/30 py-0.5 rounded px-1 transition-colors`}>
+                                      <span className="text-slate-600 shrink-0 select-none text-[9px]">
                                         [{new Date(entry.timestamp).toLocaleTimeString()}]
                                       </span>
                                       <span className="break-all whitespace-pre-wrap">{entry.message}</span>
@@ -516,11 +519,11 @@ function LogsPage() {
                           {Object.entries(row.metadata as Record<string, unknown>).some(
                             ([k, v]) => k !== "workerLogs" && k !== "stats" && typeof v === "object"
                           ) && (
-                            <div className="rounded-lg border border-slate-200 bg-slate-950 overflow-hidden">
-                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 pt-2">
-                                Full Payload
+                            <div className="rounded-lg border border-slate-700 bg-slate-950 overflow-hidden">
+                              <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500 px-3 pt-2">
+                                Payload
                               </p>
-                              <pre className="text-[10px] leading-relaxed overflow-x-auto text-emerald-400 font-mono select-all p-3">
+                              <pre className="text-[9px] leading-relaxed overflow-x-auto text-emerald-400 font-mono select-all p-3">
                                 {JSON.stringify(
                                   Object.fromEntries(
                                     Object.entries(row.metadata as Record<string, unknown>).filter(
@@ -543,8 +546,8 @@ function LogsPage() {
 
             {rows.length === 0 && (
               <div className="py-16 text-center">
-                <FileText className="h-10 w-10 text-slate-300 mx-auto mb-3" />
-                <p className="text-sm font-medium text-slate-500">
+                <FileText className="h-10 w-10 text-slate-600 mx-auto mb-3" />
+                <p className="text-sm font-medium text-slate-400">
                   No activity logs found matching the current filters.
                 </p>
               </div>
@@ -566,13 +569,13 @@ function LogsPage() {
 function LogsLoading() {
   return (
     <div className="spx-page space-y-6 animate-pulse">
-      <div className="h-28 w-full rounded-2xl bg-white/70 border border-slate-100" />
+      <div className="h-28 w-full rounded-xl bg-slate-800 border border-slate-700" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-24 rounded-[1.6rem] bg-white/70 border border-slate-100" />
+          <div key={i} className="h-24 rounded-xl bg-slate-800 border border-slate-700" />
         ))}
       </div>
-      <div className="h-96 w-full rounded-2xl bg-white/70 border border-slate-100" />
+      <div className="h-96 w-full rounded-xl bg-slate-800 border border-slate-700" />
     </div>
   );
 }

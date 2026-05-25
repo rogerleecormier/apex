@@ -22,6 +22,7 @@ import {
 import { canAccessLinkedInSearch } from "../../../lib/private-features";
 import { searchAtsJobs } from "../../../lib/ats-search";
 import { logSearchEvent, logSearchEvents } from "../../../lib/pipeline-persistence";
+import { withRetry } from "../../../lib/sync-queue";
 
 type BrowserPage = Awaited<ReturnType<typeof import("@cloudflare/puppeteer")["default"]["launch"]>> extends {
   newPage: () => Promise<infer T>;
@@ -467,27 +468,48 @@ export const Route = createFileRoute("/api/linkedin/search")({
           const warnings: string[] = [];
 
           if (sources.includes("linkedin")) {
-            stage = "launching-browser";
             const puppeteer = await import("@cloudflare/puppeteer");
-            const browser = await puppeteer.default.launch(env.BROWSER);
 
-            try {
-              stage = "loading-linkedin-search-page";
-              const collected = await collectLinkedinJobsAcrossPages({
-                browser,
-                kv: env.KV,
-                params,
-              });
-              linkedinJobs = collected.jobs;
-              warnings.push(...collected.warnings);
+            const collectedData = await withRetry(
+              async () => {
+                stage = "launching-browser";
+                const browser = await puppeteer.default.launch(env.BROWSER);
+                try {
+                  stage = "loading-linkedin-search-page";
+                  const collected = await collectLinkedinJobsAcrossPages({
+                    browser,
+                    kv: env.KV,
+                    params,
+                  });
+                  
+                  const jobs = collected.jobs;
+                  const currentWarnings = [...collected.warnings];
 
-              if (linkedinJobs.length > 0) {
-                stage = "enriching-job-descriptions";
-                await enrichJobDescriptions(browser, env.KV, linkedinJobs);
+                  if (jobs.length > 0) {
+                    stage = "enriching-job-descriptions";
+                    await enrichJobDescriptions(browser, env.KV, jobs);
+                  }
+                  return { jobs, warnings: currentWarnings };
+                } finally {
+                  stage = "closing-browser";
+                  try {
+                    await browser.close();
+                  } catch (closeErr) {
+                    console.error("[linkedin-search] failed to close browser:", closeErr);
+                  }
+                }
+              },
+              {
+                maxRetries: 2,
+                baseDelayMs: 2000,
+                onRetry: (attempt, error) => {
+                  console.warn(`[linkedin-search] Scraping attempt failed, retrying (attempt ${attempt}):`, error);
+                },
               }
-            } finally {
-              await browser.close();
-            }
+            );
+
+            linkedinJobs = collectedData.jobs;
+            warnings.push(...collectedData.warnings);
           }
 
           stage = "searching-ats-platforms";
