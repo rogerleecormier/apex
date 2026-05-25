@@ -384,9 +384,9 @@ export function LinkedinResultCard({
           </div>
         </details>
 
-        <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+        <div className="flex flex-col gap-3 border-t border-slate-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
           {statusOptions && onStatusChange ? (
-            <Label className="flex min-w-0 shrink items-center gap-2 text-xs text-slate-500">
+            <Label className="flex w-full items-center justify-between gap-2 text-xs text-slate-500 sm:w-auto">
               Status
               <select
                 value={(job.status ?? "Analyzed") as LinkedinJobStatus}
@@ -405,7 +405,7 @@ export function LinkedinResultCard({
           ) : (
             <span />
           )}
-          <div className="flex shrink-0 items-center gap-1.5">
+          <div className="flex w-full flex-wrap items-center gap-1.5 justify-end sm:w-auto">
           <Link
             to="/analyze"
             search={{ url: job.sourceUrl }}
