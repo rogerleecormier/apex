@@ -113,18 +113,10 @@ export const saveResume = createServerFn({ method: "POST" })
         .insert(masterResume)
         .values({ ...baseValues, ...structuredValues })
         .onConflictDoUpdate({
-          target: [masterResume.userId],
+          target: masterResume.userId,
           set: { ...baseValues, ...structuredValues },
         });
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      const missingConflictTarget =
-        message.includes("ON CONFLICT") ||
-        message.includes("does not match any PRIMARY KEY") ||
-        message.includes("unique");
-
-      if (!missingConflictTarget) throw error;
-
       const [existing] = await db
         .select({ id: masterResume.id })
         .from(masterResume)
@@ -141,6 +133,8 @@ export const saveResume = createServerFn({ method: "POST" })
           .insert(masterResume)
           .values({ ...baseValues, ...structuredValues });
       }
+
+      console.warn("[saveResume] upsert failed; fallback update/insert path used", error);
     }
 
     return { success: true, updatedAt: now };
