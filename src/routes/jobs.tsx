@@ -400,15 +400,16 @@ function JobsPage() {
 
   function handleAnalysisComplete(_analysis: AnalysisData) {
     if (selectedJobForAnalysis && selectedJobForAnalysis.id) {
-      setJobs((prev) =>
-        prev.map((job) =>
-          job.id === selectedJobForAnalysis.id
-            ? { ...job, status: "Analyzed" as const }
-            : job
-        )
-      );
-      // Don't invalidate router to avoid showing unfiltered total count
-      // The data is already updated locally
+      const id = selectedJobForAnalysis.id;
+      jobsQuery.updateJobsOptimistically((data) => {
+        if (!data) return data;
+        return {
+          ...data,
+          rows: data.rows.map((job) =>
+            job.id === id ? { ...job, status: "Analyzed" as const } : job
+          ),
+        };
+      });
     }
   }
 

@@ -4,7 +4,7 @@ import { resolveSessionUser } from "@/lib/resolve-user";
 import { eq, and } from "drizzle-orm";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { getDb } from "@/db/db";
-import { masterResume, jobAnalyses, generatedDocuments } from "@/db/schema";
+import { masterResume, pipelineJobs, generatedDocuments } from "@/db/schema";
 import {
   allocateTokenBudgets,
   callClaude,
@@ -89,8 +89,8 @@ export const generateResume = createServerFn({ method: "POST" })
 
       const [analysis] = await db
         .select()
-        .from(jobAnalyses)
-        .where(and(eq(jobAnalyses.id, data.analysisId), eq(jobAnalyses.userId, user.id)))
+        .from(pipelineJobs)
+        .where(and(eq(pipelineJobs.id, data.analysisId), eq(pipelineJobs.userId, user.id)))
         .limit(1);
       if (!analysis) throw new Error("Analysis not found");
 
@@ -142,7 +142,7 @@ export const generateResume = createServerFn({ method: "POST" })
       const prompt = RESUME_GENERATION_PROMPT
         .replace("{candidateData}", candidateData)
         .replace("{rawResumeText}", rawResumeSource)
-        .replace("{jobTitle}", analysis.jobTitle ?? "")
+        .replace("{jobTitle}", analysis.title ?? "")
         .replace("{company}", analysis.company ?? "")
         .replace("{jobDescription}", jobDescription)
         .replace("{keywords}", analysis.keywords ?? "[]")
@@ -195,7 +195,7 @@ export const generateResume = createServerFn({ method: "POST" })
 
       const timestamp = Date.now();
       const r2Key = `documents/${data.analysisId}/resume_${timestamp}.pdf`;
-      const fileName = `Resume_${(analysis.company ?? "Company").replace(/\s+/g, "_")}_${(analysis.jobTitle ?? "Position").replace(/\s+/g, "_")}.pdf`;
+      const fileName = `Resume_${(analysis.company ?? "Company").replace(/\s+/g, "_")}_${(analysis.title ?? "Position").replace(/\s+/g, "_")}.pdf`;
 
       await env.R2.put(r2Key, pdfBytes, {
         httpMetadata: { contentType: "application/pdf" },
@@ -206,7 +206,7 @@ export const generateResume = createServerFn({ method: "POST" })
       const [doc] = await db
         .insert(generatedDocuments)
         .values({
-          jobAnalysisId: data.analysisId,
+          pipelineJobId: data.analysisId,
           docType: "resume",
           r2Key,
           fileName,
