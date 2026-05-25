@@ -25,6 +25,7 @@ export interface LinkedInSearchParams {
   keywords: string;
   location?: string;
   company?: string;
+  region?: string;
   workplaceTypes?: LinkedInWorkplaceType[];
   experienceLevels?: LinkedInExperienceLevel[];
   jobTypes?: LinkedInJobType[];
@@ -102,6 +103,7 @@ export function normalizeLinkedInSearchParams(
     keywords: (params.keywords || "").trim(),
     location: params.location?.trim() || "",
     company: params.company?.trim() || "",
+    region: params.region || "US",
     workplaceTypes: params.workplaceTypes || [],
     experienceLevels: params.experienceLevels || [],
     jobTypes: params.jobTypes || [],
@@ -127,6 +129,11 @@ export function buildLinkedInSearchUrlForPage(
 
   if (params.location) {
     url.searchParams.set("location", params.location);
+  }
+
+  if (params.region) {
+    const regionCode = params.region === "US" ? "103" : params.region;
+    url.searchParams.set("f_C", regionCode);
   }
 
   if (params.workplaceTypes.length > 0) {
