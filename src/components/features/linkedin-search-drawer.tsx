@@ -226,6 +226,21 @@ export function LinkedinSearchDrawer({
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [broadenDiscovery, setBroadenDiscovery] = useState(false);
   const [selectedPresets, setSelectedPresets] = useState<SearchPreset[]>(defaultSearchPresets);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  function formatLastRunLocalTime(lastRunAt: string | null): string {
+    if (!lastRunAt) return "never";
+    const date = new Date(lastRunAt);
+    if (isNaN(date.getTime())) return "never";
+    if (!mounted) {
+      return lastRunAt;
+    }
+    return date.toLocaleString();
+  }
 
   useEffect(() => {
     if (!preload) {
@@ -751,7 +766,7 @@ export function LinkedinSearchDrawer({
               <Input
                 value={saveName}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setSaveName(e.target.value)}
-                placeholder={form.keywords.trim() || "Search name (for saving)…"}
+                placeholder={form.keywords.trim() || "Agent name (for saving)…"}
               />
               <div className="grid grid-cols-2 gap-2">
                 <Button
@@ -767,7 +782,7 @@ export function LinkedinSearchDrawer({
                       Saving…
                     </span>
                   ) : (
-                    "Save Search"
+                    "Save Agent"
                   )}
                 </Button>
                 <Button
@@ -797,11 +812,11 @@ export function LinkedinSearchDrawer({
 
           {/* Saved Searches */}
           <div className="border-t border-slate-200 pt-5">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Saved Searches</p>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Search Agents</p>
             <div className="space-y-3">
               {savedSearches.length === 0 ? (
                 <p className="text-sm text-slate-500">
-                  No saved searches yet. Check "Save as new search" above and run a search to create one.
+                  No search agents yet. Enter a name and click "Save Agent" above to create one.
                 </p>
               ) : (
                 savedSearches.map((saved) => (
@@ -821,7 +836,7 @@ export function LinkedinSearchDrawer({
                         </span>
                       ))}
                     </p>
-                    <p className="mt-1 text-[11px] text-slate-400">Last run {saved.lastRunAt || "never"}</p>
+                    <p className="mt-1 text-[11px] text-slate-400">Last run {formatLastRunLocalTime(saved.lastRunAt)}</p>
                     <label className="mt-2 flex items-center gap-2 text-xs font-medium text-slate-600">
                       <input
                         type="checkbox"

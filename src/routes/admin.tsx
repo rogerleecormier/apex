@@ -209,7 +209,7 @@ function AdminPage() {
 
       <PageSection
         title="LinkedIn Cron Schedule"
-        description="Control how frequently saved searches run and add randomized variance to avoid predictable request patterns."
+        description="Control how frequently search agents run and add randomized variance to avoid predictable request patterns."
       >
         {!settings ? (
           <p className="text-sm text-muted-foreground">Loading settings...</p>
@@ -218,7 +218,7 @@ function AdminPage() {
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               <label className="space-y-1.5 text-sm">
                 <span className="font-medium">Run Frequency</span>
-                <p className="text-xs text-muted-foreground">How often each saved search is eligible to run.</p>
+                <p className="text-xs text-muted-foreground">How often each search agent is eligible to run.</p>
                 <select
                   value={settings.linkedinSearchCronFrequency}
                   onChange={(e) => setSettings({ ...settings, linkedinSearchCronFrequency: e.target.value as LinkedinSettings["linkedinSearchCronFrequency"] })}
@@ -338,7 +338,7 @@ function AdminPage() {
                   />
                   <div>
                     <p className="font-medium">Allow All Users To View Shared History</p>
-                    <p className="text-xs text-muted-foreground">When enabled, all users can browse each other's saved search results.</p>
+                    <p className="text-xs text-muted-foreground">When enabled, all users can browse each other's search agent results.</p>
                   </div>
                 </label>
               </div>
