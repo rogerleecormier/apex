@@ -521,6 +521,94 @@ export function AgentsSearchDrawer({
                     required
                   />
                 </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="relative space-y-1.5">
+                    <label className="text-sm font-semibold text-slate-800" htmlFor="drawer-location">Location</label>
+                    <Input
+                      id="drawer-location"
+                      value={form.location}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                        update("location", e.target.value);
+                        setShowCitySuggestions(true);
+                      }}
+                      onFocus={() => setShowCitySuggestions(true)}
+                      onBlur={() => setShowCitySuggestions(false)}
+                      placeholder="United States, Boston, Remote"
+                    />
+                    {showCitySuggestions && citySuggestions.length > 0 && (
+                      <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+                        {citySuggestions.map((suggestion) => (
+                          <button
+                            key={suggestion.geoId}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              handleSelectCitySuggestion(suggestion);
+                            }}
+                            className="flex w-full items-center justify-between px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 transition"
+                          >
+                            <span className="font-medium">
+                              {suggestion.city}, {suggestion.state}
+                            </span>
+                            <span className="text-[10px] rounded bg-slate-100 px-1.5 py-0.5 text-slate-500">
+                              GeoID: {suggestion.geoId}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-slate-800" htmlFor="drawer-salaryMin">Minimum Salary</label>
+                    <select
+                      id="drawer-salaryMin"
+                      value={form.salaryMin}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        update("salaryMin", val);
+                        if (val) {
+                          const numVal = Number(val);
+                          if (SALARY_BANDS[numVal]) {
+                            update("f_SAL", SALARY_BANDS[numVal]);
+                          }
+                        } else {
+                          update("f_SAL", "");
+                        }
+                      }}
+                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 h-[40px] focus:border-amber-500 focus:outline-none"
+                    >
+                      <option value="">Any Salary</option>
+                      <option value="40000">$40,000+</option>
+                      <option value="60000">$60,000+</option>
+                      <option value="80000">$80,000+</option>
+                      <option value="100000">$100,000+</option>
+                      <option value="120000">$120,000+</option>
+                      <option value="140000">$140,000+</option>
+                      <option value="160000">$160,000+</option>
+                      <option value="180000">$180,000+</option>
+                      <option value="200000">$200,000+</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-sm font-semibold text-slate-800">Workplace Type</label>
+                  <div className="flex gap-4 pt-1">
+                    {workplaceOptions.map((option) => (
+                      <label key={option.value} className="flex cursor-pointer items-center gap-2 text-sm text-slate-600 hover:text-slate-900">
+                        <input
+                          type="checkbox"
+                          checked={form.workplaceTypes.includes(option.value)}
+                          onChange={() => update("workplaceTypes", toggleValue(form.workplaceTypes, option.value))}
+                          className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                        />
+                        {option.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -573,43 +661,7 @@ export function AgentsSearchDrawer({
                 </div>
 
                 <div className="space-y-3">
-                  <div className="grid gap-3 sm:grid-cols-[1fr_140px]">
-                    <div className="relative space-y-1.5">
-                      <label className="text-sm font-medium text-slate-700" htmlFor="drawer-location">Location</label>
-                      <Input
-                        id="drawer-location"
-                        value={form.location}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                          update("location", e.target.value);
-                          setShowCitySuggestions(true);
-                        }}
-                        onFocus={() => setShowCitySuggestions(true)}
-                        onBlur={() => setShowCitySuggestions(false)}
-                        placeholder="United States, Boston, Remote"
-                      />
-                      {showCitySuggestions && citySuggestions.length > 0 && (
-                        <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
-                          {citySuggestions.map((suggestion) => (
-                            <button
-                              key={suggestion.geoId}
-                              type="button"
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                handleSelectCitySuggestion(suggestion);
-                              }}
-                              className="flex w-full items-center justify-between px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 transition"
-                            >
-                              <span className="font-medium">
-                                {suggestion.city}, {suggestion.state}
-                              </span>
-                              <span className="text-[10px] rounded bg-slate-100 px-1.5 py-0.5 text-slate-500">
-                                GeoID: {suggestion.geoId}
-                              </span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
                     <div className="space-y-1.5">
                       <FieldLabelWithInfo
                         htmlFor="drawer-geoId"
@@ -621,6 +673,21 @@ export function AgentsSearchDrawer({
                         value={form.geoId}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => update("geoId", e.target.value)}
                         placeholder="e.g. 105142029"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <FieldLabelWithInfo
+                        htmlFor="drawer-distance"
+                        label="Radius (mi)"
+                        tooltip="Distance radius in miles around your chosen location for job suggestions."
+                      />
+                      <Input
+                        id="drawer-distance"
+                        type="number"
+                        min="0"
+                        value={form.distance}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => update("distance", e.target.value)}
+                        placeholder="e.g. 50"
                       />
                     </div>
                   </div>
@@ -719,46 +786,18 @@ export function AgentsSearchDrawer({
 
                     <div className="border-b border-slate-100 p-4">
                       <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-slate-400">Salary & Application</p>
-                      <p className="mb-3 text-sm text-slate-500">Set a salary floor and narrow to quick-apply listings.</p>
+                      <p className="mb-3 text-sm text-slate-500">Configure parameters for salary filters and application type.</p>
                       <div className="space-y-3">
-                        <div className="grid gap-3 sm:grid-cols-[1fr_160px]">
-                          <div className="space-y-1.5">
-                            <label className="text-sm font-medium text-slate-700" htmlFor="drawer-salaryMin">Minimum Salary</label>
-                            <select
-                              id="drawer-salaryMin"
-                              value={form.salaryMin}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                update("salaryMin", val);
-                                if (val) {
-                                  const numVal = Number(val);
-                                  if (SALARY_BANDS[numVal]) {
-                                    update("f_SAL", SALARY_BANDS[numVal]);
-                                  }
-                                } else {
-                                  update("f_SAL", "");
-                                }
-                              }}
-                              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
-                            >
-                              <option value="">Any Salary</option>
-                              <option value="40000">$40,000+</option>
-                              <option value="60000">$60,000+</option>
-                              <option value="80000">$80,000+</option>
-                              <option value="100000">$100,000+</option>
-                              <option value="120000">$120,000+</option>
-                              <option value="140000">$140,000+</option>
-                              <option value="160000">$160,000+</option>
-                              <option value="180000">$180,000+</option>
-                              <option value="200000">$200,000+</option>
-                            </select>
+                        <div className="grid gap-3 sm:grid-cols-[1fr_160px] items-end">
+                          <div className="text-xs text-slate-500 pb-1.5">
+                            LinkedIn's internal salary query code. This updates automatically when you change the Minimum Salary filter at the top.
                           </div>
 
                           <div className="space-y-1.5">
                             <FieldLabelWithInfo
                               htmlFor="drawer-f_SAL"
                               label="Salary Filter ID (f_SAL)"
-                              tooltip="LinkedIn's salary filter query ID. Updated automatically when selecting a Minimum Salary."
+                              tooltip="LinkedIn's salary filter query ID. Updated automatically when selecting a Minimum Salary at the top."
                             />
                             <Input
                               id="drawer-f_SAL"
@@ -820,25 +859,9 @@ export function AgentsSearchDrawer({
 
                     <div className="border-b border-slate-100 p-4">
                       <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-slate-400">Role Preferences</p>
-                      <p className="mb-3 text-sm text-slate-500">Narrow by work arrangement, seniority, and employment type.</p>
+                      <p className="mb-3 text-sm text-slate-500">Narrow by seniority and employment type.</p>
                       <div className="space-y-4">
                         <div>
-                          <p className="mb-2 text-sm font-medium text-slate-700">Workplace Type</p>
-                          <div className="space-y-2">
-                            {workplaceOptions.map((option) => (
-                              <label key={option.value} className="flex cursor-pointer items-center gap-3 text-sm text-slate-600">
-                                <input
-                                  type="checkbox"
-                                  className="h-4 w-4 rounded"
-                                  checked={form.workplaceTypes.includes(option.value)}
-                                  onChange={() => update("workplaceTypes", toggleValue(form.workplaceTypes, option.value))}
-                                />
-                                {option.label}
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="border-t border-slate-100 pt-4">
                           <p className="mb-2 text-sm font-medium text-slate-700">Experience Level</p>
                           <div className="space-y-2">
                             {experienceOptions.map((option) => (
@@ -886,22 +909,6 @@ export function AgentsSearchDrawer({
                           />
                           Use AI Semantic URL format
                         </label>
-
-                        <div className="space-y-1.5">
-                          <FieldLabelWithInfo
-                            htmlFor="drawer-distance"
-                            label="Distance Radius (miles)"
-                            tooltip="Distance/radius in miles around your chosen location for job suggestions."
-                          />
-                          <Input
-                            id="drawer-distance"
-                            type="number"
-                            min="0"
-                            value={form.distance}
-                            onChange={(e: ChangeEvent<HTMLInputElement>) => update("distance", e.target.value)}
-                            placeholder="e.g. 50"
-                          />
-                        </div>
                       </div>
                     </div>
 

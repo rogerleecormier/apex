@@ -170,13 +170,21 @@ export function buildSearchVariants(
   }
   if (presets.includes("location-spread")) {
     for (const loc of buildLocationVariants(base.location || "")) {
-      register(`Location spread: ${loc}`, { ...base, location: loc, page: 1 });
+      register(`Location spread: ${loc}`, {
+        ...base,
+        location: loc,
+        geoId: "",
+        distance: null,
+        page: 1,
+      });
     }
   }
   if (presets.includes("remote-expansion") && base.workplaceTypes?.includes("remote")) {
     register("Remote expansion", {
       ...base,
       location: "United States",
+      geoId: "",
+      distance: null,
       workplaceTypes: ["remote"],
       page: 1,
     });
