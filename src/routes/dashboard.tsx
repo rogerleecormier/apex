@@ -11,26 +11,42 @@ import {
   TrendingUp,
   ChevronRight,
   X,
+  Award,
+  Globe,
+  MapPin,
+  ExternalLink,
+  Search,
+  ArrowUpDown,
+  ChevronLeft,
+  ChevronRight as ChevronRightIcon,
+  RefreshCw,
+  Building2,
+  Calendar,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { requireLoginRedirect } from "@/lib/auth-redirect";
-import { PageHero, PageSection } from "@caliber/ui-kit";
+import { PageHero } from "@caliber/ui-kit";
 import {
   BarChart,
   Bar,
-  LineChart,
-  Line,
   PieChart,
   Pie,
   Cell,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  Legend,
+  Tooltip as RechartsTooltip,
   ResponsiveContainer,
 } from "recharts";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  flexRender,
+} from "@tanstack/react-table";
 
 export const Route = createFileRoute("/dashboard")({
   beforeLoad: ({ context }) => {
@@ -42,24 +58,71 @@ export const Route = createFileRoute("/dashboard")({
   pendingComponent: DashboardLoading,
 });
 
+// Custom Tooltip component for Recharts
+const ChartTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="rounded-xl border border-slate-200/60 bg-slate-900/95 p-3.5 shadow-xl backdrop-blur-md text-slate-100">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">{label}</p>
+        {payload.map((item: any) => (
+          <div key={item.name} className="flex items-center gap-2 text-xs font-semibold">
+            <span
+              className="h-2 w-2 rounded-full inline-block"
+              style={{ backgroundColor: item.color || item.fill }}
+            />
+            <span className="text-slate-300 capitalize">{item.name}:</span>
+            <span className="text-white font-mono font-bold">{item.value}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
+// Main Dashboard Page
 function DashboardPage() {
   const initialData = Route.useLoaderData();
-  const [selectedDrillDown, setSelectedDrillDown] = useState<{
-    type: "keywords" | "titles" | "industries" | null;
-    data?: any[];
-    title?: string;
-  }>({ type: null });
+  const [selectedPeriod, setSelectedPeriod] = useState<string>("all_time");
 
-  // Real-time data fetching with auto-refresh every 30 seconds
+  // Selected drill-down state
+  const [drillDown, setDrillDown] = useState<{
+    title: string;
+    jobs: any[];
+  } | null>(null);
+
+  // Real-time data fetching (Query is invalidated when actions occur elsewhere)
   const { data } = useQuery({
-    queryKey: ["analytics"],
+    queryKey: ["analytics", selectedPeriod],
     queryFn: async () => {
-      const result = await getAnalytics({ data: { period: "all_time" } });
+      const result = await getAnalytics({ data: { period: selectedPeriod } });
       return result;
     },
     initialData: initialData,
-    refetchInterval: 30000, // Auto-refresh every 30 seconds
+    refetchInterval: 15000, // Refresh every 15 seconds
   });
+
+  // Dynamically compile lists of months from allJobs for period dropdown selection
+  const availablePeriods = useMemo(() => {
+    if (!data || !data.allJobs) return [{ value: "all_time", label: "All Time" }];
+    const monthsSet = new Set<string>();
+    for (const job of data.allJobs) {
+      const date = job.analyzedAt || job.createdAt;
+      if (date && date.length >= 7) {
+        monthsSet.add(date.slice(0, 7)); // YYYY-MM
+      }
+    }
+    const sortedMonths = Array.from(monthsSet).sort((a, b) => b.localeCompare(a));
+    return [
+      { value: "all_time", label: "All Time" },
+      ...sortedMonths.map((m) => {
+        const [year, month] = m.split("-");
+        const date = new Date(Number(year), Number(month) - 1, 1);
+        const name = date.toLocaleString("en-US", { month: "long", year: "numeric" });
+        return { value: m, label: name };
+      }),
+    ];
+  }, [data]);
 
   const derived = useMemo(() => {
     if (!data) return null;
@@ -74,7 +137,6 @@ function DashboardPage() {
     const resumeCoverage = analyses > 0 ? Math.round((resumes / analyses) * 100) : 0;
     const pursueRate = analyses > 0 ? Math.round((pursued / analyses) * 100) : 0;
     const pursueToApplyRate = pursued > 0 ? Math.round((applied / pursued) * 100) : 0;
-    const analysisGap = Math.max(analyses - applied, 0);
 
     let matchLabel = "Needs attention";
     let matchColor = "#f59e0b";
@@ -86,331 +148,470 @@ function DashboardPage() {
       matchColor = "#0ea5e9";
     }
 
-    const funnelData = [
-      { name: "Analyzed", value: analyses, fill: "#8b5cf6" },
-      { name: "Pursuing", value: pursued, fill: "#06b6d4" },
-      { name: "Applied", value: applied, fill: "#10b981" },
+    // Pie chart colors
+    const colors = [
+      "var(--color-indigo-500)",
+      "var(--color-primary-500)",
+      "var(--color-warning-500)",
+      "var(--color-success-500)",
+      "var(--color-info-500)",
+      "#a855f7",
+      "#ec4899",
+      "#f43f5e",
     ];
 
-    const industryChartData = data.topIndustries.slice(0, 8).map((item) => ({
+    const industryChartData = data.topIndustries.slice(0, 6).map((item, idx) => ({
       name: item.industry,
       value: item.count,
-      fill: generateColor(item.industry),
+      fill: colors[idx % colors.length],
     }));
-
-    const topRole = data.topJobTitles?.[0];
-    const topIndustry = data.topIndustries?.[0];
 
     return {
       applicationRate,
       resumeCoverage,
       pursueRate,
       pursueToApplyRate,
-      analysisGap,
       matchLabel,
       matchColor,
-      topRole,
-      topIndustry,
-      funnelData,
       industryChartData,
     };
   }, [data]);
 
   if (!data || !derived) {
     return (
-      <div className="spx-page text-center text-muted-foreground">
+      <div className="spx-page text-center text-slate-500 py-12">
         No analytics data yet. Analyze some job postings to get started.
       </div>
     );
   }
 
-  return (
-    <div className="spx-page space-y-8">
-      <PageHero
-        eyebrow="Search Insights"
-        icon={<BarChart3 className="h-3.5 w-3.5" />}
-        title="Search Insights Dashboard"
-        description="Real-time analytics on your job search performance, match quality, and positioning trends."
-      />
+  // --- Drill-down Handlers ---
+  const handleFunnelClick = (entry: any) => {
+    if (!entry || !entry.name) return;
+    const statusName = entry.name;
+    const matchingJobs = data.allJobs.filter((job) => job.status === statusName);
+    setDrillDown({
+      title: `Jobs in Status: ${statusName}`,
+      jobs: matchingJobs,
+    });
+  };
 
-      {/* Key Metrics Grid */}
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+  const handleScoreClick = (entry: any) => {
+    if (!entry || !entry.range) return;
+    const range = entry.range;
+    let matchingJobs = [];
+    if (range.startsWith("Strong")) {
+      matchingJobs = data.allJobs.filter((job) => job.matchScore !== null && job.matchScore >= 80);
+    } else if (range.startsWith("Moderate")) {
+      matchingJobs = data.allJobs.filter(
+        (job) => job.matchScore !== null && job.matchScore >= 60 && job.matchScore < 80
+      );
+    } else {
+      matchingJobs = data.allJobs.filter((job) => job.matchScore !== null && job.matchScore < 60);
+    }
+    setDrillDown({
+      title: `Jobs with ${range} Match`,
+      jobs: matchingJobs,
+    });
+  };
+
+  const handleWorkplaceClick = (entry: any) => {
+    if (!entry || !entry.type) return;
+    const type = entry.type;
+    const matchingJobs = data.allJobs.filter((job) => {
+      let jobType = job.workplaceType || "Remote";
+      if (jobType.toLowerCase() === "fully_remote") jobType = "Remote";
+      if (jobType.toLowerCase() === "on_site") jobType = "On-site";
+      const norm = jobType.charAt(0).toUpperCase() + jobType.slice(1).toLowerCase();
+      return norm === type;
+    });
+    setDrillDown({
+      title: `Jobs with Workplace Type: ${type}`,
+      jobs: matchingJobs,
+    });
+  };
+
+  const handleSourceClick = (entry: any) => {
+    if (!entry || !entry.source) return;
+    const source = entry.source;
+    const matchingJobs = data.allJobs.filter((job) => job.sourceName === source);
+    setDrillDown({
+      title: `Jobs from Source: ${source}`,
+      jobs: matchingJobs,
+    });
+  };
+
+  const handleKeywordDrillDown = (keyword: string) => {
+    const matchingJobs = data.allJobs.filter(
+      (job) => job.keywords && job.keywords.some((kw) => kw.toLowerCase() === keyword.toLowerCase())
+    );
+    setDrillDown({
+      title: `Jobs Matching Keyword: "${keyword}"`,
+      jobs: matchingJobs,
+    });
+  };
+
+  const handleTitleDrillDown = (title: string) => {
+    const matchingJobs = data.allJobs.filter((job) => {
+      const jobTitle = job.title.toLowerCase();
+      return jobTitle.includes(title.toLowerCase());
+    });
+    setDrillDown({
+      title: `Jobs Matching Title: "${title}"`,
+      jobs: matchingJobs,
+    });
+  };
+
+  const handleIndustryDrillDown = (industry: string) => {
+    const matchingJobs = data.allJobs.filter(
+      (job) => job.industry && job.industry.toLowerCase() === industry.toLowerCase()
+    );
+    setDrillDown({
+      title: `Jobs in Industry: "${industry}"`,
+      jobs: matchingJobs,
+    });
+  };
+
+  return (
+    <div className="spx-page space-y-8 pb-16">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <PageHero
+          eyebrow="Search Insights"
+          icon={<BarChart3 className="h-3.5 w-3.5" />}
+          title="Search Insights Dashboard"
+          description="Real-time analytics on your job search performance, match quality, and positioning trends."
+          className="flex-1"
+        />
+
+        <div className="flex items-center gap-3 shrink-0 self-start md:self-center">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 bg-white/70 border border-slate-200/80 px-2.5 py-1.5 rounded-lg shadow-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span className="font-semibold text-slate-600">Dynamic Ingestion Live</span>
+          </div>
+
+          <div className="relative">
+            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+            <select
+              value={selectedPeriod}
+              onChange={(e) => setSelectedPeriod(e.target.value)}
+              className="h-10 rounded-xl border border-slate-200 bg-white pl-9 pr-4 text-sm font-semibold text-slate-700 shadow-sm cursor-pointer hover:bg-slate-50 transition"
+              aria-label="Filter insights by period"
+            >
+              {availablePeriods.map((p) => (
+                <option key={p.value} value={p.value}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* KPI Cards Grid */}
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
-          icon={<Gauge className="h-5 w-5 text-violet-600" />}
+          icon={<Gauge className="h-5 w-5 text-indigo-600" />}
           label="Average Match"
           value={`${data.averageMatchScore.toFixed(1)}%`}
           note={derived.matchLabel}
-          accent="bg-violet-50 border-violet-100"
+          accent="bg-indigo-50 border-indigo-100"
           color={derived.matchColor}
+          progress={data.averageMatchScore}
         />
         <MetricCard
-          icon={<Sparkles className="h-5 w-5 text-sky-600" />}
-          label="Pursue Rate"
-          value={`${derived.pursueRate}%`}
-          note={`${data.totalPursued ?? 0} of ${data.totalAnalyses} roles`}
-          accent="bg-sky-50 border-sky-100"
-          color="#06b6d4"
+          icon={<Sparkles className="h-5 w-5 text-amber-600" />}
+          label="Unicorn Matches"
+          value={String(data.unicornCount)}
+          note="High-fit transferable skills"
+          accent="bg-amber-50 border-amber-100"
+          color="#d97706"
+          isGlowing
         />
         <MetricCard
-          icon={<Target className="h-5 w-5 text-emerald-600" />}
-          label="Application Rate"
-          value={`${derived.applicationRate}%`}
-          note={`${data.totalApplied} of ${data.totalAnalyses} analyzed`}
+          icon={<FileText className="h-5 w-5 text-emerald-600" />}
+          label="Tailored Resumes"
+          value={String(data.totalResumesGenerated)}
+          note={`${derived.resumeCoverage}% resume coverage`}
           accent="bg-emerald-50 border-emerald-100"
           color="#10b981"
         />
         <MetricCard
-          icon={<FileText className="h-5 w-5 text-amber-600" />}
-          label="Resume Coverage"
-          value={`${derived.resumeCoverage}%`}
-          note={`${data.totalResumesGenerated} tailored resumes`}
-          accent="bg-amber-50 border-amber-100"
-          color="#f59e0b"
+          icon={<Award className="h-5 w-5 text-pink-600" />}
+          label="Active Pipeline"
+          value={String(data.totalJobsDiscovered)}
+          note={`${data.totalApplied} applied · ${data.totalPursued} pursued`}
+          accent="bg-pink-50 border-pink-100"
+          color="#db2777"
         />
       </section>
 
-      {/* Funnel & Industries */}
-      <section className="grid gap-6 lg:grid-cols-2">
-        <PageSection
-          title="Application Funnel"
-          description="Track your progression from discovery to application."
-        >
-          <div className="flex items-center justify-center h-80">
+      {/* Primary Insights Charts */}
+      <section className="grid gap-6 md:grid-cols-2">
+        {/* Pipeline Funnel */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur-md p-6 shadow-sm flex flex-col h-[380px]">
+          <div>
+            <h3 className="font-bold text-slate-800 text-base leading-none">Application Funnel</h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Click any stage to filter and view matching jobs in that stage.
+            </p>
+          </div>
+          <div className="flex-1 min-h-0 mt-4 flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={derived.funnelData}
+                data={data.pipelineConversions}
                 layout="vertical"
-                margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
+                margin={{ top: 5, right: 20, left: 65, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis type="number" stroke="#64748b" />
-                <YAxis dataKey="name" type="category" stroke="#64748b" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#1e293b",
-                    border: "1px solid #475569",
-                    borderRadius: "8px",
-                    color: "#f1f5f9",
-                  }}
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
+                <XAxis type="number" stroke="#94a3b8" fontSize={11} />
+                <YAxis dataKey="status" type="category" stroke="#94a3b8" fontSize={11} tickLine={false} />
+                <RechartsTooltip content={<ChartTooltip />} cursor={{ fill: "rgba(148, 163, 184, 0.06)" }} />
+                <Bar
+                  dataKey="count"
+                  name="Jobs"
+                  fill="var(--color-indigo-500)"
+                  radius={[0, 6, 6, 0]}
+                  onClick={handleFunnelClick}
+                  cursor="pointer"
                 />
-                <Bar dataKey="value" fill="#8b5cf6" radius={[0, 8, 8, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </PageSection>
+        </div>
 
-        <PageSection
-          title="Top Industries"
-          description="Click an industry to see more details."
-        >
-          <div className="flex items-center justify-center h-80">
+        {/* Match Score Distribution */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur-md p-6 shadow-sm flex flex-col h-[380px]">
+          <div>
+            <h3 className="font-bold text-slate-800 text-base leading-none">Match Score Distribution</h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Distribution of AI scoring brackets. Click a bracket to view roles.
+            </p>
+          </div>
+          <div className="flex-1 min-h-0 mt-4 flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data.matchScoreDistribution} margin={{ top: 20, right: 10, left: -20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <XAxis dataKey="range" stroke="#94a3b8" fontSize={11} tickLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={11} />
+                <RechartsTooltip content={<ChartTooltip />} cursor={{ fill: "rgba(148, 163, 184, 0.06)" }} />
+                <Bar dataKey="count" name="Jobs" radius={[6, 6, 0, 0]} onClick={handleScoreClick} cursor="pointer">
+                  {data.matchScoreDistribution.map((entry, idx) => {
+                    const fills = [
+                      "var(--color-success-500)", // Strong
+                      "var(--color-warning-500)", // Moderate
+                      "var(--color-error-500)",   // Weak
+                    ];
+                    return <Cell key={`cell-${idx}`} fill={fills[idx % fills.length]} />;
+                  })}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Workplace Type Preference */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur-md p-6 shadow-sm flex flex-col h-[380px]">
+          <div>
+            <h3 className="font-bold text-slate-800 text-base leading-none">Workplace Arrangement</h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Arrangement preference distribution. Click a slice to filter.
+            </p>
+          </div>
+          <div className="flex-1 min-h-0 mt-2 flex items-center justify-center relative">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={derived.industryChartData}
+                  data={data.workplaceTypeDistribution}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
-                  label={({ name, value }) => `${name} (${value})`}
-                  outerRadius={120}
-                  fill="#8884d8"
-                  dataKey="value"
-                  onClick={(entry) =>
-                    setSelectedDrillDown({
-                      type: "industries",
-                      data: data.topIndustries,
-                      title: "Top Industries",
-                    })
-                  }
+                  innerRadius={70}
+                  outerRadius={100}
+                  paddingAngle={4}
+                  dataKey="count"
+                  nameKey="type"
+                  onClick={handleWorkplaceClick}
+                  cursor="pointer"
+                  label={({ type, percent }) => `${type} (${Math.round(percent * 100)}%)`}
                 >
-                  {derived.industryChartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
+                  {data.workplaceTypeDistribution.map((entry, idx) => {
+                    const colors = ["#6366f1", "#10b981", "#ef4444", "#f59e0b"];
+                    return <Cell key={`cell-${idx}`} fill={colors[idx % colors.length]} />;
+                  })}
                 </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#1e293b",
-                    border: "1px solid #475569",
-                    borderRadius: "8px",
-                    color: "#f1f5f9",
-                  }}
-                />
+                <RechartsTooltip content={<ChartTooltip />} />
               </PieChart>
             </ResponsiveContainer>
+            <div className="absolute flex flex-col items-center justify-center pointer-events-none">
+              <Globe className="h-6 w-6 text-slate-400" />
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Arrangements</span>
+            </div>
           </div>
-        </PageSection>
+        </div>
+
+        {/* Ingestion Sources */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur-md p-6 shadow-sm flex flex-col h-[380px]">
+          <div>
+            <h3 className="font-bold text-slate-800 text-base leading-none">Ingestion Sources</h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Breakdown of channels jobs were sourced from. Click a bar to filter.
+            </p>
+          </div>
+          <div className="flex-1 min-h-0 mt-4 flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={data.sourceDistribution}
+                layout="vertical"
+                margin={{ top: 5, right: 20, left: 60, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
+                <XAxis type="number" stroke="#94a3b8" fontSize={11} />
+                <YAxis dataKey="source" type="category" stroke="#94a3b8" fontSize={11} tickLine={false} />
+                <RechartsTooltip content={<ChartTooltip />} cursor={{ fill: "rgba(148, 163, 184, 0.06)" }} />
+                <Bar dataKey="count" name="Jobs" fill="#8b5cf6" radius={[0, 6, 6, 0]} onClick={handleSourceClick} cursor="pointer">
+                  {data.sourceDistribution.map((entry, idx) => {
+                    const colors = ["#0284c7", "#10b981", "#4f46e5", "#8b5cf6", "#f43f5e"];
+                    return <Cell key={`cell-${idx}`} fill={colors[idx % colors.length]} />;
+                  })}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </section>
 
-      {/* Top Job Titles & Breakdown */}
-      <section className="grid gap-6 lg:grid-cols-2">
-        <PageSection
-          title="Top Job Titles"
-          description="Click to explore detailed metrics for each role."
-        >
+      {/* Target Sectors & Categories */}
+      <section className="grid gap-6 md:grid-cols-2">
+        {/* Top Titles */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur-md p-6 shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <div>
+              <h3 className="font-bold text-slate-800 text-base leading-none">Top Target Job Titles</h3>
+              <p className="text-xs text-slate-500 mt-1">Applied roles aggregated by canonical prefix</p>
+            </div>
+            <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded">
+              Active Focus
+            </span>
+          </div>
+
           {data.topJobTitles.length === 0 ? (
-            <p className="text-sm text-slate-500">No job titles analyzed yet.</p>
+            <p className="text-xs text-slate-400 py-6 text-center">No jobs analyzed/applied yet.</p>
           ) : (
-            <div className="space-y-3">
-              {data.topJobTitles.slice(0, 8).map((item, index) => (
+            <div className="space-y-2.5">
+              {data.topJobTitles.slice(0, 5).map((item, idx) => (
                 <div
                   key={item.title}
-                  onClick={() =>
-                    setSelectedDrillDown({
-                      type: "titles",
-                      data: data.topJobTitles,
-                      title: "Top Job Titles",
-                    })
-                  }
-                  className="group cursor-pointer rounded-lg border border-slate-200 bg-white p-4 transition hover:bg-slate-50 hover:border-slate-300"
+                  onClick={() => handleTitleDrillDown(item.title)}
+                  className="group flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-white/50 hover:bg-white hover:border-slate-300/80 cursor-pointer shadow-sm transition"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
-                        {index + 1}
-                      </span>
-                      <span className="font-medium text-slate-900">{item.title}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-slate-700">×{item.count}</span>
-                      <ChevronRight className="h-4 w-4 text-slate-400 transition group-hover:text-slate-600" />
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 font-bold text-xs text-indigo-600 group-hover:bg-indigo-100 transition">
+                      {idx + 1}
+                    </span>
+                    <span className="text-sm font-semibold text-slate-800 group-hover:text-slate-900">
+                      {item.title}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-500">
+                    <span className="text-xs font-mono font-bold text-slate-600">×{item.count}</span>
+                    <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" />
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </PageSection>
+        </div>
 
-        <PageSection
-          title="Performance Metrics"
-          description="Key rates and conversions across your search."
-        >
-          <div className="space-y-4">
-            <RateBar
-              label="Pursue Rate"
-              value={derived.pursueRate}
-              count={data.totalPursued ?? 0}
-              color="bg-sky-500"
-              total={data.totalAnalyses}
-            />
-            <RateBar
-              label="Resume Coverage"
-              value={derived.resumeCoverage}
-              count={data.totalResumesGenerated}
-              color="bg-violet-500"
-              total={data.totalAnalyses}
-            />
-            <RateBar
-              label="Application Rate"
-              value={derived.applicationRate}
-              count={data.totalApplied}
-              color="bg-emerald-500"
-              total={data.totalAnalyses}
-            />
-            <RateBar
-              label="Pursue → Apply"
-              value={derived.pursueToApplyRate}
-              count={data.totalApplied}
-              color="bg-orange-500"
-              total={data.totalPursued ?? 1}
-            />
-            <RateBar
-              label="Average Match"
-              value={data.averageMatchScore}
-              count={null}
-              color={`${derived.matchColor}`}
-              total={100}
-            />
-            {derived.analysisGap > 0 && (
-              <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
-                <p className="text-sm font-medium text-amber-900">
-                  ⚠️ {derived.analysisGap} role{derived.analysisGap === 1 ? "" : "s"} awaiting action
-                </p>
-                <p className="mt-1 text-xs text-amber-700">
-                  Review these analyzed roles and mark them as applied or archived.
-                </p>
-              </div>
-            )}
+        {/* Top Industries */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur-md p-6 shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <div>
+              <h3 className="font-bold text-slate-800 text-base leading-none">Top Target Industries</h3>
+              <p className="text-xs text-slate-500 mt-1">Analyzed positions aggregated by sector</p>
+            </div>
+            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded">
+              Hiring Density
+            </span>
           </div>
-        </PageSection>
+
+          {data.topIndustries.length === 0 ? (
+            <p className="text-xs text-slate-400 py-6 text-center">No industries analyzed yet.</p>
+          ) : (
+            <div className="space-y-2.5">
+              {data.topIndustries.slice(0, 5).map((item, idx) => (
+                <div
+                  key={item.industry}
+                  onClick={() => handleIndustryDrillDown(item.industry)}
+                  className="group flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-white/50 hover:bg-white hover:border-slate-300/80 cursor-pointer shadow-sm transition"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 font-bold text-xs text-emerald-600 group-hover:bg-emerald-100 transition">
+                      {idx + 1}
+                    </span>
+                    <span className="text-sm font-semibold text-slate-800 group-hover:text-slate-900">
+                      {item.industry}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-500">
+                    <span className="text-xs font-mono font-bold text-slate-600">×{item.count}</span>
+                    <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Keyword Insights */}
-      <section className="grid gap-6 lg:grid-cols-2">
-        <KeywordSection
-          title="Top JD Keywords"
-          subtitle="Terms most common in the roles you analyze."
-          icon={<Briefcase className="h-4 w-4 text-primary" />}
+      <section className="grid gap-6 md:grid-cols-2">
+        <KeywordBubbleCard
+          title="Job Description Keywords"
+          subtitle="Most common terms in analyzed job listings"
+          icon={<Briefcase className="h-4 w-4 text-indigo-500" />}
           items={data.topJdKeywords}
-          emptyLabel="Analyze a few more jobs to surface hiring language patterns."
-          toneClass="bg-primary/10 text-primary"
-          onExplore={() =>
-            setSelectedDrillDown({
-              type: "keywords",
-              data: data.topJdKeywords,
-              title: "Top JD Keywords",
-            })
-          }
+          themeClass="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-100/50"
+          onKeywordClick={handleKeywordDrillDown}
         />
-
-        <KeywordSection
-          title="Top Resume Keywords"
-          subtitle="Terms reinforced through your tailored resume output."
-          icon={<TrendingUp className="h-4 w-4 text-sky-600" />}
+        <KeywordBubbleCard
+          title="Resume Achievements Keywords"
+          subtitle="Terms reinforced across tailored resumes"
+          icon={<TrendingUp className="h-4 w-4 text-emerald-500" />}
           items={data.topResumeKeywords}
-          emptyLabel="Generate tailored resumes to see which strengths are showing up most often."
-          toneClass="bg-sky-100 text-sky-700"
-          onExplore={() =>
-            setSelectedDrillDown({
-              type: "keywords",
-              data: data.topResumeKeywords,
-              title: "Top Resume Keywords",
-            })
-          }
+          themeClass="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-100/50"
+          onKeywordClick={handleKeywordDrillDown}
         />
       </section>
 
-      {/* Footer with timestamp */}
-      <div className="rounded-lg border border-slate-200 bg-gradient-to-r from-slate-50 to-white p-4 flex items-center justify-between">
-        <div className="text-sm text-slate-600">
-          📊 Last updated: <span className="font-mono font-medium">{data.updatedAt?.slice(0, 16).replace("T", " ")} UTC</span>
+      {/* Recent Analyses TanStack Table */}
+      <section className="rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur-md p-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 mb-5 gap-3">
+          <div>
+            <h3 className="font-bold text-slate-800 text-base leading-none">Recent Job Analyses</h3>
+            <p className="text-xs text-slate-500 mt-1">Detailed list of your 10 most recent job analyses</p>
+          </div>
+          <span className="text-[10px] font-bold text-purple-600 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded self-start sm:self-center">
+            Active Repository
+          </span>
         </div>
-        <div className="text-xs text-slate-500">
-          Auto-refresh every 30 seconds
-        </div>
-      </div>
+        <RecentAnalysesTable jobs={data.recentAnalyses} />
+      </section>
 
       {/* Drill-down Modal */}
-      {selectedDrillDown.type && (
+      {drillDown && (
         <DrillDownModal
-          type={selectedDrillDown.type}
-          data={selectedDrillDown.data}
-          title={selectedDrillDown.title}
-          onClose={() => setSelectedDrillDown({ type: null })}
+          title={drillDown.title}
+          jobs={drillDown.jobs}
+          onClose={() => setDrillDown(null)}
         />
       )}
     </div>
   );
 }
 
-function generateColor(seed: string): string {
-  const colors = [
-    "#8b5cf6",
-    "#ec4899",
-    "#f59e0b",
-    "#10b981",
-    "#06b6d4",
-    "#0ea5e9",
-    "#6366f1",
-    "#14b8a6",
-  ];
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) {
-    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return colors[Math.abs(hash % colors.length)];
-}
-
+// KPI Metric Card Component
 function MetricCard({
   icon,
   label,
@@ -418,6 +619,8 @@ function MetricCard({
   note,
   accent,
   color,
+  progress,
+  isGlowing = false,
 }: {
   icon: ReactNode;
   label: string;
@@ -425,199 +628,96 @@ function MetricCard({
   note: string;
   accent: string;
   color?: string;
+  progress?: number;
+  isGlowing?: boolean;
 }) {
   return (
     <div
-      className="rounded-2xl p-5"
-      style={{
-        background: "rgba(255,255,255,0.84)",
-        backdropFilter: "blur(16px)",
-        border: "1px solid rgba(226,232,240,0.7)",
-        boxShadow: "0 2px 8px rgba(15,23,42,0.05)",
-      }}
+      className={`rounded-2xl p-5 border relative overflow-hidden transition hover:-translate-y-0.5 duration-300 ${
+        isGlowing
+          ? "border-amber-200/80 bg-gradient-to-br from-amber-50/40 via-white/80 to-amber-100/10 shadow-[0_4px_20px_rgba(245,158,11,0.08)] hover:shadow-[0_6px_24px_rgba(245,158,11,0.15)]"
+          : "border-slate-200/70 bg-white/80 backdrop-blur-md shadow-sm hover:shadow-md"
+      }`}
     >
-      <div className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border ${accent}`}>
-        {icon}
-      </div>
-      <p className="mt-4 text-sm font-medium text-slate-500">{label}</p>
-      <p className="mt-1 text-3xl font-bold tracking-tight text-slate-900">{value}</p>
-      <p className="mt-1.5 text-xs leading-5 text-slate-500">{note}</p>
-    </div>
-  );
-}
-
-function RateBar({
-  label,
-  value,
-  count,
-  color,
-  total,
-}: {
-  label: string;
-  value: number;
-  count: number | null;
-  color: string;
-  total?: number;
-}) {
-  const displayValue = total ? Math.round((value / total) * 100) : Math.round(value);
-  return (
-    <div>
-      <div className="mb-1.5 flex items-center justify-between text-sm">
-        <span className="text-slate-600">{label}</span>
-        <span className="font-semibold text-slate-900">
-          {displayValue}%{count !== null ? <span className="ml-1.5 font-normal text-slate-400">({count})</span> : null}
-        </span>
-      </div>
-      <div className="h-2 rounded-full bg-slate-100">
-        <div
-          className="h-2 rounded-full transition-all"
-          style={{
-            width: `${Math.max(4, Math.min(displayValue, 100))}%`,
-            backgroundColor: color,
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function DrillDownModal({
-  type,
-  data,
-  title,
-  onClose,
-}: {
-  type: "keywords" | "titles" | "industries";
-  data?: any[];
-  title?: string;
-  onClose: () => void;
-}) {
-  if (!data || data.length === 0) return null;
-
-  const displayData = data.slice(0, 50);
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="relative w-full max-w-2xl max-h-[80vh] rounded-2xl bg-white shadow-2xl overflow-hidden">
-        {/* Header */}
-        <div className="sticky top-0 border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-slate-100 rounded-lg transition"
-          >
-            <X className="h-5 w-5 text-slate-400" />
-          </button>
+      {isGlowing && (
+        <div className="absolute right-0 top-0 h-24 w-24 -mr-5 -mt-5 bg-gradient-to-br from-amber-300/10 to-amber-500/10 rounded-full blur-xl pointer-events-none" />
+      )}
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</p>
+          <p className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 leading-none">{value}</p>
         </div>
-
-        {/* Content */}
-        <div className="overflow-y-auto">
-          <div className="p-6 space-y-2">
-            {displayData.map((item, index) => {
-              const label =
-                type === "keywords"
-                  ? item.keyword
-                  : type === "titles"
-                    ? item.title
-                    : item.industry;
-              const count = item.count;
-
-              return (
-                <div
-                  key={`${label}-${index}`}
-                  className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition group"
-                >
-                  <div className="flex items-center gap-3 flex-1">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600 group-hover:bg-slate-200">
-                      {index + 1}
-                    </span>
-                    <span className="text-sm font-medium text-slate-900 flex-1">{label}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-20 h-2 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full bg-primary"
-                        style={{
-                          width: `${Math.max(5, (count / displayData[0].count) * 100)}%`,
-                        }}
-                      />
-                    </div>
-                    <span className="text-sm font-semibold text-slate-600 w-10 text-right">
-                      ×{count}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+        <div className={`flex h-9 w-9 items-center justify-center rounded-xl border ${accent} shrink-0`}>
+          {icon}
         </div>
+      </div>
 
-        {/* Footer */}
-        {data.length > 50 && (
-          <div className="border-t border-slate-200 bg-slate-50 px-6 py-3 text-xs text-slate-500 text-center">
-            Showing {displayData.length} of {data.length} items
+      <div className="mt-4 flex items-center justify-between gap-2">
+        <p className="text-[11px] font-semibold text-slate-500 truncate leading-snug">{note}</p>
+        {progress !== undefined && (
+          <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-600">
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
+            <span>Score</span>
           </div>
         )}
       </div>
+
+      {progress !== undefined && (
+        <div className="h-1.5 w-full bg-slate-100 rounded-full mt-3 overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{ width: `${progress}%`, backgroundColor: color }}
+          />
+        </div>
+      )}
     </div>
   );
 }
 
-function KeywordSection({
+// Keyword Bubble Card Component
+function KeywordBubbleCard({
   title,
   subtitle,
   icon,
   items,
-  emptyLabel,
-  toneClass,
-  onExplore,
+  themeClass,
+  onKeywordClick,
 }: {
   title: string;
   subtitle: string;
   icon: ReactNode;
   items: Array<{ keyword: string; count: number }>;
-  emptyLabel: string;
-  toneClass: string;
-  onExplore?: () => void;
+  themeClass: string;
+  onKeywordClick: (keyword: string) => void;
 }) {
   return (
-    <div
-      className="rounded-2xl p-6"
-      style={{
-        background: "rgba(255,255,255,0.84)",
-        backdropFilter: "blur(16px)",
-        border: "1px solid rgba(226,232,240,0.7)",
-        boxShadow: "0 2px 8px rgba(15,23,42,0.05)",
-      }}
-    >
-      <div className="flex items-center justify-between gap-2 text-slate-900">
+    <div className="rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur-md p-6 shadow-sm">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4 text-slate-800">
         <div className="flex items-center gap-2">
-          {icon}
-          <h2 className="text-base font-semibold">{title}</h2>
+          <div className="p-1.5 rounded-lg bg-slate-50 border border-slate-150 shadow-sm">{icon}</div>
+          <div>
+            <h3 className="font-bold text-sm leading-none">{title}</h3>
+            <p className="text-[11px] text-slate-500 mt-1">{subtitle}</p>
+          </div>
         </div>
-        {items.length > 0 && onExplore && (
-          <button
-            onClick={onExplore}
-            className="text-xs font-medium text-slate-500 hover:text-slate-700 transition"
-          >
-            Explore →
-          </button>
-        )}
+        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+          Interactive
+        </span>
       </div>
-      <p className="mt-0.5 text-sm text-slate-500">{subtitle}</p>
 
       {items.length === 0 ? (
-        <p className="mt-5 text-sm leading-6 text-slate-500">{emptyLabel}</p>
+        <p className="text-xs text-slate-400 py-6 text-center">Analyze jobs to aggregate keywords.</p>
       ) : (
-        <div className="mt-5 flex flex-wrap gap-2">
-          {items.slice(0, 16).map((item) => (
-            <span
-              key={`${title}-${item.keyword}`}
-              className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium cursor-pointer transition hover:opacity-80 ${toneClass}`}
+        <div className="flex flex-wrap gap-2">
+          {items.slice(0, 20).map((item) => (
+            <button
+              key={item.keyword}
+              onClick={() => onKeywordClick(item.keyword)}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold cursor-pointer shadow-sm transition active:scale-95 duration-150 ${themeClass}`}
             >
-              {item.keyword}
-              <span className="opacity-70">x{item.count}</span>
-            </span>
+              <span>{item.keyword}</span>
+              <span className="opacity-60 text-[10px] font-bold">x{item.count}</span>
+            </button>
           ))}
         </div>
       )}
@@ -625,18 +725,427 @@ function KeywordSection({
   );
 }
 
+// TanStack Table for Recent Analyses
+function RecentAnalysesTable({ jobs }: { jobs: any[] }) {
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: "title",
+        header: "Position / Company",
+        cell: (info: any) => {
+          const row = info.row.original;
+          return (
+            <div className="max-w-[220px]">
+              <div className="font-semibold text-slate-900 truncate leading-snug" title={row.title}>
+                {row.title}
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1 font-medium">
+                <Building2 className="h-3 w-3 shrink-0" />
+                <span className="truncate">{row.company}</span>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "matchScore",
+        header: "Match Score",
+        cell: (info: any) => {
+          const score = info.getValue();
+          if (score === null || score === undefined) return <span className="text-slate-400 font-medium">—</span>;
+          const color =
+            score >= 80
+              ? "text-emerald-700 bg-emerald-50 border-emerald-100"
+              : score >= 60
+                ? "text-amber-700 bg-amber-50 border-amber-100"
+                : "text-red-700 bg-red-50 border-red-100";
+          return (
+            <span
+              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold border ${color}`}
+            >
+              {score}%
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: "location",
+        header: "Location",
+        cell: (info: any) => {
+          const loc = info.getValue() || "Remote";
+          return (
+            <div className="flex items-center gap-1 text-slate-600 text-xs font-semibold">
+              <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
+              <span className="truncate max-w-[120px]">{loc}</span>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "sourceName",
+        header: "Channel",
+        cell: (info: any) => {
+          const val = info.getValue();
+          return (
+            <span className="text-xs font-semibold text-slate-500 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded">
+              {val}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: (info: any) => {
+          const val = info.getValue();
+          return (
+            <span className="inline-flex items-center rounded-full bg-indigo-50 border border-indigo-100 px-2 py-0.5 text-xs font-bold text-indigo-700">
+              {val}
+            </span>
+          );
+        },
+      },
+      {
+        id: "actions",
+        header: "Action",
+        cell: (info: any) => {
+          const row = info.row.original;
+          return (
+            <div className="flex items-center gap-2 justify-end">
+              <Link
+                to="/jobs"
+                search={{ query: row.title, status: row.status }}
+                className="inline-flex h-7 items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-2 text-xs font-bold text-slate-700 transition"
+              >
+                Track
+              </Link>
+              <a
+                href={row.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition shadow-sm"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
+          );
+        },
+      },
+    ],
+    []
+  );
+
+  const table = useReactTable({
+    data: jobs,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  return (
+    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white/50 shadow-sm">
+      <table className="w-full">
+        <thead>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <tr key={headerGroup.id} className="border-b border-slate-200 bg-slate-50/90">
+              {headerGroup.headers.map((header) => (
+                <th
+                  key={header.id}
+                  className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-600"
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(header.column.columnDef.header, header.getContext())}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          {table.getRowModel().rows.map((row) => (
+            <tr key={row.id} className="transition hover:bg-white/90">
+              {row.getVisibleCells().map((cell) => (
+                <th
+                  key={cell.id}
+                  className="px-4 py-3.5 text-left font-normal align-middle"
+                >
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// Drill Down Modal containing searchable/sortable TanStack Table
+function DrillDownModal({
+  title,
+  jobs,
+  onClose,
+}: {
+  title: string;
+  jobs: any[];
+  onClose: () => void;
+}) {
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [sorting, setSorting] = useState<any[]>([]);
+
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: "title",
+        header: ({ column }: any) => (
+          <button
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="flex items-center gap-1 hover:text-slate-800 transition font-bold"
+          >
+            Position
+            <ArrowUpDown className="h-3.5 w-3.5" />
+          </button>
+        ),
+        cell: (info: any) => {
+          const row = info.row.original;
+          return (
+            <div>
+              <div className="font-semibold text-slate-900 leading-snug">{row.title}</div>
+              <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
+                <Building2 className="h-3 w-3" />
+                <span>{row.company}</span>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "matchScore",
+        header: ({ column }: any) => (
+          <button
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="flex items-center gap-1 hover:text-slate-800 transition font-bold"
+          >
+            Score
+            <ArrowUpDown className="h-3.5 w-3.5" />
+          </button>
+        ),
+        cell: (info: any) => {
+          const score = info.getValue();
+          if (score === null || score === undefined) return <span className="text-slate-400 font-medium">—</span>;
+          const color =
+            score >= 80
+              ? "text-emerald-700 bg-emerald-50 border-emerald-100"
+              : score >= 60
+                ? "text-amber-700 bg-amber-50 border-amber-100"
+                : "text-red-700 bg-red-50 border-red-100";
+          return (
+            <span
+              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold border ${color}`}
+            >
+              {score}%
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: "workplaceType",
+        header: "Workplace",
+        cell: (info: any) => {
+          let type = info.getValue() || "Remote";
+          if (type.toLowerCase() === "fully_remote") type = "Remote";
+          if (type.toLowerCase() === "on_site") type = "On-site";
+          const norm = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+          return <span className="text-xs text-slate-600 font-semibold">{norm}</span>;
+        },
+      },
+      {
+        accessorKey: "sourceName",
+        header: "Source",
+        cell: (info: any) => (
+          <span className="text-xs font-semibold text-slate-500 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded">
+            {info.getValue()}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: (info: any) => {
+          const val = info.getValue();
+          return (
+            <span className="inline-flex items-center rounded-full bg-indigo-50 border border-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
+              {val}
+            </span>
+          );
+        },
+      },
+      {
+        id: "actions",
+        header: "",
+        cell: (info: any) => {
+          const row = info.row.original;
+          return (
+            <div className="flex items-center gap-1.5 justify-end">
+              <Link
+                to="/jobs"
+                search={{ query: row.title, status: row.status }}
+                onClick={onClose}
+                className="inline-flex h-7 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-2.5 text-xs font-bold text-slate-700 transition"
+              >
+                Track
+              </Link>
+              <a
+                href={row.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition shadow-sm"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
+          );
+        },
+      },
+    ],
+    [onClose]
+  );
+
+  const table = useReactTable({
+    data: jobs,
+    columns,
+    state: {
+      globalFilter,
+      sorting,
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+      <div className="relative w-full max-w-4xl max-h-[85vh] rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-100 flex flex-col">
+        {/* Header */}
+        <div className="sticky top-0 border-b border-slate-200/80 bg-slate-50 px-6 py-4 flex items-center justify-between z-10">
+          <div>
+            <h2 className="text-base font-bold text-slate-900 leading-none">{title}</h2>
+            <p className="text-xs text-slate-500 mt-1">Detailed list of jobs matching this category</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-slate-200 rounded-lg text-slate-400 hover:text-slate-600 transition"
+            aria-label="Close modal"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Search controls */}
+        <div className="px-6 py-3 border-b border-slate-100 bg-white flex items-center gap-2">
+          <Search className="h-4 w-4 text-slate-400 shrink-0" />
+          <input
+            type="text"
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            placeholder="Search matching positions or companies..."
+            className="w-full border-0 p-0 text-sm focus:outline-none focus:ring-0 placeholder:text-slate-400 text-slate-800"
+          />
+        </div>
+
+        {/* Content */}
+        <div className="overflow-y-auto flex-1 min-h-0">
+          <div className="p-6">
+            <div className="overflow-x-auto rounded-xl border border-slate-200/80">
+              <table className="w-full border-collapse">
+                <thead>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <tr key={headerGroup.id} className="border-b border-slate-250 bg-slate-50/80">
+                      {headerGroup.headers.map((header) => (
+                        <th
+                          key={header.id}
+                          className="px-4 py-2.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500"
+                        >
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(header.column.columnDef.header, header.getContext())}
+                        </th>
+                      ))}
+                    </tr>
+                  ))}
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {table.getRowModel().rows.map((row) => (
+                    <tr key={row.id} className="hover:bg-slate-50 transition">
+                      {row.getVisibleCells().map((cell) => (
+                        <td key={cell.id} className="px-4 py-3 text-sm text-slate-800 font-medium">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                  {table.getRowModel().rows.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="text-center py-8 text-xs text-slate-400 font-semibold">
+                        No matching jobs found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            {table.getPageCount() > 1 && (
+              <div className="flex items-center justify-between gap-4 mt-4">
+                <span className="text-xs text-slate-500 font-semibold">
+                  Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+                </span>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
+                    className="p-1.5 border border-slate-200 bg-white rounded-lg text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
+                    className="p-1.5 border border-slate-200 bg-white rounded-lg text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition"
+                  >
+                    <ChevronRightIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="border-t border-slate-200 bg-slate-50 px-6 py-3.5 text-xs text-slate-500 text-center font-semibold">
+          Showing {table.getFilteredRowModel().rows.length} of {jobs.length} items
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Loading Skeleton Screen
 function DashboardLoading() {
   return (
     <div className="spx-page space-y-6 animate-pulse">
-      <div className="h-44 rounded-2xl bg-muted" />
+      <div className="h-44 rounded-2xl bg-slate-200/70" />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-40 rounded-2xl bg-muted" />
+          <div key={i} className="h-28 rounded-2xl bg-slate-200/70" />
         ))}
       </div>
       <div className="grid gap-6 xl:grid-cols-2">
-        <div className="h-96 rounded-2xl bg-muted" />
-        <div className="h-96 rounded-2xl bg-muted" />
+        <div className="h-80 rounded-2xl bg-slate-200/70" />
+        <div className="h-80 rounded-2xl bg-slate-200/70" />
       </div>
     </div>
   );

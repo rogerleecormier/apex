@@ -551,7 +551,7 @@ function JobsHome() {
             {
               icon: <BarChart3 className="h-5 w-5 text-slate-600" />,
               bg: "bg-slate-50 border-slate-100",
-              title: "Analysis History",
+              title: "Analysis Repository",
               body: "Every job you analyze is saved with its full report, documents, and applied status. Review, regenerate, or download at any time.",
             },
             {
@@ -620,7 +620,7 @@ function JobsHome() {
                 body: "Generate a custom tailored ATS resume and cover letter with one click from any job card, then download the PDFs and submit your application.",
                 to: "/jobs",
                 search: { analyzedOnly: true },
-                cta: "View History",
+                cta: "View Pipeline",
               },
             ].map((s) => (
               <div key={s.step} className="relative flex gap-5 sm:pl-14">

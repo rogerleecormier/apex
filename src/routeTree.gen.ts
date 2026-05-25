@@ -17,7 +17,6 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as LinkedinSearchRouteImport } from './routes/linkedin-search'
 import { Route as LinkedinJobsRouteImport } from './routes/linkedin-jobs'
 import { Route as JobsRouteImport } from './routes/jobs'
-import { Route as HistoryRouteImport } from './routes/history'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AdminSetupRouteImport } from './routes/admin-setup'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -81,11 +80,6 @@ const LinkedinJobsRoute = LinkedinJobsRouteImport.update({
 const JobsRoute = JobsRouteImport.update({
   id: '/jobs',
   path: '/jobs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HistoryRoute = HistoryRouteImport.update({
-  id: '/history',
-  path: '/history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -215,7 +209,6 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/admin-setup': typeof AdminSetupRoute
   '/dashboard': typeof DashboardRoute
-  '/history': typeof HistoryRoute
   '/jobs': typeof JobsRoute
   '/linkedin-jobs': typeof LinkedinJobsRoute
   '/linkedin-search': typeof LinkedinSearchRoute
@@ -250,7 +243,6 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/admin-setup': typeof AdminSetupRoute
   '/dashboard': typeof DashboardRoute
-  '/history': typeof HistoryRoute
   '/jobs': typeof JobsRoute
   '/linkedin-jobs': typeof LinkedinJobsRoute
   '/linkedin-search': typeof LinkedinSearchRoute
@@ -286,7 +278,6 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/admin-setup': typeof AdminSetupRoute
   '/dashboard': typeof DashboardRoute
-  '/history': typeof HistoryRoute
   '/jobs': typeof JobsRoute
   '/linkedin-jobs': typeof LinkedinJobsRoute
   '/linkedin-search': typeof LinkedinSearchRoute
@@ -323,7 +314,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-setup'
     | '/dashboard'
-    | '/history'
     | '/jobs'
     | '/linkedin-jobs'
     | '/linkedin-search'
@@ -358,7 +348,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-setup'
     | '/dashboard'
-    | '/history'
     | '/jobs'
     | '/linkedin-jobs'
     | '/linkedin-search'
@@ -393,7 +382,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-setup'
     | '/dashboard'
-    | '/history'
     | '/jobs'
     | '/linkedin-jobs'
     | '/linkedin-search'
@@ -429,7 +417,6 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AdminSetupRoute: typeof AdminSetupRoute
   DashboardRoute: typeof DashboardRoute
-  HistoryRoute: typeof HistoryRoute
   JobsRoute: typeof JobsRoute
   LinkedinJobsRoute: typeof LinkedinJobsRoute
   LinkedinSearchRoute: typeof LinkedinSearchRoute
@@ -515,13 +502,6 @@ declare module '@tanstack/react-router' {
       path: '/jobs'
       fullPath: '/jobs'
       preLoaderRoute: typeof JobsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/history': {
-      id: '/history'
-      path: '/history'
-      fullPath: '/history'
-      preLoaderRoute: typeof HistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -712,7 +692,6 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AdminSetupRoute: AdminSetupRoute,
   DashboardRoute: DashboardRoute,
-  HistoryRoute: HistoryRoute,
   JobsRoute: JobsRoute,
   LinkedinJobsRoute: LinkedinJobsRoute,
   LinkedinSearchRoute: LinkedinSearchRoute,

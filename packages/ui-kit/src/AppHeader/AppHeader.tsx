@@ -5,15 +5,11 @@ import {
   Briefcase,
   ChevronDown,
   FileText,
-  History,
-  Home,
   Layers,
   LogIn,
   LogOut,
-  Search,
   Shield,
   User,
-  Wrench,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -331,8 +327,6 @@ export function AppHeader({
   user,
   onLogout,
 }: AppHeaderProps) {
-  const isOnTools = app === "tools";
-  const isOnJobs = app === "jobs";
   const sharedOrigin =
     typeof window === "undefined"
       ? getSharedAuthOrigin()
@@ -369,22 +363,9 @@ export function AppHeader({
   const jobsEntries: MenuEntry[] = [
     {
       type: "link",
-      key: "jobs-home",
-      label: "Jobs Home",
-      sublabel: "Overview & getting started",
-      href: "https://caliber.rcormier.dev",
-      path: "/",
-      icon: Home,
-      tone: "neutral",
-      appScope: "jobs",
-    },
-    { type: "separator", key: "jobs-separator-1" },
-    { type: "heading", key: "jobs-heading-1", label: "Job Tools" },
-    {
-      type: "link",
       key: "job-pipeline",
-      label: "Job Pipeline",
-      sublabel: "Agent searches & job tracking",
+      label: "Jobs",
+      sublabel: "Agent searches & tracking",
       href: "https://caliber.rcormier.dev/jobs",
       path: "/jobs",
       icon: Briefcase,
@@ -393,19 +374,8 @@ export function AppHeader({
     },
     {
       type: "link",
-      key: "analyze-job",
-      label: "Analyze Job",
-      sublabel: "Match scoring & resume strategy",
-      href: "https://caliber.rcormier.dev/analyze",
-      path: "/analyze",
-      icon: Search,
-      tone: "indigo",
-      appScope: "jobs",
-    },
-    {
-      type: "link",
       key: "dashboard",
-      label: "Search Insights",
+      label: "Insights",
       sublabel: "Match trends & activity",
       href: "https://caliber.rcormier.dev/dashboard",
       path: "/dashboard",
@@ -544,14 +514,36 @@ export function AppHeader({
   return (
     <>
       <Header logo={logo}>
-        <div className="hidden md:block">
-          <SharedDropdownMenu
-            label="Jobs"
-            icon={Briefcase}
-            active={isOnJobs}
-            panelClass={styles.menuPanelJobs}
-            entries={renderMenuEntries(jobsEntries)}
-          />
+        <div className="hidden md:flex items-center gap-1">
+          {jobsEntries.map((entry) => {
+            if (entry.type !== "link") return null;
+            const Icon = entry.icon;
+            const active =
+              entry.appScope === "jobs" &&
+              typeof entry.path === "string" &&
+              isActivePath(currentPath, entry.path);
+            const itemClass = [
+              "spx-nav-trigger",
+              active ? "spx-nav-trigger-active" : "spx-nav-trigger-idle",
+            ].join(" ");
+            const canUseLink = Boolean(Link && entry.appScope === "jobs" && entry.path);
+
+            return (
+              <div key={entry.key}>
+                {canUseLink ? (
+                  <Link to={entry.path} className={itemClass}>
+                    <Icon size={14} />
+                    {entry.label}
+                  </Link>
+                ) : (
+                  <a href={entry.href} className={itemClass}>
+                    <Icon size={14} />
+                    {entry.label}
+                  </a>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {isDev ? (
@@ -569,7 +561,6 @@ export function AppHeader({
             <DropdownMenuTrigger asChild>
               <button className={`spx-nav-trigger spx-nav-trigger-idle ${styles.triggerUserMenu}`}>
                 <User size={14} className="shrink-0" />
-                <span className="truncate text-sm">{resolvedUser.email}</span>
                 <ChevronDown size={12} className="shrink-0 opacity-50" />
               </button>
             </DropdownMenuTrigger>
@@ -592,8 +583,8 @@ export function AppHeader({
       </Header>
 
       {app === "jobs" && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200/80 bg-white/88 backdrop-blur-xl px-4 pb-[calc(env(safe-area-inset-bottom,16px)+12px)] pt-3 md:hidden shadow-[0_-4px_24px_rgba(15,23,42,0.06)]">
-          <div className="mx-auto flex max-w-md items-center justify-around">
+        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200/80 bg-white/88 backdrop-blur-xl px-3 pb-[calc(env(safe-area-inset-bottom,16px)+12px)] pt-2 md:hidden shadow-[0_-4px_24px_rgba(15,23,42,0.06)]">
+          <div className="mx-auto flex max-w-md items-center justify-between gap-2">
             {mobileNavLinks.map((item) => {
               const Icon = item.icon;
               const active =
@@ -603,22 +594,15 @@ export function AppHeader({
 
               const linkContent = (
                 <div
-                  className={`flex flex-col items-center text-center gap-1 py-1 w-full transition-all duration-300 ${
-                    active ? "text-primary-600 scale-105" : "text-slate-500 active:scale-95"
+                  className={`flex flex-col items-center text-center gap-0.5 py-2 px-3 w-full transition-all duration-300 rounded-lg ${
+                    active
+                      ? "text-primary-600 bg-primary-50"
+                      : "text-slate-500 active:bg-slate-100/50"
                   }`}
                 >
-                  <div
-                    className={`flex items-center justify-center relative p-1.5 rounded-xl transition-all duration-300 ${
-                      active ? "bg-primary-50 text-primary-600" : "active:bg-slate-100/50"
-                    }`}
-                  >
-                    <Icon size={20} className={active ? "scale-110" : ""} />
-                    {active && (
-                      <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary-600 animate-pulse" />
-                    )}
-                  </div>
+                  <Icon size={20} className={active ? "scale-110" : ""} />
                   <span
-                    className={`text-[10px] font-semibold tracking-wide text-center leading-tight transition-colors duration-300 break-words w-full ${
+                    className={`text-[11px] font-semibold tracking-tight transition-colors duration-300 ${
                       active ? "text-primary-700" : "text-slate-500"
                     }`}
                   >
@@ -650,6 +634,35 @@ export function AppHeader({
                 </a>
               );
             })}
+            <div className="flex-1 flex justify-center">
+              {resolvedUser ? (
+                <DropdownMenu modal={false}>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex flex-col items-center text-center gap-0.5 py-2 px-3 w-full rounded-lg text-slate-500 active:bg-slate-100/50 outline-none select-none">
+                      <User size={20} />
+                      <span className="text-[11px] font-semibold tracking-tight text-slate-500">
+                        Profile
+                      </span>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    sideOffset={8}
+                    className={`spx-menu-panel ${styles.menuPanelUser}`}
+                  >
+                    {renderMenuEntries(userEntries)}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <a
+                  href={loginHref}
+                  className="flex flex-col items-center text-center gap-0.5 py-2 px-3 w-full rounded-lg text-slate-500 active:bg-slate-100/50 outline-none select-none"
+                >
+                  <LogIn size={20} />
+                  <span className="text-[11px] font-semibold tracking-tight">Sign In</span>
+                </a>
+              )}
+            </div>
           </div>
         </div>
       )}
