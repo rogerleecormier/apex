@@ -536,10 +536,8 @@ export function AppHeader({
     </a>
   );
 
-  const label = "Agent";
-
   return (
-    <Header logo={logo} label={label}>
+    <Header logo={logo}>
       <SharedDropdownMenu
         label="Jobs"
         icon={Briefcase}

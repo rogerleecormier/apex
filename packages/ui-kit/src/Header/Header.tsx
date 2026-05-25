@@ -3,7 +3,7 @@ import styles from "./Header.module.css";
 
 interface HeaderProps {
   logo: ReactNode;
-  label: string;
+  label?: string;
   children?: ReactNode;
 }
 
