@@ -141,7 +141,9 @@ export function JobResultCard({
     try {
       await triggerDownload(r2Key, fileName);
     } catch (e) {
+      const message = e instanceof Error ? e.message : "Failed to download document";
       console.error("Failed to download document:", e);
+      alert(`Download failed: ${message}`);
     } finally {
       setDownloadingKey(null);
     }

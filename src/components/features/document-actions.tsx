@@ -56,10 +56,18 @@ export function DocumentActions({ analysisId, applied = false, onDocumentGenerat
   // ── Download (fire-and-forget, no cache needed) ───────────────────
   const resumeDownloadMutation = useMutation({
     mutationFn: (doc: DocResult) => triggerDownload(doc.r2Key, doc.fileName ?? "resume.pdf"),
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Failed to download resume";
+      console.error("Resume download failed:", error);
+    },
   });
 
   const coverDownloadMutation = useMutation({
     mutationFn: (doc: DocResult) => triggerDownload(doc.r2Key, doc.fileName ?? "cover-letter.pdf"),
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Failed to download cover letter";
+      console.error("Cover letter download failed:", error);
+    },
   });
 
   const busy = resumeMutation.isPending || coverMutation.isPending;
