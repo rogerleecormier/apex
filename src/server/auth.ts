@@ -33,6 +33,10 @@ export function getAuthInstance(env: Partial<CloudflareEnv> & Record<string, any
     trustedOrigins: [
       "https://caliber.rcormier.dev",
       "https://caliber.rcormier.workers.dev",
+      "http://localhost:3003",
+      "http://localhost:5173",
+      "http://127.0.0.1:3003",
+      "http://127.0.0.1:5173",
     ],
     emailAndPassword: {
       enabled: true,

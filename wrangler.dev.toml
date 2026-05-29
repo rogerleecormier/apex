@@ -2,6 +2,9 @@ name = "caliber"
 compatibility_date = "2025-11-30"
 compatibility_flags = ["nodejs_compat"]
 
+[vars]
+BETTER_AUTH_URL = "http://localhost:3003"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "caliber-db"
