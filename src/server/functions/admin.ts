@@ -1,12 +1,22 @@
 'use server';
 import { createServerFn } from "@tanstack/react-start";
-import { eq } from "drizzle-orm";
-import bcrypt from "bcryptjs";
-import crypto from "crypto";
+import { eq, inArray } from "drizzle-orm";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { getDb } from "@/db/db";
 import { resolveSessionUser } from "@/lib/resolve-user";
-import { users, masterResume, jobAnalyses, analyticsSummary, linkedinJobResults, linkedinSavedSearches } from "@/db/schema";
+import { getAuthInstance } from "@/server/auth";
+import {
+  users,
+  user as userTable,
+  masterResume,
+  jobAnalyses,
+  analyticsSummary,
+  linkedinJobResults,
+  linkedinSavedSearches,
+  generatedDocuments,
+  pipelineJobs,
+  searchLogs,
+} from "@/db/schema";
 
 async function requireAdmin() {
   const user = await resolveSessionUser();
@@ -28,15 +38,18 @@ export const createUser = createServerFn({ method: "POST" })
     await requireAdmin();
     const env = getCloudflareEnv();
     if (!env.DB) throw new Error("Database unavailable");
-    const db = getDb(env.DB);
-    const hash = await bcrypt.hash(data.password, 10);
-    await db.insert(users).values({
-      id: crypto.randomUUID(),
-      email: data.email.trim().toLowerCase(),
-      passwordHash: hash,
-      role: data.role ?? "user",
-      createdAt: Math.floor(Date.now() / 1000),
+    const auth = getAuthInstance(env);
+
+    // Call better-auth programmatic API to create the user and credential
+    await auth.api.createUser({
+      body: {
+        email: data.email.trim().toLowerCase(),
+        password: data.password,
+        name: data.email.split("@")[0],
+        role: data.role ?? "user",
+      },
     });
+
     return { success: true };
   });
 
@@ -50,12 +63,39 @@ export const deleteUser = createServerFn({ method: "POST" })
     if (!env.DB) throw new Error("Database unavailable");
     const db = getDb(env.DB);
 
+    // 1. Gather job analyses and pipeline jobs to clean up generated documents
+    const userAnalyses = await db
+      .select({ id: jobAnalyses.id })
+      .from(jobAnalyses)
+      .where(eq(jobAnalyses.userId, data.userId));
+    const analysisIds = userAnalyses.map((a) => a.id);
+
+    const userPipelineJobs = await db
+      .select({ id: pipelineJobs.id })
+      .from(pipelineJobs)
+      .where(eq(pipelineJobs.userId, data.userId));
+    const pipelineJobIds = userPipelineJobs.map((pj) => pj.id);
+
+    // 2. Delete generated documents first (child of job_analyses and pipeline_jobs)
+    if (analysisIds.length > 0) {
+      await db.delete(generatedDocuments).where(inArray(generatedDocuments.jobAnalysisId, analysisIds));
+    }
+    if (pipelineJobIds.length > 0) {
+      await db.delete(generatedDocuments).where(inArray(generatedDocuments.pipelineJobId, pipelineJobIds));
+    }
+
+    // 3. Delete other child tables referencing users or saved searches
+    await db.delete(pipelineJobs).where(eq(pipelineJobs.userId, data.userId));
+    await db.delete(searchLogs).where(eq(searchLogs.userId, data.userId));
     await db.delete(masterResume).where(eq(masterResume.userId, data.userId));
     await db.delete(jobAnalyses).where(eq(jobAnalyses.userId, data.userId));
     await db.delete(analyticsSummary).where(eq(analyticsSummary.userId, data.userId));
     await db.delete(linkedinJobResults).where(eq(linkedinJobResults.userId, data.userId));
     await db.delete(linkedinSavedSearches).where(eq(linkedinSavedSearches.userId, data.userId));
+
+    // 4. Delete the user records themselves
     await db.delete(users).where(eq(users.id, data.userId));
+    await db.delete(userTable).where(eq(userTable.id, data.userId));
 
     return { success: true };
   });
